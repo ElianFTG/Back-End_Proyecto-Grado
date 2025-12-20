@@ -1,6 +1,9 @@
 import { User } from "../../domain/user/User";
 import { UserRepository } from "../../domain/user/UserRepository";
 import bcrypt from "bcryptjs";
+import { config } from 'dotenv';
+
+config();
 
 
 export class CreateUser {
@@ -17,7 +20,7 @@ export class CreateUser {
         userId: number,
         
     ) : Promise<User | null> {
-        const passwordHashed = await bcrypt.hash(password, 7);
+        const passwordHashed = await bcrypt.hash(password, Number(process.env.SALT));
         return this.repository.create(
             new User(
                 ci,
