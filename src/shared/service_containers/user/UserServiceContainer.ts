@@ -1,4 +1,5 @@
 import { CreateUser } from "../../../application/user/CreateUser";
+import { FindByCiUser } from "../../../application/user/FindByCiUser";
 import { FindByIdUser } from "../../../application/user/FindByIdUser";
 import { GetUsers } from "../../../application/user/GetUsers";
 import { UpdateStateUser } from "../../../application/user/UpdateStateUser";
@@ -13,6 +14,7 @@ export const UserServiceContainer = {
         getUsers : new GetUsers(UserRepository),
         create: new CreateUser(UserRepository),
         findById: new FindByIdUser(UserRepository),
+        findByCi: new FindByCiUser(UserRepository),
         update: new UpdateUser(UserRepository),
         updateState: new UpdateStateUser(UserRepository)
     }
