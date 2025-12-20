@@ -47,4 +47,46 @@ export class UserController {
         return res.json(updatedUser).status(200)
     }
 
+    async updateState(req: Request, res: Response){
+        const id = Number(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+        const userId = Number(req.body.user_id);
+        await UserServiceContainer.user.updateState.run(id, userId);
+        return res.json().status(204)
+    }
+
+    async findByCi(req: Request, res: Response){
+        const ci = req.params.ci;
+        if (!ci) {
+            return res.status(400).json({ message: 'CI inválido' });
+        }
+        try {
+            const user = await UserServiceContainer.user.findByCi.run(ci);
+            return res.status(200).json(user);
+        } catch (error) {
+            return res.json().status(404);
+        }
+    }
+
+    async findById(req: Request, res: Response){
+        const id = Number(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+        try {
+            const user = await UserServiceContainer.user.findById.run(id);
+            return res.json(user).status(200);
+        } catch (error) {
+            return res.json().status(404);
+        }
+    }
+
+
+
+    
+
+
+
 }
