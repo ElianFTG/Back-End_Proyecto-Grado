@@ -4,7 +4,6 @@ import { UserNotFound } from "../../domain/errors/user/UserNotFound";
 import { Repository, Raw, QueryDeepPartialEntity, Unique } from 'typeorm';
 import { UserEntity } from "../persistence/typeorm/entities";
 import { AppDataSource } from "../db/Mysql"
-import bcrypt from "bcryptjs";
 import { error } from "console";
 
 export class MysqlUserRepository implements UserRepository {
@@ -30,7 +29,6 @@ export class MysqlUserRepository implements UserRepository {
 
 
     async create(user: User, password: string, userId: number): Promise<User | null> {
-        const passwordHashed = await bcrypt.hash(password, 7);
         try {
             const row = await this.repo.save(
                 {
@@ -73,7 +71,7 @@ export class MysqlUserRepository implements UserRepository {
 
             if (!row) return null;
 
-            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id)
+            return  new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id)
         } catch (error) {
             return null
         }
