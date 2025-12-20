@@ -1,5 +1,6 @@
 import { UserRepository } from "../../domain/user/UserRepository";
 import { User } from "../../domain/user/User";
+import { UserAuthRecord } from "../../domain/user/UserAuthRecord";
 import { UserNotFound } from "../../domain/errors/user/UserNotFound";
 import { Repository, Raw, QueryDeepPartialEntity, Unique } from 'typeorm';
 import { UserEntity } from "../persistence/typeorm/entities";
@@ -107,6 +108,24 @@ export class MysqlUserRepository implements UserRepository {
         } catch (error) {
             throw error;
         }
+    }
+
+    async findByUserName(userName: string): Promise<UserAuthRecord | null> {
+        try {
+            const row = await this.repo.findOne({
+                where: {user_name : userName, state: true},
+            })
+            if (!row) return null;
+            const foundUser = new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id)
+            const passwordHash = row.password;
+            const state = row.state;
+            
+            return {user: foundUser, passwordHash, state};
+        } catch (error) {
+            return null;
+        }
+         
+        
     }
 
 }

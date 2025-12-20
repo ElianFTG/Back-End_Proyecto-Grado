@@ -3,7 +3,7 @@ import cors from 'cors';
 import fileUpload from "express-fileupload";
 import AppDataSource from "./infrastructure/db/Mysql";
 import { UserRouter } from "./infrastructure/Express/user/UserRoutes";
-
+import { AuthRouter } from "./infrastructure/Express/auth/AuthRoutes";
 
 const app = express();
 app.use(cors());
@@ -23,7 +23,7 @@ app.use(fileUpload({
 }));
 
 app.use(UserRouter);
-
+app.use(AuthRouter);
 
 
 app.use((req, res, next) => {
