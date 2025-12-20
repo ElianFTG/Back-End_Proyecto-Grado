@@ -41,7 +41,7 @@ export class MysqlUserRepository implements UserRepository {
                 role: user.role,
                 branch_id: user.branchId,
                 user_name: user.userName,
-                password: passwordHashed,
+                password: password,
                 user_id: userId,
             });
             return new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id);    

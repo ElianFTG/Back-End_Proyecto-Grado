@@ -1,10 +1,10 @@
 import { User } from "../../domain/user/User";
 import { UserRepository } from "../../domain/user/UserRepository";
+import bcrypt from "bcryptjs";
 
 
 export class CreateUser {
     constructor(private repository: UserRepository) {}
-
     async run(
         ci: string,
         names: string,
@@ -17,6 +17,7 @@ export class CreateUser {
         userId: number,
         
     ) : Promise<User | null> {
+        const passwordHashed = await bcrypt.hash(password, 7);
         return this.repository.create(
             new User(
                 ci,
@@ -27,7 +28,7 @@ export class CreateUser {
                 branchId,
                 userName
             ),
-            password,
+            passwordHashed,
             userId
         );
     }
