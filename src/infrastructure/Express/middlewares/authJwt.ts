@@ -1,21 +1,35 @@
+// src/infrastructure/Express/middlewares/authJwt.ts
 import { Request, Response, NextFunction } from "express";
-import { JwtAuthService } from "../../services/JwtAuthService";
+import { AuthService } from "../../../domain/auth/AuthService";
 
-const jwtService = new JwtAuthService();
-
-export function authJwt(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Token requerido" });
-  }
-
-  const token = header.slice("Bearer ".length);
-
-  try {
-    const payload = jwtService.verify(token);
-    (req as any).auth = payload; // { sub, userName, role, iat, exp }
-    return next();
-  } catch {
-    return res.status(401).json({ message: "Token inválido o expirado" });
-  }
+declare global {
+    namespace Express {
+        interface Request {
+            auth?: {
+                userId?: number;
+                role?: string;
+            };
+        }
+    }
 }
+
+export const authJwt = (authService: AuthService) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        try {
+            
+        const header = req.headers.authorization;
+        if (!header?.startsWith("Bearer ")) {
+            return res.status(401).json({ message: "Token requerido" });
+        }
+        const token = header.substring("Bearer ".length);
+        const payload = authService.verify(token);
+        req.auth = {
+            userId: payload?.userId,
+            role: payload?.role,
+        };
+        return next();
+        } catch (err) {
+            return res.status(401).json({ message: "Token inválido o expirado" });
+        }
+    };
+};

@@ -10,9 +10,8 @@ export class Login {
 
   async run(userName: string, password: string)  {
     const user = await this.userRepository.findByUserName(userName);
-
     if (!user) return null;
-    if (!user.state) return null; // usuario desactivado
+    if (!user.state) return null;
 
     const validPassword = await bcrypt.compare(
       password,
@@ -21,11 +20,13 @@ export class Login {
 
     if (!validPassword) return null;
 
-    const UsertypesProtect = Object(user.user) 
-    const token = this.authService.sign({UsertypesProtect});
+    const id = user.user.id;
+    const role = user.user.role;
+    const token = this.authService.sign({id, role});
+    
     return {
       token,
-      user: UsertypesProtect,
+      user: user.user,
     };
   }
 }
