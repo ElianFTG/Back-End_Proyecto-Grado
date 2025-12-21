@@ -3,7 +3,7 @@ import { User } from "../../domain/user/User";
 import { UserAuthRecord } from "../../domain/user/UserAuthRecord";
 import { UserNotFound } from "../../domain/errors/user/UserNotFound";
 import { Repository, Raw, QueryDeepPartialEntity, Unique } from 'typeorm';
-import { UserEntity } from "../persistence/typeorm/entities";
+import { UserEntity } from "../persistence/typeorm/entities/UserEntity";
 import { AppDataSource } from "../db/Mysql"
 import { error } from "console";
 
