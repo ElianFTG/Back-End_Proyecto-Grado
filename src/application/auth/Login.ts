@@ -17,11 +17,12 @@ export class Login {
       user.passwordHash
     );
     if (!validPassword) return null;
-    const UsertypesProtect = Object(user.user) 
-    const token = this.authService.sign({UsertypesProtect});
+    const id = user.user.id;
+    const role = user.user.role;
+    const token = this.authService.sign({id, role});
     return {
       token,
-      user: UsertypesProtect,
+      user: user.user,
     };
   }
 }
