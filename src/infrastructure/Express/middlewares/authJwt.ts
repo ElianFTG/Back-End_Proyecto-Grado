@@ -32,5 +32,4 @@ export const authJwt = (authService: AuthService) => {
             return res.status(401).json({ message: "Token inválido o expirado" });
         }
     };
-    //asdasd
 };
