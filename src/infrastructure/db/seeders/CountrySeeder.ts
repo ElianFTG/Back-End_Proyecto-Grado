@@ -11,7 +11,7 @@ const LATIN_AMERICA_COUNTRIES = [
     'Ecuador',
     'Venezuela',
     'Uruguay',
-    'Paraguay'
+    'Paraguay',
 ];
 
 export async function seedCountries(): Promise<void> {
