@@ -123,9 +123,7 @@ export class MysqlUserRepository implements UserRepository {
             return {user: foundUser, passwordHash, state};
         } catch (error) {
             return null;
-        }
-         
-        
+        }  
     }
 
 }
