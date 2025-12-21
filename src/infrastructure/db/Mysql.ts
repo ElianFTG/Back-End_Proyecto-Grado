@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { UserEntity } from '../persistence/typeorm/entities/UserEntity';
-// import { CategoryEntity } from '../persistence/typeorm/entities/CategoryEntity';
+import { CountryEntity } from '../persistence/typeorm/entities/CountryEntity';
+import { CategoryEntity } from '../persistence/typeorm/entities/CategoryEntity';
+import { SupplierEntity } from '../persistence/typeorm/entities/SupplierEntity';
 // import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
-// import { SupplierEntity } from '../persistence/typeorm/entities/SupplierEntity';
 // import { ProductSupplierEntity } from '../persistence/typeorm/entities/ProductSupplierEntity';
 import { config } from 'dotenv';
 
@@ -19,9 +20,10 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || '',
   entities: [
     UserEntity,
-    // CategoryEntity,
+    CountryEntity,
+    CategoryEntity,
+    SupplierEntity,
     // ProductEntity,
-    // SupplierEntity,
     // ProductSupplierEntity
   ],
   synchronize: true,
