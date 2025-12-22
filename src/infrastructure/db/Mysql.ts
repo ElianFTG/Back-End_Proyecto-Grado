@@ -4,6 +4,7 @@ import { UserEntity } from '../persistence/typeorm/entities/UserEntity';
 import { CountryEntity } from '../persistence/typeorm/entities/CountryEntity';
 import { CategoryEntity } from '../persistence/typeorm/entities/CategoryEntity';
 import { SupplierEntity } from '../persistence/typeorm/entities/SupplierEntity';
+import { BranchEntity } from '../persistence/typeorm/entities/BranchEntity';
 // import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
 // import { ProductSupplierEntity } from '../persistence/typeorm/entities/ProductSupplierEntity';
 import { config } from 'dotenv';
@@ -23,6 +24,7 @@ export const AppDataSource = new DataSource({
     CountryEntity,
     CategoryEntity,
     SupplierEntity,
+    BranchEntity,
     // ProductEntity,
     // ProductSupplierEntity
   ],

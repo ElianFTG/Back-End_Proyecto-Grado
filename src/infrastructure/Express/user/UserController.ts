@@ -57,6 +57,28 @@ export class UserController {
         return res.json().status(204)
     }
 
+    async resetPassword(req: Request, res: Response){
+        const id = Number(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ message: 'ID inválido' });
+        const body = req.body ?? {};
+        const actorId = req.auth?.userId ?? body.user_id;
+        const success = await UserServiceContainer.user.resetPassword.run(id, actorId);
+        if (!success) return res.status(500).json({ message: 'No se pudo resetear la contraseña' });
+        return res.status(204).send();
+    }
+
+    async updatePassword(req: Request, res: Response){
+        const id = Number(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ message: 'ID inválido' });
+        const body = req.body ?? {};
+        const newPassword = body.password;
+        const actorId = req.auth?.userId ?? body.user_id;
+        if (!newPassword) return res.status(400).json({ message: 'Password requerido' });
+        const success = await UserServiceContainer.user.updatePassword.run(id, newPassword, actorId);
+        if (!success) return res.status(500).json({ message: 'No se pudo actualizar la contraseña' });
+        return res.status(204).send();
+    }
+
     async findByCi(req: Request, res: Response){
         const ci = req.params.ci;
         if (!ci) {

@@ -3,7 +3,7 @@ import { CountryEntity } from './CountryEntity';
 
 @Entity({ name: 'suppliers' })
 export class SupplierEntity {
-    @PrimaryGeneratedColumn({ type: 'int' })
+    @PrimaryGeneratedColumn({ type: 'smallint' })
     id!: number;
 
     @Column({ type: 'varchar', length: 50, unique: true })
@@ -15,12 +15,12 @@ export class SupplierEntity {
     @Column({ type: 'varchar', length: 50 })
     phone!: string;
 
-    @Column({ type: 'int', unsigned: true })
-    country_id!: number;
+    @Column({ type: 'smallint', nullable: true, unsigned: true })
+    country_id!: number | null;
 
-    @ManyToOne(() => CountryEntity, { eager: false })
+    @ManyToOne(() => CountryEntity, { eager: false, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'country_id' })
-    country!: CountryEntity;
+    country!: CountryEntity | null;
 
     @Column({ type: 'varchar', length: 255 })
     address!: string;
@@ -31,7 +31,7 @@ export class SupplierEntity {
     @Column({ type: 'boolean', default: true })
     state!: boolean;
 
-    @Column({ type: 'int', nullable: true, unsigned: true })
+    @Column({ type: 'smallint', nullable: true, unsigned: true })
     user_id!: number | null;
 
     @CreateDateColumn({ type: 'timestamp' })

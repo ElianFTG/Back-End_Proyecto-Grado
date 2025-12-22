@@ -1,0 +1,1 @@
+{"version":3,"file":"GetAllCategories.js","sourceRoot":"","sources":["../../../src/application/category/GetAllCategories.ts"],"names":[],"mappings":";;;AAGA,MAAa,gBAAgB;IACzB,YAAoB,UAA8B;QAA9B,eAAU,GAAV,UAAU,CAAoB;IAAG,CAAC;IAEtD,KAAK,CAAC,GAAG;QACL,OAAO,IAAI,CAAC,UAAU,CAAC,MAAM,EAAE,CAAC;IACpC,CAAC;CACJ;AAND,4CAMC"}

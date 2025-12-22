@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { BranchEntity } from './BranchEntity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -21,8 +22,12 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 50 })
   role!: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'smallint', unsigned: true })
   branch_id!: number | null;
+
+  @ManyToOne(() => BranchEntity, { eager: false })
+  @JoinColumn({ name: 'branch_id' })
+  branch?: BranchEntity;
 
   @Column({ type: 'varchar', length: 50, unique:true })
   user_name!: string;
@@ -33,7 +38,7 @@ export class UserEntity {
   @Column({ type: 'boolean', default: 1 })
   state!: boolean;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'smallint', nullable: true })
   user_id!: number | null;
 
   @CreateDateColumn({ type: 'timestamp' })
