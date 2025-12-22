@@ -110,6 +110,38 @@ export class MysqlUserRepository implements UserRepository {
         }
     }
 
+    async updatePassword(id: number, passwordHash: string, userId?: number): Promise<User | null> {
+        try {
+            const patch: QueryDeepPartialEntity<UserEntity> = {
+                password: passwordHash,
+                ...(userId !== undefined ? { user_id: userId } : {}),
+            };
+            await this.repo.update({ id }, patch);
+            const updated = await this.repo.findOneBy({ id });
+            if (!updated) return null;
+            return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.role, updated.branch_id, updated.user_name, updated.id);
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
+    async resetPassword(id: number, passwordHash: string, adminId?: number): Promise<User | null> {
+        try {
+            const patch: QueryDeepPartialEntity<UserEntity> = {
+                password: passwordHash,
+                ...(adminId !== undefined ? { user_id: adminId } : {}),
+            };
+            await this.repo.update({ id }, patch);
+            const updated = await this.repo.findOneBy({ id });
+            if (!updated) return null;
+            return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.role, updated.branch_id, updated.user_name, updated.id);
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
     async findByUserName(userName: string): Promise<UserAuthRecord | null> {
         try {
             const row = await this.repo.findOne({

@@ -7,5 +7,7 @@ export interface UserRepository {
     findByCi(ci: string): Promise<User | null>;
     update(id: number,user: Partial<User>, userId: number ): Promise<User | null>;
     updateState(id: number,userId: number): Promise<void>;
+    updatePassword(id: number, passwordHash: string, userId?: number): Promise<User | null>;
+    resetPassword(id: number, passwordHash: string, user_id?: number): Promise<User | null>;
     findByUserName(userName: string): Promise<UserAuthRecord | null>;
 }

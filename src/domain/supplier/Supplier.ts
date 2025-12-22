@@ -4,7 +4,7 @@ export class Supplier {
     nit: string;
     name: string;
     phone: string;
-    countryId: number;
+    countryId: number | null;
     address: string;
     contactName: string;
     state: boolean;
@@ -14,7 +14,7 @@ export class Supplier {
         nit: string,
         name: string,
         phone: string,
-        countryId: number,
+        countryId: number | null,
         address: string,
         contactName: string,
         state: boolean = true,

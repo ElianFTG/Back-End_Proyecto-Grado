@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 
 @Entity({ name: 'categories' })
 export class CategoryEntity {
-    @PrimaryGeneratedColumn({ type: 'int' })
+    @PrimaryGeneratedColumn({ type: 'smallint' })
     id!: number;
 
     @Column({ type: 'varchar', length: 100, unique: true })
@@ -14,7 +14,7 @@ export class CategoryEntity {
     @Column({ type: 'boolean', default: true })
     state!: boolean;
 
-    @Column({ type: 'int', unsigned: true })
+    @Column({ type: 'smallint', unsigned: true })
     user_id!: number;
 
     @CreateDateColumn({ type: 'timestamp' })

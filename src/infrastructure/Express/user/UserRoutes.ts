@@ -16,5 +16,7 @@ UserRouter.get("/users/:id", controller.findById);
 UserRouter.post("/users", controller.create);
 UserRouter.patch("/users/:id", controller.update);
 UserRouter.patch("/users/:id/state", controller.updateState);
+UserRouter.post('/users/:id/reset-password', controller.resetPassword);
+UserRouter.patch('/users/:id/password', controller.updatePassword);
 
 export {UserRouter};
