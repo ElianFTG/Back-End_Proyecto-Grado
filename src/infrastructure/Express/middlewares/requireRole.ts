@@ -6,7 +6,10 @@ export const requireRole = (...allowedRoles: string[]) => {
     const role = req.auth?.role;
     if (!role) return res.status(401).json({ message: "No autenticado" });
 
-    if (!allowedRoles.includes(role)) {
+    const normalizedRole = role.toLowerCase();
+    const allowed = allowedRoles.map(r => r.toLowerCase());
+
+    if (!allowed.includes(normalizedRole)) {
       return res.status(403).json({ message: "No autorizado" });
     }
 

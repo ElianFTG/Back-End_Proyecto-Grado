@@ -6,9 +6,14 @@ export class AuthController {
 
   async loginHandler(req: Request, res: Response) {
     try {
-      const { userName, password } = req.body;
+      const { userName, username, password } = req.body;
+      const loginName = userName ?? username;
 
-      const result = await this.login.run(userName, password);
+      if (!loginName || !password) {
+        return res.status(400).json({ message: "userName y password son requeridos" });
+      }
+
+      const result = await this.login.run(loginName, password);
 
       if (!result) {
         return res.status(401).json({ message: "Credenciales inválidas" });

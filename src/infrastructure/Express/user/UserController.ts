@@ -63,7 +63,9 @@ export class UserController {
         const body = req.body ?? {};
         const actorId = req.auth?.userId ?? body.user_id;
         const success = await UserServiceContainer.user.resetPassword.run(id, actorId);
-        if (!success) return res.status(500).json({ message: 'No se pudo resetear la contraseña' });
+        if (!success) {
+            return res.status(500).json({ message: 'No se pudo resetear la contraseña' });
+        }
         return res.status(204).send();
     }
 

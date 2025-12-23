@@ -9,6 +9,9 @@ export class Login {
   ) {}
 
   async run(userName: string, password: string)  {
+    if (!userName || !password) {
+      return null;
+    }
     const user = await this.userRepository.findByUserName(userName);
     if (!user) return null;
     if (!user.state) return null; 
@@ -19,7 +22,7 @@ export class Login {
     if (!validPassword) return null;
     const id = user.user.id;
     const role = user.user.role;
-    const token = this.authService.sign({id, role});
+    const token = this.authService.sign({ userId: id, role });
     return {
       token,
       user: user.user,
