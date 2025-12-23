@@ -7,6 +7,7 @@ import { SupplierEntity } from '../persistence/typeorm/entities/SupplierEntity';
 import { BranchEntity } from '../persistence/typeorm/entities/BranchEntity';
 // import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
 // import { ProductSupplierEntity } from '../persistence/typeorm/entities/ProductSupplierEntity';
+import { ClientEntity } from '../persistence/typeorm/entities/ClientEntity';
 import { config } from 'dotenv';
 
 config();
@@ -27,9 +28,11 @@ export const AppDataSource = new DataSource({
     BranchEntity,
     // ProductEntity,
     // ProductSupplierEntity
+    ClientEntity,
   ],
   synchronize: true,
   logging: false,
+  legacySpatialSupport: false,
 });
 
 

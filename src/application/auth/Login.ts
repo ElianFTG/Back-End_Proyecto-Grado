@@ -20,9 +20,9 @@ export class Login {
       user.passwordHash
     );
     if (!validPassword) return null;
-    const id = user.user.id;
+    const userId = user.user.id;
     const role = user.user.role;
-    const token = this.authService.sign({ userId: id, role });
+    const token = this.authService.sign({userId, role});
     return {
       token,
       user: user.user,
