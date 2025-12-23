@@ -2,6 +2,8 @@ import express from "express";
 import cors from 'cors';
 import fileUpload from "express-fileupload";
 import AppDataSource from "./infrastructure/db/Mysql";
+
+
 import { UserRouter } from "./infrastructure/Express/user/UserRoutes";
 import { AuthRouter } from "./infrastructure/Express/auth/AuthRoutes";
 import { CountryRouter } from "./infrastructure/Express/country/CountryRoutes";
@@ -26,10 +28,14 @@ AppDataSource.initialize()
     process.exit(1);
   });
 
-app.use(fileUpload({
-    useTempFiles : true,
-    tempFileDir : '/tmp/'
-}));
+app.use(
+  fileUpload({
+    limits: { fileSize: 8 * 1024 * 1024 }, 
+    abortOnLimit: true,
+    createParentPath: true,
+    useTempFiles: false, 
+  })
+);
 
 app.use(UserRouter);
 app.use(AuthRouter);
