@@ -23,6 +23,7 @@ export const authJwt = (authService: AuthService) => {
         }
         const token = header.substring("Bearer ".length);
         const payload = authService.verify(token);
+        console.log(payload);
         req.auth = {
             userId: payload?.userId,
             role: payload?.role,

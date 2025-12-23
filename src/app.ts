@@ -2,6 +2,8 @@ import express from "express";
 import cors from 'cors';
 import fileUpload from "express-fileupload";
 import AppDataSource from "./infrastructure/db/Mysql";
+
+
 import { UserRouter } from "./infrastructure/Express/user/UserRoutes";
 import { AuthRouter } from "./infrastructure/Express/auth/AuthRoutes";
 import { CountryRouter } from "./infrastructure/Express/country/CountryRoutes";
@@ -9,6 +11,7 @@ import { BranchRouter } from "./infrastructure/Express/branch/BranchRoutes";
 import { SupplierRouter } from "./infrastructure/Express/supplier/SupplierRoutes";
 import { CategoryRouter } from "./infrastructure/Express/category/CategoryRoutes";
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
+import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes"
 
 const app = express();
 app.use(cors());
@@ -25,10 +28,14 @@ AppDataSource.initialize()
     process.exit(1);
   });
 
-app.use(fileUpload({
-    useTempFiles : true,
-    tempFileDir : '/tmp/'
-}));
+app.use(
+  fileUpload({
+    limits: { fileSize: 8 * 1024 * 1024 }, 
+    abortOnLimit: true,
+    createParentPath: true,
+    useTempFiles: false, 
+  })
+);
 
 app.use(UserRouter);
 app.use(AuthRouter);
@@ -36,6 +43,7 @@ app.use(CountryRouter);
 app.use(SupplierRouter);
 app.use(CategoryRouter);
 app.use(BranchRouter);
+app.use(ClientRouter)
 
 
 app.use((req, res, next) => {
