@@ -126,13 +126,14 @@ export class MysqlUserRepository implements UserRepository {
         }
     }
 
-    async resetPassword(id: number, passwordHash: string, adminId?: number): Promise<User | null> {
+    async resetPassword(id: number, passwordHash: string, userId?: number): Promise<User | null> {
         try {
             const patch: QueryDeepPartialEntity<UserEntity> = {
                 password: passwordHash,
-                ...(adminId !== undefined ? { user_id: adminId } : {}),
+                ...(userId !== undefined ? { user_id: userId } : {}),
             };
-            await this.repo.update({ id }, patch);
+            const result = await this.repo.update({ id }, patch);
+            if (!result.affected || result.affected === 0) return null;
             const updated = await this.repo.findOneBy({ id });
             if (!updated) return null;
             return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.role, updated.branch_id, updated.user_name, updated.id);
