@@ -27,6 +27,7 @@ export class MysqlClientRepository implements ClientRepository {
             row.phone,
             row.business_type,
             row.client_type,
+            row.area_id ?? null,
             row.status,
             row.address,
             row.path_image,
@@ -45,6 +46,7 @@ export class MysqlClientRepository implements ClientRepository {
                 phone: client.phone,
                 business_type: client.businessType,
                 client_type: client.clientType,
+                area_id: client.areaId ?? null,
                 address: client.address ?? null,
                 status: client.status ?? true,
                 path_image: client.pathImage ?? null,
@@ -52,7 +54,6 @@ export class MysqlClientRepository implements ClientRepository {
             });
 
             const saved = await this.repo.save(entity);
-            console.log(saved)
             return this.toDomain(saved);
         } catch (e) {
             console.log(e);

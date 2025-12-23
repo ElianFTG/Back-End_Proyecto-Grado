@@ -18,6 +18,7 @@ export class ClientController {
       body.phone,
       body.businessType,
       body.clientType,
+      body.areaId ?? null, // ✅ nuevo
       true,
       body.address ?? null,
       body.pathImage ?? null

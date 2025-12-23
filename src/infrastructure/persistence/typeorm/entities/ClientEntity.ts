@@ -7,6 +7,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from "typeorm";
+import { ManyToOne, JoinColumn } from "typeorm";
+import { AreaEntity } from "./AreaEntity";
 
 
 @Entity({ name: "clients" })
@@ -48,6 +50,13 @@ export class ClientEntity {
 
     @Column({ type: "varchar", length: 255, nullable: true })
     path_image!: string | null;
+
+    @Column({ type: "smallint", unsigned: true, nullable: true, default: null })
+    area_id!: number | null;
+
+    @ManyToOne(() => AreaEntity, { nullable: true })
+    @JoinColumn({ name: "area_id" })
+    area?: AreaEntity | null;
 
     @Column({ type: "smallint" })
     user_id!: number;
