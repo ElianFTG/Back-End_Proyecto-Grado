@@ -1,8 +1,8 @@
 import express from "express";
 import cors from 'cors';
-import fileUpload from "express-fileupload";
-import AppDataSource from "./infrastructure/db/Mysql";
 
+import AppDataSource from "./infrastructure/db/Mysql";
+import path from "path";
 
 import { UserRouter } from "./infrastructure/Express/user/UserRoutes";
 import { AuthRouter } from "./infrastructure/Express/auth/AuthRoutes";
@@ -18,6 +18,12 @@ app.use(cors());
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  "/images",
+  express.static(path.resolve(process.cwd(), "private/images"))
+);
 
 AppDataSource.initialize()
   .then(async () => {
@@ -28,14 +34,7 @@ AppDataSource.initialize()
     process.exit(1);
   });
 
-app.use(
-  fileUpload({
-    limits: { fileSize: 8 * 1024 * 1024 }, 
-    abortOnLimit: true,
-    createParentPath: true,
-    useTempFiles: false, 
-  })
-);
+
 
 app.use(UserRouter);
 app.use(AuthRouter);
