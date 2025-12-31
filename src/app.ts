@@ -11,7 +11,8 @@ import { BranchRouter } from "./infrastructure/Express/branch/BranchRoutes";
 import { SupplierRouter } from "./infrastructure/Express/supplier/SupplierRoutes";
 import { CategoryRouter } from "./infrastructure/Express/category/CategoryRoutes";
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
-import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes"
+import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
+import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
 
 const app = express();
 app.use(cors());
@@ -42,7 +43,8 @@ app.use(CountryRouter);
 app.use(SupplierRouter);
 app.use(CategoryRouter);
 app.use(BranchRouter);
-app.use(ClientRouter)
+app.use(ClientRouter);
+app.use(AreaRouter);
 
 
 app.use((req, res, next) => {
