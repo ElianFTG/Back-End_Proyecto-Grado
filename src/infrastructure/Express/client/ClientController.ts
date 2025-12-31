@@ -2,8 +2,10 @@ import { Request, Response } from "express";
 import path from "path";
 import fs from "fs/promises";
 
-import { Client, ClientPosition } from "../../../domain/client/Client";
+
+import { Client } from "../../../domain/client/Client";
 import { ClientServiceContainer } from "../../../shared/service_containers/client/ClientServiceContainer";
+import { Position } from "../../../domain/customs/Position";
 
 
 const CLIENT_IMAGE_DIR_REL = "private/images/clients";
@@ -13,7 +15,7 @@ const CLIENT_IMAGE_DIR_ABS = path.resolve(process.cwd(), CLIENT_IMAGE_DIR_REL);
 const CLIENT_IMAGE_PUBLIC_BASE = "/images/clients";
 
 
-function normalizePosition(raw: any): ClientPosition | null {
+function normalizePosition(raw: any): Position | null {
   if (!raw) return null;
 
   if (typeof raw === "string") {
