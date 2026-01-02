@@ -5,11 +5,13 @@ import { CountryEntity } from '../persistence/typeorm/entities/CountryEntity';
 import { CategoryEntity } from '../persistence/typeorm/entities/CategoryEntity';
 import { SupplierEntity } from '../persistence/typeorm/entities/SupplierEntity';
 import { BranchEntity } from '../persistence/typeorm/entities/BranchEntity';
-// import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
-// import { ProductSupplierEntity } from '../persistence/typeorm/entities/ProductSupplierEntity';
+import { BrandEntity } from '../persistence/typeorm/entities/BrandEntity';
+import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
+import { ProductBranchEntity } from '../persistence/typeorm/entities/ProductBranchEntity';
 import { ClientEntity } from '../persistence/typeorm/entities/ClientEntity';
 import { AreaEntity } from '../persistence/typeorm/entities/AreaEntity';
-import { RouteEntity } from "../persistence/typeorm/entities/RouteEntity";
+import { PresentationEntity } from '../persistence/typeorm/entities/PresentationEntity';
+import { ColorEntity } from '../persistence/typeorm/entities/ColorEntity';
 import { config } from 'dotenv';
 
 config();
@@ -28,11 +30,11 @@ export const AppDataSource = new DataSource({
     CategoryEntity,
     SupplierEntity,
     BranchEntity,
-    // ProductEntity,
-    // ProductSupplierEntity
+    BrandEntity,
+    ProductEntity,
+    ProductBranchEntity,
     ClientEntity,
     AreaEntity,
-    RouteEntity,
   ],
   synchronize: true,
   logging: false,
