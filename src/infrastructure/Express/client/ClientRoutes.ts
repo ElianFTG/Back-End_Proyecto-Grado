@@ -13,34 +13,36 @@ const controller = new ClientController();
 const authService = AuthServiceContainer.authService(); // asegúrate que exista como static
 
 const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
 });
 
 ClientRouter.post(
     "/clients",
     authJwt(authService),
-    requireRole("super administrador"),
+    requireRole("super administrador", "administrador"),
     upload.single("image"),
     controller.create
 );
 
 ClientRouter.get(
     "/clients",
-    
+    authJwt(authService),
+    requireRole("super administrador", "administrador"),
     controller.getAll
 );
 
 ClientRouter.get(
     "/clients/:id",
     authJwt(authService),
+    requireRole("super administrador", "administrador"),
     controller.findById
 );
 
 ClientRouter.patch(
     "/clients/:id",
     authJwt(authService),
-    requireRole("administrador"),
+    requireRole("super administrador", "administrador"),
     upload.single("image"),
     controller.update
 );
@@ -48,8 +50,8 @@ ClientRouter.patch(
 ClientRouter.delete(
     "/clients/:id",
     authJwt(authService),
-    requireRole("administrador"),
+    requireRole("super administrador", "administrador"),
     controller.softDelete
 );
 
-export {ClientRouter};
+export { ClientRouter };
