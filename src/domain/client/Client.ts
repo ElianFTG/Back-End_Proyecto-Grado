@@ -1,9 +1,10 @@
-export type ClientPosition = { lat: number; lng: number };
+import { Position } from "../customs/Position";
+
 
 export class Client {
     id?: number | undefined;
     fullName: string;
-    position: ClientPosition;
+    position: Position;
     nitCi: string;
     businessName: string;
     phone: string;
@@ -16,7 +17,7 @@ export class Client {
 
     constructor(
         fullName: string,
-        position: ClientPosition,
+        position: Position,
         nitCi: string,
         businessName: string,
         phone: string,

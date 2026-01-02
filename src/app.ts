@@ -15,7 +15,8 @@ import { ProductRouter } from "./infrastructure/Express/product/ProductRoutes";
 import { PresentationRouter } from "./infrastructure/Express/presentation/PresentationRoutes";
 import { ColorRouter } from "./infrastructure/Express/color/ColorRoutes";
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
-import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes"
+import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
+import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
 
 const app = express();
 app.use(cors());
@@ -50,7 +51,8 @@ app.use(BrandRouter);
 app.use(ProductRouter);
 app.use(PresentationRouter);
 app.use(ColorRouter);
-app.use(ClientRouter)
+app.use(ClientRouter);
+app.use(AreaRouter);
 
 
 app.use((req, res, next) => {
