@@ -13,6 +13,7 @@ import { CategoryRouter } from "./infrastructure/Express/category/CategoryRoutes
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
 import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
 import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
+import { RouteRouter } from "./infrastructure/Express/route/RuoteTypeRoutes";
 
 const app = express();
 app.use(cors());
@@ -45,6 +46,7 @@ app.use(CategoryRouter);
 app.use(BranchRouter);
 app.use(ClientRouter);
 app.use(AreaRouter);
+app.use(RouteRouter);
 
 
 app.use((req, res, next) => {
