@@ -6,7 +6,17 @@ function normalizeArea(raw: any): { lat: number; lng: number }[] | null {
     if (!raw) return null;
  
     if (Array.isArray(raw)) {
-        return raw.map((p) => ({ lat: Number(p.lat), lng: Number(p.lng) }));
+        const points: { lat: number; lng: number }[] = [];
+        for (const p of raw) {
+            const lat = Number(p.lat);
+            const lng = Number(p.lng);
+            // Validar rangos de coordenadas
+            if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+            if (lat < -90 || lat > 90) return null;
+            if (lng < -180 || lng > 180) return null;
+            points.push({ lat, lng });
+        }
+        return points;
     }
 
     return null;
@@ -17,12 +27,17 @@ export class AreaController {
         const userId = req.auth?.userId ?? null;
         const body: any = req.body;
 
+        // Validar nombre obligatorio
+        if (!body.name || typeof body.name !== "string" || !body.name.trim()) {
+            return res.status(400).json({ message: "El nombre es obligatorio" });
+        }
+
         const areaPoints = normalizeArea(body.area);
         if (!areaPoints || areaPoints.length < 3) {
             return res.status(400).json({ message: "area inválida (mínimo 3 puntos)" });
         }
 
-        const area = new Area(body.name, areaPoints);
+        const area = new Area(body.name.trim(), areaPoints);
 
         const created = await AreaServiceContainer.area.createArea.run(area, userId);
         if (!created?.id) return res.status(400).json({ message: "No se pudo crear el área" });
@@ -53,7 +68,12 @@ export class AreaController {
         const body: any = req.body;
         const patch: any = {};
 
-        if (body.name !== undefined) patch.name = body.name;
+        if (body.name !== undefined) {
+            if (typeof body.name !== "string" || !body.name.trim()) {
+                return res.status(400).json({ message: "El nombre no puede estar vacío" });
+            }
+            patch.name = body.name.trim();
+        }
 
         if (body.area !== undefined) {
             const areaPoints = normalizeArea(body.area);

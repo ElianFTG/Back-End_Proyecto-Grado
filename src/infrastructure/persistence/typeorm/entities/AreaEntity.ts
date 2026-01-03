@@ -4,26 +4,35 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from "typeorm";
 
+/**
+ * Tipo para coordenadas lat/lng
+ */
+export interface AreaPoint {
+  lat: number;
+  lng: number;
+}
+
 @Entity({ name: "areas" })
+@Index(["name"])
+@Index(["state"])
 export class AreaEntity {
 
-  @PrimaryGeneratedColumn({ type: "smallint", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "int", unsigned: true })
   id!: number;
 
   @Column({ type: "varchar", length: 150 })
   name!: string;
+  
+  @Column({ type: "json" })
+  area!: AreaPoint[];
 
-  @Column({
-    type: "polygon",
-    spatialFeatureType: "Polygon",
-    srid: 4326,
-    nullable: true,
-  })
-  area!: string;
+  @Column({ type: "boolean", default: true })
+  state!: boolean;
 
-  @Column({ type: "smallint", nullable: true })
+  @Column({ type: "int", nullable: true })
   user_id!: number | null;
 
   @CreateDateColumn({ type: "timestamp" })
