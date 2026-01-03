@@ -1,6 +1,4 @@
-/**
- * Filtros y paginación para consultas de productos por sucursal
- */
+
 export interface ProductBranchFilters {
     branchId: number;
     search?: string | undefined;
@@ -11,9 +9,6 @@ export interface ProductBranchFilters {
     limit?: number | undefined;
 }
 
-/**
- * Resultado paginado de productos por sucursal
- */
 export interface PaginatedBranchProducts<T> {
     data: T[];
     page: number;
@@ -22,9 +17,6 @@ export interface PaginatedBranchProducts<T> {
     totalPages: number;
 }
 
-/**
- * DTO para producto con información de sucursal
- */
 export interface ProductWithBranchInfo {
     id: number;
     name: string;
