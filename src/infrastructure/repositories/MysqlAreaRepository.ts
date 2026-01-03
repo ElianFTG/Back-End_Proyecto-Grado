@@ -1,138 +1,164 @@
-import { Repository, QueryDeepPartialEntity } from "typeorm";
+import { Repository } from "typeorm";
 import { AppDataSource } from "../db/Mysql";
 import { Area } from "../../domain/area/Area";
 import { Position } from "../../domain/customs/Position";
-
 import { AreaRepository } from "../../domain/area/AreaRepository";
-import { AreaEntity } from "../persistence/typeorm/entities/AreaEntity";
+import { AreaEntity, AreaPoint } from "../persistence/typeorm/entities/AreaEntity";
 
-
+/**
+ * Repositorio MySQL para Áreas
+ * 
+ * Almacena el polígono como JSON array de {lat, lng}
+ * Sin dependencias de PostGIS ni geometría espacial
+ */
 export class MysqlAreaRepository implements AreaRepository {
+  private readonly repo: Repository<AreaEntity>;
 
-    private readonly repo: Repository<AreaEntity>;
+  constructor() {
+    this.repo = AppDataSource.getRepository(AreaEntity);
+  }
 
-    constructor() {
-        this.repo = AppDataSource.getRepository(AreaEntity);
+  /**
+   * Valida y normaliza los puntos del área
+   * - Mínimo 3 puntos
+   * - lat: -90 a 90
+   * - lng: -180 a 180
+   */
+  private validateAndNormalize(points: Position[]): AreaPoint[] | null {
+    if (!Array.isArray(points) || points.length < 3) {
+      return null;
     }
 
-  private normalizePolygon(points: Position[]): Position[] {   
-        if (!Array.isArray(points) || points.length < 3) return [];
+    const normalized: AreaPoint[] = [];
 
-        const cleaned = points
-        .map((p) => ({ lat: Number(p.lat), lng: Number(p.lng) }))
-        .filter((p) => !Number.isNaN(p.lat) && !Number.isNaN(p.lng));
+    for (const p of points) {
+      const lat = Number(p.lat);
+      const lng = Number(p.lng);
 
-        if (cleaned.length < 3) return [];
+      // Validar rangos
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+      if (lat < -90 || lat > 90) return null;
+      if (lng < -180 || lng > 180) return null;
 
-        const first: any = cleaned[0];
-        const last: any = cleaned[cleaned.length - 1];
-        if (first.lat !== last.lat || first.lng !== last.lng) {
-            cleaned.push({ ...first });
-        }
-
-        return cleaned;
+      normalized.push({ lat, lng });
     }
 
-    private toWktPolygon(points: Position[]): string {
-        const ring = this.normalizePolygon(points);
-        const coords = ring.map((p) => `${p.lng} ${p.lat}`).join(", ");
-        return `POLYGON((${coords}))`;
+    return normalized.length >= 3 ? normalized : null;
+  }
+
+  /**
+   * Convierte entidad a dominio
+   */
+  private toDomain(entity: AreaEntity): Area {
+    const area = new Area(
+      entity.name,
+      entity.area as Position[],
+      entity.id
+    );
+    return area;
+  }
+
+  /**
+   * Crear área nueva
+   */
+  async create(area: Area, userId: number | null): Promise<Area | null> {
+    try {
+      const normalized = this.validateAndNormalize(area.area);
+      if (!normalized) return null;
+
+      const entity = this.repo.create({
+        name: area.name,
+        area: normalized,
+        state: true,
+        user_id: userId,
+      });
+
+      const saved = await this.repo.save(entity);
+      return this.toDomain(saved);
+    } catch (error) {
+      console.error("Error creating area:", error);
+      return null;
     }
+  }
 
-    private parseWktPolygon(wkt: string): Position[] {
-        const match = wkt.match(/POLYGON\s*\(\(\s*(.+?)\s*\)\)\s*$/i);
-        if (!match || match[1] === undefined) return [];
-
-        const pairs = match[1].split(",").map((s) => s.trim());
-        const points: Position[] = pairs
-        .map((pair) => {
-            const [lngStr, latStr] = pair.split(/\s+/);
-            const lng = Number(lngStr);
-            const lat = Number(latStr);
-            return { lat, lng };
-        })
-        .filter((p) => !Number.isNaN(p.lat) && !Number.isNaN(p.lng));
-
-        if (points.length >= 2) {
-            const first: any = points[0];
-            const last: any = points[points.length - 1];
-
-            if (first.lat === last.lat && first.lng === last.lng) {
-                points.pop();
-            }
-        }
-
-        return points;
+  /**
+   * Obtener todas las áreas activas
+   */
+  async getAll(): Promise<Area[]> {
+    try {
+      const entities = await this.repo.find({
+        where: { state: true },
+        order: { id: "DESC" },
+      });
+      return entities.map((e) => this.toDomain(e));
+    } catch (error) {
+      console.error("Error getting areas:", error);
+      return [];
     }
+  }
 
-    private toDomain(row: AreaEntity): Area {
-        return new Area(row.name, this.parseWktPolygon(row.area), row.id);
+  /**
+   * Buscar área por ID
+   */
+  async findById(id: number): Promise<Area | null> {
+    try {
+      const entity = await this.repo.findOne({
+        where: { id, state: true },
+      });
+      return entity ? this.toDomain(entity) : null;
+    } catch (error) {
+      console.error("Error finding area:", error);
+      return null;
     }
+  }
 
-    async create(area: Area, userId: number | null): Promise<Area | null> {
-        try {
-            const wkt = this.toWktPolygon(area.area);
-            if (!wkt || area.area.length < 3) return null;
+  /**
+   * Actualizar área
+   */
+  async update(
+    id: number,
+    patch: Partial<Area>,
+    userId: number | null
+  ): Promise<Area | null> {
+    try {
+      const entity = await this.repo.findOne({
+        where: { id, state: true },
+      });
+      if (!entity) return null;
 
-            const row = await this.repo.save({
-                name: area.name,
-                area: wkt,
-                user_id: userId ?? null,
-            });
+      if (patch.name !== undefined) {
+        entity.name = patch.name;
+      }
 
-            const created = await this.repo.findOneBy({ id: row.id });
-            return created ? this.toDomain(created) : null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
+      if (patch.area !== undefined) {
+        const normalized = this.validateAndNormalize(patch.area);
+        if (!normalized) return null;
+        entity.area = normalized;
+      }
+
+      entity.user_id = userId;
+
+      const saved = await this.repo.save(entity);
+      return this.toDomain(saved);
+    } catch (error) {
+      console.error("Error updating area:", error);
+      return null;
     }
+  }
 
-    async getAll(): Promise<Area[]> {
-        try {
-            const rows = await this.repo.find({ order: { id: "DESC" } });
-            return rows.map((r) => this.toDomain(r));
-        } catch (error) {
-            console.log(error);
-            return [];
-        }
+  /**
+   * Soft delete - cambia state a false
+   */
+  async softDelete(id: number): Promise<boolean> {
+    try {
+      const result = await this.repo.update(
+        { id, state: true },
+        { state: false }
+      );
+      return (result.affected ?? 0) > 0;
+    } catch (error) {
+      console.error("Error deleting area:", error);
+      return false;
     }
-
-    async findById(id: number): Promise<Area | null> {
-        try {
-            const row = await this.repo.findOneBy({ id } as any);
-            return row ? this.toDomain(row) : null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    }
-
-    async update(id: number, area: Partial<Area>, userId: number | null): Promise<Area | null> {
-        try {
-            const patch: QueryDeepPartialEntity<AreaEntity> = {
-                ...(area.name !== undefined ? { name: area.name } : {}),
-                ...(area.area !== undefined ? { area: this.toWktPolygon(area.area) } : {}),
-                user_id: userId ?? null,
-            };
-
-            await this.repo.update({ id } as any, patch);
-
-            const updated = await this.repo.findOneBy({ id } as any);
-            return updated ? this.toDomain(updated) : null;
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    }
-
-    async softDelete(id: number): Promise<boolean> {
-        try {
-            await this.repo.delete({ id } as any);
-            return true;
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    }
+  }
 }
