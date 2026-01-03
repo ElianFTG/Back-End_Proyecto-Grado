@@ -19,8 +19,6 @@ export class Product {
     userId: number | null;
     createdAt?: Date | undefined;
     updatedAt?: Date | undefined;
-
-    // Relaciones opcionales para lectura
     categoryName?: string | undefined;
     brandName?: string | undefined;
     presentationName?: string | undefined;

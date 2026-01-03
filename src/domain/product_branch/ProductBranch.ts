@@ -4,8 +4,6 @@ export class ProductBranch {
     hasStock: boolean;
     stockQty: number | null;
     updatedAt?: Date | undefined;
-
-    // Datos opcionales del producto para lectura
     productName?: string | undefined;
     productBarcode?: string | null | undefined;
     productSalePrice?: Record<string, number> | undefined;
