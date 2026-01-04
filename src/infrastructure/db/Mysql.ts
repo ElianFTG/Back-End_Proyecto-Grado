@@ -9,6 +9,7 @@ import { BranchEntity } from '../persistence/typeorm/entities/BranchEntity';
 // import { ProductSupplierEntity } from '../persistence/typeorm/entities/ProductSupplierEntity';
 import { ClientEntity } from '../persistence/typeorm/entities/ClientEntity';
 import { AreaEntity } from '../persistence/typeorm/entities/AreaEntity';
+import { RouteEntity } from "../persistence/typeorm/entities/RouteEntity";
 import { config } from 'dotenv';
 
 config();
@@ -31,6 +32,7 @@ export const AppDataSource = new DataSource({
     // ProductSupplierEntity
     ClientEntity,
     AreaEntity,
+    RouteEntity,
   ],
   synchronize: true,
   logging: false,
