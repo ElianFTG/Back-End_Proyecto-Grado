@@ -86,6 +86,7 @@ export class MysqlClientRepository implements ClientRepository {
             ...(client.phone !== undefined ? { phone: client.phone } : {}),
             ...(client.businessType !== undefined ? { business_type: client.businessType } : {}),
             ...(client.clientType !== undefined ? { client_type: client.clientType } : {}),
+            ...(client.areaId !== undefined ? { area_id: client.areaId ?? null } : {}),
             ...(client.address !== undefined ? { address: client.address ?? null } : {}),
             ...(client.status !== undefined ? { status: client.status } : {}),
             ...(client.pathImage !== undefined ? { path_image: client.pathImage ?? null } : {}),

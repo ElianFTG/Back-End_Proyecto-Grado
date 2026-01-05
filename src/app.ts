@@ -10,9 +10,14 @@ import { CountryRouter } from "./infrastructure/Express/country/CountryRoutes";
 import { BranchRouter } from "./infrastructure/Express/branch/BranchRoutes";
 import { SupplierRouter } from "./infrastructure/Express/supplier/SupplierRoutes";
 import { CategoryRouter } from "./infrastructure/Express/category/CategoryRoutes";
+import { BrandRouter } from "./infrastructure/Express/brand/BrandRoutes";
+import { ProductRouter } from "./infrastructure/Express/product/ProductRoutes";
+import { PresentationRouter } from "./infrastructure/Express/presentation/PresentationRoutes";
+import { ColorRouter } from "./infrastructure/Express/color/ColorRoutes";
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
 import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
 import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
+import { RouteRouter } from "./infrastructure/Express/route/RuoteTypeRoutes";
 
 const app = express();
 app.use(cors());
@@ -43,8 +48,13 @@ app.use(CountryRouter);
 app.use(SupplierRouter);
 app.use(CategoryRouter);
 app.use(BranchRouter);
+app.use(BrandRouter);
+app.use(ProductRouter);
+app.use(PresentationRouter);
+app.use(ColorRouter);
 app.use(ClientRouter);
 app.use(AreaRouter);
+app.use(RouteRouter);
 
 
 app.use((req, res, next) => {

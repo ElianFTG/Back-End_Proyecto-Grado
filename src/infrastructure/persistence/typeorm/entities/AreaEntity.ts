@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+
 @Entity({ name: "areas" })
 export class AreaEntity {
 
@@ -22,6 +23,9 @@ export class AreaEntity {
     nullable: true,
   })
   area!: string;
+
+  @Column({ type: "boolean", default: true })
+  state!: boolean;
 
   @Column({ type: "smallint", nullable: true })
   user_id!: number | null;

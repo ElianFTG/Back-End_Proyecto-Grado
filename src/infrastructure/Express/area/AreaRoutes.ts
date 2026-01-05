@@ -25,21 +25,21 @@ AreaRouter.get(
 AreaRouter.get(
   "/areas/:id",
   authJwt(authService),
-  requireRole("administrador"),
+  requireRole("administrador", "super administrador"),
   controller.findById
 );
 
 AreaRouter.patch(
   "/areas/:id",
   authJwt(authService),
-  requireRole("administrador"),
+  requireRole("administrador", "super administrador"),
   controller.update
 );
 
 AreaRouter.delete(
   "/areas/:id",
   authJwt(authService),
-  requireRole("administrador"),
+  requireRole("administrador", "super administrador"),
   controller.softDelete
 );
 
