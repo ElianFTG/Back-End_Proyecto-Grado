@@ -6,10 +6,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-/**
- * Entidad de Área con geometría espacial MySQL
- * Igual que en rama main pero con soft delete (state)
- */
+
 @Entity({ name: "areas" })
 export class AreaEntity {
 
