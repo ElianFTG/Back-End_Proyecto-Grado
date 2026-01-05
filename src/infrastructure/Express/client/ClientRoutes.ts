@@ -20,7 +20,7 @@ const upload = multer({
 ClientRouter.post(
     "/clients",
     authJwt(authService),
-    requireRole("super administrador", "administrador"),
+    requireRole("super administrador", "preventero", "administrador"),
     upload.single("image"),
     controller.create
 );

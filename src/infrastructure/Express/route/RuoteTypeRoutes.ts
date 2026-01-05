@@ -12,17 +12,23 @@ const authService = AuthServiceContainer.authService();
 RouteRouter.post(
   "/routes",
   authJwt(authService),
-  requireRole("administrador"),
-  controller.create.bind(controller)
+  requireRole("super administrador"),
+  controller.create
 );
 
 
 RouteRouter.get(
   "/routes/:id",
   authJwt(authService),
-  requireRole("administrador"),
-  controller.findById.bind(controller)
+  requireRole("super administrador"),
+  controller.findById
 );
+
+RouteRouter.get(
+  "/route-get-clients",
+  authJwt(authService),
+  controller.getClientsByRouteUserDate
+)
 
 
 export { RouteRouter };

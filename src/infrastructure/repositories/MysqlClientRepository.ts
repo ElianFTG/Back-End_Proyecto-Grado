@@ -108,4 +108,17 @@ export class MysqlClientRepository implements ClientRepository {
         }
         
     }
+
+    async getClientsByArea(areaId: number): Promise<Client[]> {
+        try {
+            const rows = await this.repo.find({
+                where: { status: true, area_id: areaId },
+                order: { id: "DESC" },
+            });
+            return rows.map((r) => this.toDomain(r));
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
 }
