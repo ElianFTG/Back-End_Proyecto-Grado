@@ -9,7 +9,7 @@ export interface PaginatedProductsResult {
 }
 
 export interface ProductRepository {
-    getAll(filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; }): Promise<PaginatedProductsResult>;
+    getAll(filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; search?: string; }): Promise<PaginatedProductsResult>;
     create(product: Product): Promise<Product | null>;
     findById(id: number): Promise<Product | null>;
     update(id: number, product: Partial<Product>, userId: number): Promise<Product | null>;

@@ -32,9 +32,6 @@ export class CreateProduct {
             )
         );
 
-        // Ya NO inicializamos stock en todas las sucursales (escalabilidad)
-        // Las filas en product_branches se crean solo cuando se setea has_stock=true
-
         return product;
     }
 }

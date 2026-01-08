@@ -1,5 +1,4 @@
 import { Request,Response } from "express";
-import { UserNotFound } from "../../../domain/errors/user/UserNotFound";
 import { UserServiceContainer } from "../../../shared/service_containers/user/UserServiceContainer";
 import { User } from "../../../domain/user/User";
 

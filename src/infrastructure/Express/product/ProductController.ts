@@ -5,16 +5,9 @@ import fs from "fs/promises";
 import { ProductServiceContainer } from "../../../shared/service_containers/product/ProductServiceContainer";
 import { Product } from "../../../domain/product/Product";
 
-// Note: image URL handling has been removed — products no longer expose `urlImage`.
-
 export class ProductController {
-    /**
-     * GET /products
-     * Query params opcionales: categoryId, brandId, state
-     * Ejemplo: /products?categoryId=1&brandId=2&state=true
-     */
     async getAll(req: Request, res: Response) {
-        const filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number, limit?: number } = {};
+        const filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; search?: string } = {};
 
         if (req.query.categoryId) {
             filters.categoryId = Number(req.query.categoryId);
@@ -24,6 +17,9 @@ export class ProductController {
         }
         if (req.query.state !== undefined) {
             filters.state = req.query.state === 'true';
+        }
+        if (req.query.search) {
+            filters.search = String(req.query.search).trim();
         }
 
         filters.page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
@@ -35,20 +31,6 @@ export class ProductController {
     }
 
 
-    /**
-     * POST /products
-     * Body: {
-     *   "name": "Cable HDMI 2m",
-     *   "barcode": "123456789012",
-     *   "internalCode": "CAB-HDMI-2M",
-     *   "presentationId": 1,
-     *   "colorId": 2,
-     *   "salePrice": { "mayorista": 10.5, "minorista": 12.0, "regular": 11.0 },
-     *   "categoryId": 1,
-     *   "brandId": 1,
-     *   "userId": 1
-     * }
-     */
     async create(req: Request, res: Response) {
         const {
             name,
@@ -57,7 +39,7 @@ export class ProductController {
             presentationId,
             colorId,
             salePrice,
-        
+
             categoryId,
             brandId,
             userId
@@ -82,7 +64,6 @@ export class ProductController {
         );
 
         if (!product || !product.id) return res.status(500).json({ message: 'Error al crear el producto' });
-        // Manejo de imagen (si se subió)
         const file = (req as any).file as Express.Multer.File | undefined;
         if (file) {
             try {
@@ -92,13 +73,11 @@ export class ProductController {
 
                 await fs.mkdir(PROD_IMAGE_DIR_ABS, { recursive: true });
 
-                // Eliminar imágenes previas con prefijo id.
                 const files = await fs.readdir(PROD_IMAGE_DIR_ABS);
                 const prefix = `${product.id}.`;
                 const toDelete = files.filter((f) => f.startsWith(prefix));
                 await Promise.all(toDelete.map((f) => fs.unlink(path.join(PROD_IMAGE_DIR_ABS, f)).catch(() => undefined)));
 
-                // determinar extensión
                 function extFromMimetypeOrName(mimetype?: string, originalname?: string): string {
                     const mime = (mimetype || "").toLowerCase();
                     const name = (originalname || "").toLowerCase();
@@ -118,12 +97,10 @@ export class ProductController {
 
                 const publicPath = `${PROD_IMAGE_PUBLIC_BASE}/${filename}`;
 
-                // Guardar path en producto (patch vía servicio)
                 const userIdForUpdate = (req.body && req.body.userId) ? Number(req.body.userId) : null;
                 try {
                     await ProductServiceContainer.product.update.run(product.id, { pathImage: publicPath } as any, userIdForUpdate as any);
                 } catch (err) {
-                    // Si falla la actualización, respondemos con warning pero producto creado
                     return res.status(201).json({
                         message: 'Producto creado, pero falló guardar ruta de imagen',
                         product,
@@ -139,9 +116,6 @@ export class ProductController {
         return res.status(201).json(finalProduct ?? product);
     }
 
-    /**
-     * GET /products/:id
-     */
     async findById(req: Request, res: Response) {
         const id = Number(req.params.id);
         if (isNaN(id)) return res.status(400).json({ message: 'ID inválido' });
@@ -151,10 +125,6 @@ export class ProductController {
         return res.status(200).json(product);
     }
 
-    /**
-     * PATCH /products/:id
-     * Body: { "name": "Nuevo nombre", "salePrice": {...}, "user_id": 1 }
-     */
     async update(req: Request, res: Response) {
         const id = Number(req.params.id);
         if (isNaN(id)) return res.status(400).json({ message: 'ID inválido' });
@@ -172,7 +142,6 @@ export class ProductController {
         if (body.categoryId !== undefined) productPatch.categoryId = body.categoryId;
         if (body.brandId !== undefined) productPatch.brandId = body.brandId;
 
-        // Manejo de imagen (si se subió)
         const file = (req as any).file as Express.Multer.File | undefined;
         if (file) {
             try {
@@ -182,7 +151,6 @@ export class ProductController {
 
                 await fs.mkdir(PROD_IMAGE_DIR_ABS, { recursive: true });
 
-                // Eliminar imágenes previas con prefijo id.
                 const files = await fs.readdir(PROD_IMAGE_DIR_ABS);
                 const prefix = `${id}.`;
                 const toDelete = files.filter((f) => f.startsWith(prefix));
@@ -218,11 +186,6 @@ export class ProductController {
         return res.status(200).json(updatedProduct);
     }
 
-    /**
-     * PATCH /products/:id/state
-     * Body: { "user_id": 1 }
-     * Alterna el estado activo/inactivo del producto
-     */
     async updateState(req: Request, res: Response) {
         const id = Number(req.params.id);
         if (isNaN(id)) return res.status(400).json({ message: 'ID inválido' });
@@ -236,13 +199,6 @@ export class ProductController {
         }
     }
 
-    /**
-     * PUT /products/:id/branches/:branchId/stock
-     * Body: { "has_stock": boolean, "stock_qty": number|null }
-     * UPSERT optimizado:
-     * - Si has_stock=true: inserta o actualiza
-     * - Si has_stock=false: elimina la fila para mantener tabla pequeña
-     */
     async setStock(req: Request, res: Response) {
         const productId = Number(req.params.id);
         const branchId = Number(req.params.branchId);
@@ -257,14 +213,12 @@ export class ProductController {
             return res.status(400).json({ message: 'has_stock es requerido' });
         }
 
-        // Validar que el producto existe
         const product = await ProductServiceContainer.product.findById.run(productId);
         if (!product) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
 
-        // Usar método optimizado (UPSERT + DELETE)
-        const result = await ProductServiceContainer.productBranch.setStock.runOptimized(
+        const result = await ProductServiceContainer.productBranch.setStock.run(
             productId,
             branchId,
             has_stock,
@@ -281,42 +235,18 @@ export class ProductController {
                 : 'Stock actualizado correctamente',
             productId,
             branchId,
-            hasStock: has_stock,
-            stockQty: has_stock ? (stock_qty ?? null) : null,
+            hasStock: result.hasStock,
+            stockQty: result.stockQty,
             deleted: result.deleted ?? false
         });
     }
 
-    /**
-     * GET /branches/:branchId/products
-     * Endpoint paginado y optimizado para grandes volúmenes (~30.000 productos)
-     * 
-     * Query params:
-     * - search: string (busca en nombre, barcode, internal_code)
-     * - page: number (default: 1)
-     * - limit: number (default: 50, max: 100)
-     * - onlyAvailable: boolean (default: false)
-     *   - true: solo productos con stock en esta sucursal
-     *   - false: todos los productos activos con info de stock
-     * - categoryId: number (opcional)
-     * - brandId: number (opcional)
-     * 
-     * Respuesta:
-     * {
-     *   data: ProductWithBranchInfo[],
-     *   page: number,
-     *   limit: number,
-     *   total: number,
-     *   totalPages: number
-     * }
-     */
     async getProductsByBranch(req: Request, res: Response) {
         const branchId = Number(req.params.branchId);
         if (isNaN(branchId)) {
             return res.status(400).json({ message: 'ID de sucursal inválido' });
         }
 
-        // Parsear query params con valores por defecto
         const search = String(req.query.search || '').trim();
         const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
         const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit || '50'), 10) || 50));
