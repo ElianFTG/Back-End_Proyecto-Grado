@@ -1,0 +1,126 @@
+import { Repository, QueryDeepPartialEntity } from "typeorm";
+import { AppDataSource } from "../db/Mysql";
+import { Business } from "../../domain/business/Business";
+import { Position } from "../../domain/customs/Position";
+import { BusinessRepository } from "../../domain/business/BusinessRepository";
+import { BusinessEntity } from "../persistence/typeorm/entities/BusinessEntity";
+
+export class MysqlBusinessRepository implements BusinessRepository {
+  private readonly repo: Repository<BusinessEntity>;
+
+  constructor() {
+    this.repo = AppDataSource.getRepository(BusinessEntity);
+  }
+
+  private toWktPoint(pos: Position): string {
+    return `POINT(${pos.lng} ${pos.lat})`;
+  }
+
+  private parseWktPoint(wkt: string): Position | null {
+    const match = wkt.match(/POINT\(([-\d.]+)\s+([-\d.]+)\)/i);
+    if (!match) return null;
+    const lng = Number(match[1]);
+    const lat = Number(match[2]);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+    return { lat, lng };
+  }
+
+  private toDomain(row: BusinessEntity): Business {
+    return new Business(
+      row.name,
+      row.business_type_id,
+      row.client_id,
+      row.area_id,
+      row.nit ?? null,
+      row.position ? this.parseWktPoint(row.position) : null,
+      row.path_image ?? null,
+      row.address ?? null,
+      row.is_active ?? true,
+      row.id
+    );
+  }
+
+  async create(business: Business, userId: number | null): Promise<Business | null> {
+    try {
+      const row = await this.repo.save({
+        name: business.name,
+        nit: business.nit ?? null,
+        position: business.position ? this.toWktPoint(business.position) : null,
+        path_image: business.pathImage ?? null,
+        address: business.address ?? null,
+        is_active: business.isActive ?? true, 
+        business_type_id: business.businessTypeId,
+        client_id: business.clientId,
+        area_id: business.areaId,
+        user_id: userId ?? null,
+        state: true,
+      });
+
+      const created = await this.repo.findOneBy({ id: row.id } as any);
+      return created ? this.toDomain(created) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async getAll(onlyActive: boolean = true): Promise<Business[]> {
+    try {
+      const rows = await this.repo.find({
+        where: onlyActive ? ({ state: true } as any) : ({} as any),
+        order: { id: "DESC" },
+      });
+      return rows.map((r) => this.toDomain(r));
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+  }
+
+  async findById(id: number): Promise<Business | null> {
+    try {
+      const row = await this.repo.findOneBy({ id } as any);
+      return row ? this.toDomain(row) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async update(id: number, business: Partial<Business>, userId: number | null): Promise<Business | null> {
+    try {
+      const patch: QueryDeepPartialEntity<BusinessEntity> = {
+        ...(business.name !== undefined ? { name: business.name } : {}),
+        ...(business.nit !== undefined ? { nit: business.nit } : {}),
+        ...(business.position !== undefined
+          ? { position: business.position ? this.toWktPoint(business.position) : null }
+          : {}),
+        ...(business.pathImage !== undefined ? { path_image: business.pathImage } : {}),
+        ...(business.address !== undefined ? { address: business.address } : {}),
+        ...(business.isActive !== undefined ? { is_active: business.isActive } : {}),
+        ...(business.businessTypeId !== undefined ? { business_type_id: business.businessTypeId } : {}),
+        ...(business.clientId !== undefined ? { client_id: business.clientId } : {}),
+        ...(business.areaId !== undefined ? { area_id: business.areaId } : {}),
+        user_id: userId ?? null,
+      };
+
+      await this.repo.update({ id } as any, patch);
+
+      const updated = await this.repo.findOneBy({ id } as any);
+      return updated ? this.toDomain(updated) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async softDelete(id: number, userId: number | null): Promise<boolean> {
+    try {
+      await this.repo.update({ id } as any, { state: false, user_id: userId ?? null } as any);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+}

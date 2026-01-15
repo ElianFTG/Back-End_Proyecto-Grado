@@ -57,8 +57,8 @@ export class RouteController {
       return res.status(400).json({ message: "fecha inválida (YYYY-MM-DD)" });
     }
 
-    const clients = await RouteServiceContainer.route.getClientsByRouteUserDate.run(userId, date);
-    return res.status(200).json(clients);
+    // const clients = await RouteServiceContainer.route.getClientsByRouteUserDate.run(userId, date);
+    // return res.status(200).json(clients);
   }
 
   

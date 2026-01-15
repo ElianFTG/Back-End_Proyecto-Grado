@@ -8,7 +8,10 @@ import { BranchEntity } from '../persistence/typeorm/entities/BranchEntity';
 import { BrandEntity } from '../persistence/typeorm/entities/BrandEntity';
 import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
 import { ProductBranchEntity } from '../persistence/typeorm/entities/ProductBranchEntity';
-import { ClientEntity } from '../persistence/typeorm/entities/ClientEntity';
+import { ClientTypeEntity } from "../persistence/typeorm/entities/ClientTypeEntity";
+import { ClientEntity } from "../persistence/typeorm/entities/ClientEntity";
+import { BusinessTypeEntity } from "../persistence/typeorm/entities/BusinessTypeEntity";
+import { BusinessEntity } from "../persistence/typeorm/entities/BusinessEntity";
 import { AreaEntity } from '../persistence/typeorm/entities/AreaEntity';
 import { PresentationEntity } from '../persistence/typeorm/entities/PresentationEntity';
 import { ColorEntity } from '../persistence/typeorm/entities/ColorEntity';
@@ -35,6 +38,9 @@ export const AppDataSource = new DataSource({
     ProductEntity,
     ProductBranchEntity,
     ClientEntity,
+    ClientTypeEntity,
+    BusinessTypeEntity,
+    BusinessEntity,
     AreaEntity,
     PresentationEntity,
     ColorEntity,

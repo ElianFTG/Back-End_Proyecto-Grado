@@ -14,10 +14,16 @@ import { BrandRouter } from "./infrastructure/Express/brand/BrandRoutes";
 import { ProductRouter } from "./infrastructure/Express/product/ProductRoutes";
 import { PresentationRouter } from "./infrastructure/Express/presentation/PresentationRoutes";
 import { ColorRouter } from "./infrastructure/Express/color/ColorRoutes";
-import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
 import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
+import { ClientTypeRouter } from "./infrastructure/Express/clientType/ClientTypeRoutes";
+import { BusinessRouter } from "./infrastructure/Express/business/BusinessRoutes";
+import { BusinessTypeRouter } from "./infrastructure/Express/businessType/BusinessTypeRoutes";
 import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
 import { RouteRouter } from "./infrastructure/Express/route/RuoteTypeRoutes";
+
+import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
+import { seedClientTypes } from "./infrastructure/db/seeders/ClientTypeSeeder";
+import { seedBusinessTypes } from "./infrastructure/db/seeders/BusinessTypeSeeder";
 
 const app = express();
 app.use(cors());
@@ -34,6 +40,8 @@ app.use(
 AppDataSource.initialize()
   .then(async () => {
     await seedCountries();
+    await seedClientTypes();
+    await seedBusinessTypes();
   })
   .catch((err) => {
     console.error('Failed to initialize database:', err);
@@ -53,6 +61,10 @@ app.use(ProductRouter);
 app.use(PresentationRouter);
 app.use(ColorRouter);
 app.use(ClientRouter);
+app.use(ClientTypeRouter);
+app.use(BusinessTypeRouter);
+app.use(ClientRouter);
+app.use(BusinessRouter);
 app.use(AreaRouter);
 app.use(RouteRouter);
 

@@ -2,79 +2,56 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  Index,
   CreateDateColumn,
-  BeforeInsert,
-  BeforeUpdate,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  Index,
 } from "typeorm";
-import { ManyToOne, JoinColumn } from "typeorm";
-import { AreaEntity } from "./AreaEntity";
-
+import { ClientTypeEntity } from "./ClientTypeEntity";
+import { BusinessEntity } from "./BusinessEntity";
 
 @Entity({ name: "clients" })
 export class ClientEntity {
-    @PrimaryGeneratedColumn({ type: "int" })
-    id!: number;
+  @PrimaryGeneratedColumn({ type: "smallint", unsigned: true })
+  id!: number;
 
-    @Column({ type: "varchar", length: 180 })
-    full_name!: string;
+  @Column({ type: "varchar", length: 120 })
+  name!: string;
 
-    @Column({
-        type: "point",
-        spatialFeatureType: "Point",
-        srid: 4326,
-    })
-    position!: string;
+  @Column({ type: "varchar", length: 120 })
+  last_name!: string;
 
-    @Index({ unique: true })
-    @Column({ type: "varchar", length: 30 })
-    nit_ci!: string;
+  @Column({ type: "varchar", length: 120 })
+  second_last_name!: string;
 
-    @Column({ type: "varchar", length: 180 })
-    business_name!: string;
+  @Column({ type: "varchar", length: 30 })
+  phone!: string;
 
-    @Column({ type: "varchar", length: 30 })
-    phone!: string;
+  @Column({ type: "varchar", length: 30, nullable: true })
+  ci!: string | null;
 
-    @Column({ type: "varchar", length: 60 })
-    business_type!: string;
+  @Index()
+  @Column({ type: "smallint", unsigned: true })
+  client_type_id!: number;
 
-    @Column({ type: "varchar", length: 60 })
-    client_type!: string;
+  @ManyToOne(() => ClientTypeEntity, (t) => t.clients, { nullable: false })
+  @JoinColumn({ name: "client_type_id" })
+  client_type!: ClientTypeEntity;
 
-    @Column({ type: "varchar", length: 255, nullable: true })
-    address!: string | null;
+  @OneToMany(() => BusinessEntity, (b) => b.client)
+  businesses!: BusinessEntity[];
 
-    @Column({ type: "boolean", default: true })
-    status!: boolean;
+  @Column({ type: "smallint", nullable: true })
+  user_id!: number | null;
 
-    @Column({ type: "varchar", length: 255, nullable: true })
-    path_image!: string | null;
+  @CreateDateColumn({ type: "timestamp" })
+  created_at!: Date;
 
-    @Column({ type: "smallint", unsigned: true, nullable: true, default: null })
-    area_id!: number | null;
+  @UpdateDateColumn({ type: "timestamp" })
+  updated_at!: Date;
 
-    @ManyToOne(() => AreaEntity, { nullable: true })
-    @JoinColumn({ name: "area_id" })
-    area?: AreaEntity | null;
-
-    @Column({ type: "smallint" })
-    user_id!: number;
-
-    @CreateDateColumn({ type: "timestamp" })
-    created_at!: Date;
-
-
-    @Column({ type: "timestamp", nullable: true, default: null })
-    updated_at!: Date | null;
-
-    @BeforeInsert()
-    setUpdatedAtNullOnInsert() {
-      this.updated_at = null;
-    }
-
-    @BeforeUpdate()
-    setUpdatedAtOnUpdate() {
-      this.updated_at = new Date();
-    }
+  @Column({ type: "boolean", default: true })
+  state!: boolean;
 }
