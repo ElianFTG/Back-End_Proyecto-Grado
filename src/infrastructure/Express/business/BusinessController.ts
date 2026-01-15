@@ -25,6 +25,12 @@ function toResponse(b: Business) {
   };
 }
 
+function parseOptionalNumber(raw: any): number | null {
+  if (raw === undefined || raw === null || raw === "") return null;
+  const n = Number(raw);
+  return Number.isNaN(n) ? null : n;
+}
+
 function normalizePosition(raw: any): Position | null {
   if (raw === undefined || raw === null || raw === "") return null;
 
@@ -103,11 +109,15 @@ export class BusinessController {
 
     const businessTypeId = Number(body.business_type_id);
     const clientId = Number(body.client_id);
-    const areaId = Number(body.area_id);
 
     if (Number.isNaN(businessTypeId)) return res.status(400).json({ message: "businessTypeId inválido" });
     if (Number.isNaN(clientId)) return res.status(400).json({ message: "clientId inválido" });
-    if (Number.isNaN(areaId)) return res.status(400).json({ message: "areaId inválido" });
+
+
+    const areaId = parseOptionalNumber(body.areaId);
+    if (body.areaId !== undefined && body.areaId !== null && body.areaId !== "" && areaId === null) {
+      return res.status(400).json({ message: "areaId inválido" });
+    }
 
     const position = normalizePosition(body.position);
     if (body.position !== undefined && body.position !== null && body.position !== "" && position === null) {
@@ -189,9 +199,13 @@ export class BusinessController {
     }
 
     if (body.area_id !== undefined) {
-      const v = Number(body.area_id);
-      if (Number.isNaN(v)) return res.status(400).json({ message: "areaId inválido" });
-      patch.areaId = v;
+      if (body.area_id === null || body.area_id === "") {
+        patch.area_id = null;
+      } else {
+        const v = Number(body.area_id);
+        if (Number.isNaN(v)) return res.status(400).json({ message: "areaId inválido" });
+        patch.areaId = v;
+      }
     }
 
     if (body.position !== undefined) {

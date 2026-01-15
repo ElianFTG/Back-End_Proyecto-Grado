@@ -7,16 +7,15 @@ export class Business {
   position: Position | null;
   pathImage: string | null;
   address: string | null;
-
   businessTypeId: number;
   clientId: number;
-  areaId: number;
+  areaId: number | null;
   isActive: boolean;
   constructor(
     name: string,
     businessTypeId: number,
     clientId: number,
-    areaId: number,
+    areaId: number | null,
     nit: string | null,
     position: Position | null,
     pathImage: string | null,

@@ -38,6 +38,7 @@ export class BusinessEntity {
   @Column({ type: "varchar", length: 255, nullable: true })
   address!: string | null;
 
+  // Estado operativo (activo/inactivo)
   @Column({ type: "boolean", default: true })
   is_active!: boolean;
 
@@ -58,12 +59,12 @@ export class BusinessEntity {
   client!: ClientEntity;
 
   @Index()
-  @Column({ type: "smallint", unsigned: true })
-  area_id!: number;
+  @Column({ type: "smallint", unsigned: true, nullable: true })
+  area_id!: number | null;
 
-  @ManyToOne(() => AreaEntity, { nullable: false })
+  @ManyToOne(() => AreaEntity, { nullable: true })
   @JoinColumn({ name: "area_id" })
-  area!: AreaEntity;
+  area!: AreaEntity | null;
 
   // Auditoría
   @Column({ type: "smallint", nullable: true })
@@ -75,6 +76,7 @@ export class BusinessEntity {
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
 
+  // Soft-delete / auditoría
   @Column({ type: "boolean", default: true })
   state!: boolean;
 }
