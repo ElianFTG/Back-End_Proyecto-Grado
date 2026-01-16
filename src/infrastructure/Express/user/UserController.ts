@@ -81,7 +81,8 @@ export class UserController {
     }
 
     async findByCi(req: Request, res: Response){
-        const ci = req.params.ci;
+        const rawCi = req.params.ci;
+        const ci = Array.isArray(rawCi) ? rawCi[0] : (rawCi !== undefined && rawCi !== null ? String(rawCi) : '');
         if (!ci) {
             return res.status(400).json({ message: 'CI inválido' });
         }
@@ -89,7 +90,7 @@ export class UserController {
             const user = await UserServiceContainer.user.findByCi.run(ci);
             return res.status(200).json(user);
         } catch (error) {
-            return res.json().status(404);
+            return res.status(404).json(null);
         }
     }
 
