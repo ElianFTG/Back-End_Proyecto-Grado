@@ -1,1 +1,0 @@
-{"version":3,"file":"GetAllBranches.js","sourceRoot":"","sources":["../../../src/application/branch/GetAllBranches.ts"],"names":[],"mappings":";;;AAGA,MAAa,cAAc;IACvB,YAAoB,UAA4B;QAA5B,eAAU,GAAV,UAAU,CAAkB;IAAG,CAAC;IAEpD,KAAK,CAAC,GAAG;QACL,OAAO,IAAI,CAAC,UAAU,CAAC,MAAM,EAAE,CAAC;IACpC,CAAC;CACJ;AAND,wCAMC"}
