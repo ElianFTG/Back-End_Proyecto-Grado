@@ -82,7 +82,7 @@ export class UserController {
     }
 
     async findByCi(req: Request, res: Response){
-        const ci = req.params.ci;
+        const {ci} = req.params;
         if (!ci) {
             return res.status(400).json({ message: 'CI inválido' });
         }
