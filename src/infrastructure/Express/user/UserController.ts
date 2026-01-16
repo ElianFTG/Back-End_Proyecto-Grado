@@ -1,4 +1,5 @@
 import { Request,Response } from "express";
+import * as express from "express";
 import { UserNotFound } from "../../../domain/errors/user/UserNotFound";
 import { UserServiceContainer } from "../../../shared/service_containers/user/UserServiceContainer";
 import { User } from "../../../domain/user/User";
@@ -81,7 +82,7 @@ export class UserController {
         return res.status(204).send();
     }
 
-    async findByCi(req: Request, res: Response){
+    async findByCi(req: express.Request, res: express.Response){
         const {ci} = req.params;
         if (!ci) {
             return res.status(400).json({ message: 'CI inválido' });
