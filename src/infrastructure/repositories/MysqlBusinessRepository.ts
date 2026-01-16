@@ -30,7 +30,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
       row.name,
       row.business_type_id,
       row.client_id,
-      row.area_id,
+      row.area_id ?? null,
       row.nit ?? null,
       row.position ? this.parseWktPoint(row.position) : null,
       row.path_image ?? null,
@@ -48,10 +48,10 @@ export class MysqlBusinessRepository implements BusinessRepository {
         position: business.position ? this.toWktPoint(business.position) : null,
         path_image: business.pathImage ?? null,
         address: business.address ?? null,
-        is_active: business.isActive ?? true, 
+        is_active: business.isActive ?? true,
         business_type_id: business.businessTypeId,
         client_id: business.clientId,
-        area_id: business.areaId,
+        area_id: business.areaId ?? null,
         user_id: userId ?? null,
         state: true,
       });
@@ -68,7 +68,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
     try {
       const rows = await this.repo.find({
         where: onlyActive ? ({ state: true } as any) : ({} as any),
-        order: { id: "DESC" },
+        order: { name: "DESC" },
       });
       return rows.map((r) => this.toDomain(r));
     } catch (e) {
@@ -100,7 +100,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
         ...(business.isActive !== undefined ? { is_active: business.isActive } : {}),
         ...(business.businessTypeId !== undefined ? { business_type_id: business.businessTypeId } : {}),
         ...(business.clientId !== undefined ? { client_id: business.clientId } : {}),
-        ...(business.areaId !== undefined ? { area_id: business.areaId } : {}),
+        ...(business.areaId !== undefined ? { area_id: business.areaId ?? null } : {}),
         user_id: userId ?? null,
       };
 
