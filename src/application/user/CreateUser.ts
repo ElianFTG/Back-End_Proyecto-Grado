@@ -21,7 +21,7 @@ export class CreateUser {
         
     ) : Promise<User | null> {
         const passwordHashed = await bcrypt.hash(password, Number(process.env.SALT));
-        return this.repository.create(
+        const user = await this.repository.create(
             new User(
                 ci,
                 names,
@@ -34,6 +34,7 @@ export class CreateUser {
             passwordHashed,
             userId
         );
+        return user;
     }
-
 }
+

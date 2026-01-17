@@ -16,6 +16,7 @@ ClientRouter.post(
     "/clients",
     authJwt(authService),
     requireRole("super administrador", "prevendedor", "administrador"),
+    upload.single("image"),
     controller.create
 );
 

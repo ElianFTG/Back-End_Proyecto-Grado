@@ -3,7 +3,7 @@ import { PaginatedProductsResult, ProductRepository } from "../../domain/product
 export class GetAllProducts {
     constructor(private repository: ProductRepository) {}
 
-    async run(filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; }): Promise<PaginatedProductsResult> {
+    async run(filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; search?: string; }): Promise<PaginatedProductsResult> {
         return this.repository.getAll(filters);
     }
 }

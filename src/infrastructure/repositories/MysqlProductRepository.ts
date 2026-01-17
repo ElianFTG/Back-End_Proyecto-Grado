@@ -1,41 +1,48 @@
 import { ProductRepository, PaginatedProductsResult } from "../../domain/product/ProductRepository";
 import { Product, SalePrice } from "../../domain/product/Product";
-import { Repository, QueryDeepPartialEntity, FindOptionsWhere } from 'typeorm';
+import { Repository, QueryDeepPartialEntity } from 'typeorm';
 import { ProductEntity } from "../persistence/typeorm/entities/ProductEntity";
 import { AppDataSource } from "../db/Mysql";
 
 export class MysqlProductRepository implements ProductRepository {
     private readonly repo: Repository<ProductEntity>;
-
     constructor() {
         this.repo = AppDataSource.getRepository(ProductEntity);
     }
-
-    async getAll(filters?: { categoryId?: number; brandId?: number; state?: boolean; page?: number, limit?: number }): Promise<PaginatedProductsResult> {
+    async getAll(filters?: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; search?: string }): Promise<PaginatedProductsResult> {
         try {
-            const where: FindOptionsWhere<ProductEntity> = {};
             const page = filters?.page || 1;
             const limit = filters?.limit || 10;
-            
+            const search = filters?.search?.trim() || '';
+
+            const qb = this.repo.createQueryBuilder('p')
+                .leftJoinAndSelect('p.category', 'category')
+                .leftJoinAndSelect('p.brand', 'brand')
+                .leftJoinAndSelect('p.presentation', 'presentation')
+                .leftJoinAndSelect('p.color', 'color');
+
             if (filters?.categoryId !== undefined) {
-                where.category_id = filters.categoryId;
+                qb.andWhere('p.category_id = :categoryId', { categoryId: filters.categoryId });
             }
             if (filters?.brandId !== undefined) {
-                where.brand_id = filters.brandId;
+                qb.andWhere('p.brand_id = :brandId', { brandId: filters.brandId });
             }
             if (filters?.state !== undefined) {
-                where.state = filters.state;
+                qb.andWhere('p.state = :state', { state: filters.state });
             } else {
-                where.state = true; // Por defecto solo activos
+                qb.andWhere('p.state = :state', { state: true });
+            }
+            if (search) {
+                qb.andWhere('(p.name LIKE :search OR p.barcode LIKE :search OR p.internal_code LIKE :search)',
+                    { search: `%${search}%` });
             }
 
-            const [rows, total] = await this.repo.findAndCount({
-                where,
-                relations: ['category', 'brand', 'presentation', 'color'],
-                order: { id: "DESC" },
-                skip: (page - 1) * limit,
-                take: limit,
-            });
+
+            qb.orderBy('p.name', 'ASC')
+                .skip((page - 1) * limit)
+                .take(limit);
+
+            const [rows, total] = await qb.getManyAndCount();
 
             const data = rows.map((row) => new Product(
                 row.name,
@@ -85,7 +92,6 @@ export class MysqlProductRepository implements ProductRepository {
                 user_id: product.userId,
             });
 
-            // Cargar relaciones
             const savedProduct = await this.repo.findOne({
                 where: { id: row.id },
                 relations: ['category', 'brand', 'presentation', 'color']
@@ -164,7 +170,7 @@ export class MysqlProductRepository implements ProductRepository {
             if (product.presentationId !== undefined) patch.presentation_id = product.presentationId;
             if (product.colorId !== undefined) patch.color_id = product.colorId;
             if (product.salePrice !== undefined) patch.sale_price = product.salePrice;
-            
+
             if (product.categoryId !== undefined) patch.category_id = product.categoryId;
             if (product.brandId !== undefined) patch.brand_id = product.brandId;
             if ((product as any).pathImage !== undefined) patch.url_image = (product as any).pathImage;
