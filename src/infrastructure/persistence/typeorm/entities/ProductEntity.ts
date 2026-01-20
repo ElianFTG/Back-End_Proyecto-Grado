@@ -6,14 +6,9 @@ import { ColorEntity } from './ColorEntity';
 import { ProductBranchEntity } from './ProductBranchEntity';
 
 @Entity({ name: 'products' })
-@Index('idx_products_name', ['name'])
-@Index('idx_products_barcode', ['barcode'])
-@Index('idx_products_internal_code', ['internal_code'])
 @Index('idx_products_category', ['category_id'])
 @Index('idx_products_brand', ['brand_id'])
 @Index('idx_products_state', ['state'])
-@Index('idx_products_state_category', ['state', 'category_id'])
-@Index('idx_products_state_brand', ['state', 'brand_id'])
 export class ProductEntity {
     @PrimaryGeneratedColumn({ type: 'smallint', unsigned: true })
     id!: number;

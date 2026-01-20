@@ -94,4 +94,15 @@ export class ClientController {
 
     return res.status(200).json({ message: "Eliminado" });
   }
+
+  async search(req: Request, res: Response) {
+    const search = String(req.query.q || '').trim();
+    let limit = Number(req.query.limit) || 10;
+    
+    if (limit > 50) limit = 50;
+    if (limit < 1) limit = 10;
+
+    const clients = await ClientServiceContainer.client.searchClients.run({ search, limit });
+    return res.status(200).json(clients.map(toResponse));
+  }
 }

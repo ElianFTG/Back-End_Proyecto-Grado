@@ -20,6 +20,13 @@ ClientRouter.post(
 );
 
 ClientRouter.get(
+    "/clients/search",
+    authJwt(authService),
+    requireRole("super administrador", "administrador", "prevendedor"),
+    controller.search
+);
+
+ClientRouter.get(
     "/clients",
     authJwt(authService),
     requireRole("super administrador", "administrador", "prevendedor"),

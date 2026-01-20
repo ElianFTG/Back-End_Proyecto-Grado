@@ -37,7 +37,6 @@ export class MysqlProductRepository implements ProductRepository {
                     { search: `%${search}%` });
             }
 
-
             qb.orderBy('p.name', 'ASC')
                 .skip((page - 1) * limit)
                 .take(limit);

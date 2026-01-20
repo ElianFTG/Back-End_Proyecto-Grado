@@ -3,7 +3,6 @@ import { ProductEntity } from './ProductEntity';
 import { BranchEntity } from './BranchEntity';
 
 @Entity({ name: 'product_branches' })
-@Index('idx_pb_branch_has_stock', ['branch_id', 'has_stock'])
 @Index('idx_pb_branch_product', ['branch_id', 'product_id'])
 export class ProductBranchEntity {
     @PrimaryColumn({ type: 'smallint', unsigned: true })
