@@ -1,1 +1,0 @@
-{"version":3,"file":"UpdateStateBranch.js","sourceRoot":"","sources":["../../../src/application/branch/UpdateStateBranch.ts"],"names":[],"mappings":";;;AAEA,MAAa,iBAAiB;IAC1B,YAAoB,UAA4B;QAA5B,eAAU,GAAV,UAAU,CAAkB;IAAG,CAAC;IAEpD,KAAK,CAAC,GAAG,CAAC,EAAU,EAAE,MAAe;QACjC,OAAO,IAAI,CAAC,UAAU,CAAC,WAAW,CAAC,EAAE,EAAE,MAAM,CAAC,CAAC;IACnD,CAAC;CACJ;AAND,8CAMC"}
