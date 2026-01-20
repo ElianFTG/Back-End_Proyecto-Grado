@@ -1,7 +1,7 @@
-import { Repository, QueryDeepPartialEntity } from "typeorm";
+import { Repository, QueryDeepPartialEntity, Brackets } from "typeorm";
 import { AppDataSource } from "../db/Mysql";
 import { Client } from "../../domain/client/Client";
-import { ClientRepository } from "../../domain/client/ClientRepository";
+import { ClientRepository, SearchClientsParams } from "../../domain/client/ClientRepository";
 import { ClientEntity } from "../persistence/typeorm/entities/ClientEntity";
 
 export class MysqlClientRepository implements ClientRepository {
@@ -94,6 +94,57 @@ export class MysqlClientRepository implements ClientRepository {
     } catch (e) {
       console.log(e);
       return false;
+    }
+  }
+
+  /**
+   * Búsqueda dinámica de clientes por apellidos, nombres, ci o teléfono.
+   * Divide el término de búsqueda en palabras y busca que TODAS coincidan con alguno de los campos.
+   * Retorna máximo `limit` resultados (por defecto 10)
+   * Solo busca clientes activos (state = true)
+   */
+  async search(params: SearchClientsParams): Promise<Client[]> {
+    try {
+      const { search = '', limit = 10 } = params;
+      
+      if (!search.trim()) {
+        const rows = await this.repo.find({
+          where: { state: true },
+          order: { last_name: 'ASC', second_last_name: 'ASC', name: 'ASC' },
+          take: limit,
+        });
+        return rows.map((r) => this.toDomain(r));
+      }
+
+      const words = search.trim().split(/\s+/);
+      const qb = this.repo.createQueryBuilder('c')
+        .where('c.state = :state', { state: true });
+
+      words.forEach((word, index) => {
+        const paramName = `word${index}`;
+        const likeTerm = `%${word}%`;
+        qb.andWhere(
+          new Brackets((qb) => {
+            qb.where('c.last_name LIKE :term', { term: likeTerm })
+              .orWhere('c.second_last_name LIKE :term', { term: likeTerm })
+              .orWhere('c.name LIKE :term', { term: likeTerm })
+              .orWhere('c.ci LIKE :term', { term: likeTerm })
+              .orWhere('c.phone LIKE :term', { term: likeTerm });
+          })
+        );
+      });
+
+      const rows = await qb
+        .orderBy('c.last_name', 'ASC')
+        .addOrderBy('c.second_last_name', 'ASC')
+        .addOrderBy('c.name', 'ASC')
+        .take(limit)
+        .getMany();
+
+      return rows.map((r) => this.toDomain(r));
+    } catch (e) {
+      console.log(e);
+      return [];
     }
   }
 }

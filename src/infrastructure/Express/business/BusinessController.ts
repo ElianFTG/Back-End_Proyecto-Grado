@@ -183,7 +183,7 @@ export class BusinessController {
     if (body.address !== undefined) patch.address = body.address;
 
     if (body.is_active !== undefined) {
-      patch.is_active = String(body.is_active) === "true" || body.is_active === true;
+      patch.isActive = String(body.is_active) === "true" || body.is_active === true;
     }
 
     if (body.business_type_id !== undefined) {
@@ -200,7 +200,7 @@ export class BusinessController {
 
     if (body.area_id !== undefined) {
       if (body.area_id === null || body.area_id === "") {
-        patch.area_id = null;
+        patch.areaId = null;
       } else {
         const v = Number(body.area_id);
         if (Number.isNaN(v)) return res.status(400).json({ message: "areaId inválido" });

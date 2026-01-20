@@ -94,4 +94,39 @@ export class ClientController {
 
     return res.status(200).json({ message: "Eliminado" });
   }
+
+  /**
+   * Búsqueda dinámica de clientes
+   * 
+   * GET /clients/search?q=Juan&limit=10
+   * 
+   * Query params:
+   * - q: Término de búsqueda (busca en apellidos paterno/materno, nombres, CI, teléfono)
+   * - limit: Máximo de resultados a retornar (por defecto 10, máximo 50)
+   * 
+   * Response: Array de clientes que coinciden, ordenados por apellido paterno, apellido materno, nombres
+   * [
+   *   {
+   *     "id": 1,
+   *     "name": "Juan",
+   *     "lastName": "Pérez",
+   *     "secondLastName": "García",
+   *     "phone": "77712345",
+   *     "ci": "12345678",
+   *     "clientTypeId": 1
+   *   },
+   *   ...
+   * ]
+   */
+  async search(req: Request, res: Response) {
+    const search = String(req.query.q || '').trim();
+    let limit = Number(req.query.limit) || 10;
+    
+    // Limitar máximo a 50 para evitar sobrecarga
+    if (limit > 50) limit = 50;
+    if (limit < 1) limit = 10;
+
+    const clients = await ClientServiceContainer.client.searchClients.run({ search, limit });
+    return res.status(200).json(clients.map(toResponse));
+  }
 }
