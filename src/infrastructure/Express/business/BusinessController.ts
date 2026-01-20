@@ -107,8 +107,8 @@ export class BusinessController {
 
     if (!body.name) return res.status(400).json({ message: "name requerido" });
 
-    const businessTypeId = Number(body.business_type_id);
-    const clientId = Number(body.client_id);
+    const businessTypeId = Number(body.businessTypeId);
+    const clientId = Number(body.clientId);
 
     if (Number.isNaN(businessTypeId)) return res.status(400).json({ message: "businessTypeId inválido" });
     if (Number.isNaN(clientId)) return res.status(400).json({ message: "clientId inválido" });
@@ -124,7 +124,7 @@ export class BusinessController {
       return res.status(400).json({ message: "position inválido (usa {lat,lng})" });
     }
 
-    const isActive = body.is_active === undefined ? true : String(body.is_active) === "true" || body.is_active === true;
+    const isActive = body.isActive === undefined ? true : String(body.isActive) === "true" || body.isActive === true;
 
     const business = new Business(
       body.name,
@@ -182,27 +182,27 @@ export class BusinessController {
     if (body.nit !== undefined) patch.nit = body.nit;
     if (body.address !== undefined) patch.address = body.address;
 
-    if (body.is_active !== undefined) {
-      patch.is_active = String(body.is_active) === "true" || body.is_active === true;
+    if (body.isActive !== undefined) {
+      patch.isActive = String(body.isActive) === "true" || body.isActive === true;
     }
 
-    if (body.business_type_id !== undefined) {
-      const v = Number(body.business_type_id);
+    if (body.businessTypeId !== undefined) {
+      const v = Number(body.businessTypeId);
       if (Number.isNaN(v)) return res.status(400).json({ message: "businessTypeId inválido" });
       patch.businessTypeId = v;
     }
 
-    if (body.client_id !== undefined) {
-      const v = Number(body.client_id);
+    if (body.clientId !== undefined) {
+      const v = Number(body.clientId);
       if (Number.isNaN(v)) return res.status(400).json({ message: "clientId inválido" });
       patch.clientId = v;
     }
 
-    if (body.area_id !== undefined) {
-      if (body.area_id === null || body.area_id === "") {
-        patch.area_id = null;
+    if (body.areaId !== undefined) {
+      if (body.areaId === null || body.areaId === "") {
+        patch.areaId = null;
       } else {
-        const v = Number(body.area_id);
+        const v = Number(body.areaId);
         if (Number.isNaN(v)) return res.status(400).json({ message: "areaId inválido" });
         patch.areaId = v;
       }

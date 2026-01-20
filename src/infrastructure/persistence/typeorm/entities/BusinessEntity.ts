@@ -38,7 +38,6 @@ export class BusinessEntity {
   @Column({ type: "varchar", length: 255, nullable: true })
   address!: string | null;
 
-  // Estado operativo (activo/inactivo)
   @Column({ type: "boolean", default: true })
   is_active!: boolean;
 

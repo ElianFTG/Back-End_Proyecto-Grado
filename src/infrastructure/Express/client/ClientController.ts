@@ -18,19 +18,18 @@ export class ClientController {
   async create(req: Request, res: Response) {
     const userId = req.auth?.userId ?? null;
     const body: any = req.body;
-    console.log(body)
 
-    if (!body.name || !body.last_name || !body.second_last_name || !body.phone) {
+    if (!body.name || !body.lastName || !body.secondLastName || !body.phone) {
       return res.status(400).json({ message: "Campos requeridos: name, lastName, secondLastName, phone" });
     }
 
-    const clientTypeId = Number(body.client_type_id);
+    const clientTypeId = Number(body.clientTypeId);
     if (Number.isNaN(clientTypeId)) return res.status(400).json({ message: "clientTypeId inválido" });
 
     const client = new Client(
       body.name,
-      body.last_name,
-      body.second_last_name,
+      body.lastName,
+      body.secondLastName,
       body.phone,
       clientTypeId,
       body.ci ?? null
@@ -43,7 +42,6 @@ export class ClientController {
   }
 
   async getAll(req: Request, res: Response) {
-    const onlyActive = req.query.onlyActive !== "false";
     const clients = await ClientServiceContainer.client.getClients.run();
     return res.status(200).json(clients.map(toResponse));
   }
@@ -67,13 +65,13 @@ export class ClientController {
     const patch: any = {};
 
     if (body.name !== undefined) patch.name = body.name;
-    if (body.last_name !== undefined) patch.lastName = body.last_name;
-    if (body.second_last_name !== undefined) patch.secondLastName = body.second_last_name;
+    if (body.lastName !== undefined) patch.lastName = body.lastName;
+    if (body.secondLastName !== undefined) patch.secondLastName = body.secondLastName;
     if (body.phone !== undefined) patch.phone = body.phone;
     if (body.ci !== undefined) patch.ci = body.ci;
 
-    if (body.client_type_id !== undefined) {
-      const ct = Number(body.client_type_id);
+    if (body.clientTypeId !== undefined) {
+      const ct = Number(body.clientTypeId);
       if (Number.isNaN(ct)) return res.status(400).json({ message: "clientTypeId inválido" });
       patch.clientTypeId = ct;
     }

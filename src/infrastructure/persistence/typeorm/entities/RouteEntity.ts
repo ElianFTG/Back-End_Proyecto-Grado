@@ -36,7 +36,6 @@ export class RouteEntity {
   @JoinColumn({ name: "assigned_id_area" })
   assigned_area!: AreaEntity;
 
-  // Auditoría
   @Column({ type: "smallint", nullable: true })
   user_id!: number | null;
 
