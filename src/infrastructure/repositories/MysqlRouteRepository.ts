@@ -4,7 +4,6 @@ import { AppDataSource } from "../db/Mysql";
 import { Route } from "../../domain/route/Route";
 import { RouteRepository } from "../../domain/route/RouteRepository";
 import { RouteEntity } from "../persistence/typeorm/entities/RouteEntity";
-import e from "express";
 
 export class MysqlRouteRepository implements RouteRepository {
   private readonly repo: Repository<RouteEntity>;

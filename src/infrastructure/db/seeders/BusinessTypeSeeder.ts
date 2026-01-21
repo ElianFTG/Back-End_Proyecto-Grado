@@ -8,7 +8,9 @@ export async function seedBusinessTypes() {
 
   await repo.save([
     {name: "Ferretería", user_id: null, state: true },
-    {name: "Electricidad", user_id: null, state: true },
-    {name: "Construcción", user_id: null, state: true },
+    {name: "Tienda", user_id: null, state: true },
+    {name: "Distribuidor", user_id: null, state: true},
+    {name: "Constructora", user_id: null, state: true },
+    
   ]);
 }

@@ -20,10 +20,12 @@ import { BusinessRouter } from "./infrastructure/Express/business/BusinessRoutes
 import { BusinessTypeRouter } from "./infrastructure/Express/businessType/BusinessTypeRoutes";
 import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
 import { RouteRouter } from "./infrastructure/Express/route/RuoteTypeRoutes";
+import { RejectionRouter } from "./infrastructure/Express/rejection/RejectionRoutes";
 
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
 import { seedClientTypes } from "./infrastructure/db/seeders/ClientTypeSeeder";
 import { seedBusinessTypes } from "./infrastructure/db/seeders/BusinessTypeSeeder";
+import { seedRejections } from "./infrastructure/db/seeders/seedRejections";
 
 const app = express();
 app.use(cors());
@@ -42,6 +44,7 @@ AppDataSource.initialize()
     await seedCountries();
     await seedClientTypes();
     await seedBusinessTypes();
+    await seedRejections();
   })
   .catch((err) => {
     console.error('Failed to initialize database:', err);
@@ -67,6 +70,7 @@ app.use(ClientRouter);
 app.use(BusinessRouter);
 app.use(AreaRouter);
 app.use(RouteRouter);
+app.use(RejectionRouter);
 
 
 app.use((req, res, next) => {

@@ -7,7 +7,6 @@ import { MysqlClientRepository } from "../../../infrastructure/repositories/Mysq
 export class RouteServiceContainer {
   static get route() {
     const routeRepo = new MysqlRouteRepository();
-    const clientRepo = new MysqlClientRepository();
 
     return {
       createRoute: new CreateRoute(routeRepo),
