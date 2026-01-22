@@ -21,25 +21,9 @@ export class MysqlProductRepository implements ProductRepository {
                 .leftJoinAndSelect('p.presentation', 'presentation')
                 .leftJoinAndSelect('p.color', 'color');
 
-            if (filters?.categoryId !== undefined) {
-                qb.andWhere('p.category_id = :categoryId', { categoryId: filters.categoryId });
-            }
-            if (filters?.brandId !== undefined) {
-                qb.andWhere('p.brand_id = :brandId', { brandId: filters.brandId });
-            }
-            if (filters?.state !== undefined) {
-                qb.andWhere('p.state = :state', { state: filters.state });
-            } else {
-                qb.andWhere('p.state = :state', { state: true });
-            }
-            if (search) {
-                qb.andWhere('(p.name LIKE :search OR p.barcode LIKE :search OR p.internal_code LIKE :search)',
-                    { search: `%${search}%` });
-            }
-
-            qb.orderBy('p.name', 'ASC')
-                .skip((page - 1) * limit)
-                .take(limit);
+            this.applyFilters(qb, filters);
+            this.applySearch(qb, search);
+            this.applyPagination(qb, page, limit);
 
             const [rows, total] = await qb.getManyAndCount();
 
@@ -75,6 +59,33 @@ export class MysqlProductRepository implements ProductRepository {
             console.log(error);
             throw error;
         }
+    }
+
+    private applyFilters(qb: any, filters?: { categoryId?: number; brandId?: number; state?: boolean }) {
+        if (filters?.categoryId !== undefined) {
+            qb.andWhere('p.category_id = :categoryId', { categoryId: filters.categoryId });
+        }
+        if (filters?.brandId !== undefined) {
+            qb.andWhere('p.brand_id = :brandId', { brandId: filters.brandId });
+        }
+        if (filters?.state !== undefined) {
+            qb.andWhere('p.state = :state', { state: filters.state });
+        } else {
+            qb.andWhere('p.state = :state', { state: true });
+        }
+    }
+
+    private applySearch(qb: any, search: string) {
+        if (search) {
+            qb.andWhere('(p.name LIKE :search OR p.barcode LIKE :search OR p.internal_code LIKE :search)',
+                { search: `%${search}%` });
+        }
+    }
+
+    private applyPagination(qb: any, page: number, limit: number) {
+        qb.orderBy('p.name', 'ASC')
+            .skip((page - 1) * limit)
+            .take(limit);
     }
 
     async create(product: Product): Promise<Product | null> {
