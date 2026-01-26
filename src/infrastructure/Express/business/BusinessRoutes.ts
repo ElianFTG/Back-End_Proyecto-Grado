@@ -49,4 +49,10 @@ BusinessRouter.delete(
   controller.softDelete
 );
 
+BusinessRouter.get(
+  "/business-activity",
+  authJwt(authService),
+  controller.businessActivitiesByRoute
+);
+
 export { BusinessRouter };

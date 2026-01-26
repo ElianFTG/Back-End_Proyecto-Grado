@@ -238,4 +238,19 @@ export class BusinessController {
 
     return res.status(200).json({ message: "Eliminado" });
   }
+
+
+  async businessActivitiesByRoute(req: Request, res: Response){
+    const userId = req.auth?.userId ?? null;
+    const date = String(req.query.date || "");
+    if (!userId) return res.status(401).json({ message: "No autenticado" });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ message: "fecha inválida (YYYY-MM-DD)" });
+    }
+    const businessActivities = await BusinessServiceContainer.business.getBusinessActivitiesByRoute.run(userId, date)
+    if(!businessActivities) return res.status(404).json({message: "No encontrado"})
+    return res.status(200).json(businessActivities);
+
+  }
+
 }

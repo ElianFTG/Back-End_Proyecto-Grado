@@ -1,3 +1,4 @@
+import { Route } from "../../domain/route/Route";
 import { RouteRepository } from "../../domain/route/RouteRepository";
 
 
@@ -6,8 +7,7 @@ export class FindAreaForRouteByUserAndDate{
         private repo: RouteRepository
     ) {}
 
-    async run(userId: number, assignedDate: string): Promise<Number | null> {
-        
+    async run(userId: number, assignedDate: string): Promise<Route | null> {
         return this.repo.findAreaForRouteByUserAndDate(userId, assignedDate); 
     } 
 }

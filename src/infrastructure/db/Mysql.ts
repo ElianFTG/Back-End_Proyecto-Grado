@@ -17,6 +17,7 @@ import { PresentationEntity } from '../persistence/typeorm/entities/Presentation
 import { ColorEntity } from '../persistence/typeorm/entities/ColorEntity';
 import { RouteEntity } from '../persistence/typeorm/entities/RouteEntity';
 import { RejectionEntity } from '../persistence/typeorm/entities/RejectionEntity';
+import { ActivityEntity } from '../persistence/typeorm/entities/ActivityEntity';
 
 import { config } from 'dotenv';
 
@@ -47,7 +48,8 @@ export const AppDataSource = new DataSource({
     PresentationEntity,
     ColorEntity,
     RouteEntity,
-    RejectionEntity
+    RejectionEntity,
+    ActivityEntity,
   ],
   synchronize: true,
   logging: false,

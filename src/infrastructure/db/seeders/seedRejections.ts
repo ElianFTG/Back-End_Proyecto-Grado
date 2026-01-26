@@ -11,11 +11,11 @@ export async function seedRejections() {
   }
 
   const data = [
+    { name: "Ninguno" },
     { name: "Dueño Ausente" },
     { name: "Negocio cerrado" },
     { name: "Abastecido" },
     { name: "Insuficiente capital" },
-    { name: "Otro" },
   ];
 
   await repo.save(
