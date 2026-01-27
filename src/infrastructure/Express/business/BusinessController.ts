@@ -239,6 +239,18 @@ export class BusinessController {
     return res.status(200).json({ message: "Eliminado" });
   }
 
+  async getDistanceInMetersBetweenPoints(req: Request, res: Response){
+    const businessId = req.body.businessId;
+    if(!businessId) return res.status(400).json({message: "businessId inválido"});
+
+    const position = normalizePosition(req.body.position);
+    if(!position) return res.status(400).json({message: "posicion inválido"});
+    
+    const distance = await BusinessServiceContainer.business.getDistanceInMetersBetweenPoints.run(businessId, position)
+    if(!distance) res.status(500).json({message: "Error interno en servidor"})
+    return res.status(200).json({distance});
+  }
+
 
   async businessActivitiesByRoute(req: Request, res: Response){
     const userId = req.auth?.userId ?? null;
@@ -248,7 +260,7 @@ export class BusinessController {
       return res.status(400).json({ message: "fecha inválida (YYYY-MM-DD)" });
     }
     const businessActivities = await BusinessServiceContainer.business.getBusinessActivitiesByRoute.run(userId, date)
-    if(!businessActivities) return res.status(404).json({message: "No encontrado"})
+    if(!businessActivities) return res.status(404).json({message: "Negocios con Actividad no encontrado"})
     return res.status(200).json(businessActivities);
 
   }

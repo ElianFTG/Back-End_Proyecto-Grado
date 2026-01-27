@@ -55,4 +55,10 @@ BusinessRouter.get(
   controller.businessActivitiesByRoute
 );
 
+BusinessRouter.get(
+  "/business-distance",
+  authJwt(authService),
+  controller.getDistanceInMetersBetweenPoints
+);
+
 export { BusinessRouter };

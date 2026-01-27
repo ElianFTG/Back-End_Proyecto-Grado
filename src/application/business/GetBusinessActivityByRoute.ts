@@ -1,9 +1,6 @@
-import { Business } from "../../domain/business/Business";
 import { BusinessRepository } from "../../domain/business/BusinessRepository";
 import { RouteRepository } from "../../domain/route/RouteRepository";
-import { Route } from "../../domain/route/Route";
 import { ActivityWork } from "../../domain/customs/ActivityWork";
-import { IsNull } from "typeorm";
 
 export class GetBusinessActivitiesByRoute{
     constructor(

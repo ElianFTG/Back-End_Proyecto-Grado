@@ -132,6 +132,31 @@ export class MysqlBusinessRepository implements BusinessRepository {
     }
   }
 
+
+  async getDistanceInMetersBetweenPoints(businessId: number,point: Position): Promise<any | null> {
+    try {
+      const pointWbkt = this.toWktPoint(point);
+      const raw = await this.repo.createQueryBuilder("b")
+        .addSelect(`
+          ST_Distance_Sphere(
+          position, 
+          ST_GeomFromText(:pointWbkt, 4326) 
+          ) 
+        `,"distance")
+        .setParameters({pointWbkt})
+        .where("b.id = :businessId", {businessId})
+        .getRawOne();
+      if(!raw) throw Error("Negocio no encontrado");
+      const distance = +Number(raw.distance).toFixed(2);
+      return { distance , isLessTo100: distance <= 100}
+      
+    } catch (error) {
+      console.log(error);
+      return null
+    }
+  }
+
+
   async getBusinessActivitiesByRoute(route: Route): Promise<any | []> {
     try {
       const rows = await this.repo.createQueryBuilder("b")

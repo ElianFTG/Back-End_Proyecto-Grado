@@ -5,7 +5,7 @@ import { FindByIdBusiness } from "../../../application/business/FindByIdBusiness
 import { UpdateBusiness } from "../../../application/business/UpdateBusiness";
 import { SoftDeleteBusiness } from "../../../application/business/SoftDeleteBusiness";
 
-import { RouteRepository } from "../../../domain/route/RouteRepository";
+import { GetDistanceInMetersBetweenPoints } from "../../../application/business/GetDistanceInMetersBetweenPoints";
 import { GetBusinessActivitiesByRoute } from "../../../application/business/GetBusinessActivityByRoute";
 import { MysqlRouteRepository } from "../../../infrastructure/repositories/MysqlRouteRepository";
 
@@ -20,7 +20,9 @@ export class BusinessServiceContainer {
       updateBusiness: new UpdateBusiness(repo),
       softDeleteBusiness: new SoftDeleteBusiness(repo),
 
+      getDistanceInMetersBetweenPoints: new GetDistanceInMetersBetweenPoints(repo),
       getBusinessActivitiesByRoute : new GetBusinessActivitiesByRoute(repo, routeRepo)
+
     };
   }
 }
