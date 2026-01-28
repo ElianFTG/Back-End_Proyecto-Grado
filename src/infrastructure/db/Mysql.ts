@@ -16,6 +16,9 @@ import { AreaEntity } from '../persistence/typeorm/entities/AreaEntity';
 import { PresentationEntity } from '../persistence/typeorm/entities/PresentationEntity';
 import { ColorEntity } from '../persistence/typeorm/entities/ColorEntity';
 import { RouteEntity } from '../persistence/typeorm/entities/RouteEntity';
+import { RejectionEntity } from '../persistence/typeorm/entities/RejectionEntity';
+import { ActivityEntity } from '../persistence/typeorm/entities/ActivityEntity';
+
 import { config } from 'dotenv';
 
 config();
@@ -45,6 +48,8 @@ export const AppDataSource = new DataSource({
     PresentationEntity,
     ColorEntity,
     RouteEntity,
+    RejectionEntity,
+    ActivityEntity,
   ],
   synchronize: true,
   logging: false,

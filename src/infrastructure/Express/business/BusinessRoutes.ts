@@ -49,4 +49,16 @@ BusinessRouter.delete(
   controller.softDelete
 );
 
+BusinessRouter.get(
+  "/business-activity",
+  authJwt(authService),
+  controller.businessActivitiesByRoute
+);
+
+BusinessRouter.get(
+  "/business-distance",
+  authJwt(authService),
+  controller.getDistanceInMetersBetweenPoints
+);
+
 export { BusinessRouter };
