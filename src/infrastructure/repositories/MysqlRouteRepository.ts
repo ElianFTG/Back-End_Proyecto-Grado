@@ -34,10 +34,12 @@ export class MysqlRouteRepository implements RouteRepository {
       });
 
       const created = await this.repo.findOneBy({ id: row.id });
-      console.log("Creado de ruta", created)
       return created ? this.toDomain(created) : null;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      if (error?.code === "ER_DUP_ENTRY" || error?.errno === 1062) {
+        throw new Error("ROUTE_USER_DATE_DUPLICATE");
+      }
       return null;
     }
   }
