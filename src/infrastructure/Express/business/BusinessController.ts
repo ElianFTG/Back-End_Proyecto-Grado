@@ -258,18 +258,18 @@ export class BusinessController {
     if(!businessId) return res.status(400).json({message: "businessId inválido"});
 
     const position = normalizePosition(req.body.position);
-    if(!position) return res.status(400).json({message: "posicion inválido"});
+    if(!position) return res.status(400).json({message: "posición inválido"});
     
     const distance = await BusinessServiceContainer.business.getDistanceInMetersBetweenPoints.run(businessId, position)
     if(!distance) res.status(500).json({message: "Error interno en servidor"})
-    return res.status(200).json({distance});
+    return res.status(200).json({calculated: distance});
   }
 
 
   async businessActivitiesByRoute(req: Request, res: Response){
-    const userId = req.auth?.userId ?? null;
+    const userId = Number(req.query.userId || 0);
     const date = String(req.query.date || "");
-    if (!userId) return res.status(401).json({ message: "No autenticado" });
+    if (!userId || userId < 0) return res.status(401).json({ message: "ID de usario inválido" });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return res.status(400).json({ message: "fecha inválida (YYYY-MM-DD)" });
     }

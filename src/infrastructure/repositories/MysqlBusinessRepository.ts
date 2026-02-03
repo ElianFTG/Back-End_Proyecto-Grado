@@ -194,6 +194,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
       if(!rows.length) throw new Error("No existe");
       const businessActivities = rows.map((row)=> {
         return {
+          idRoute : route.id,
           business: {
             name : row.business_name,
             businessTypeId : row.business_type_id,
@@ -208,9 +209,9 @@ export class MysqlBusinessRepository implements BusinessRepository {
           },
           activity: {
             id: row.act_id,
-            created_at : row.act_created_at,
+            createdAt : row.act_created_at,
             action: row.act_action,
-            rejection_id: row.act_rejection_id
+            rejectionId: row.act_rejection_id
           }
         }
          

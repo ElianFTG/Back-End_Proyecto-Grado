@@ -1,11 +1,11 @@
 export class Route {
   id?: number | undefined;
-  assignedDate: Date;
+  assignedDate: string;
   assignedIdUser: number;
   assignedIdArea: number;
 
   constructor(
-    assignedDate: Date,
+    assignedDate: string,
     assignedIdUser: number,
     assignedIdArea: number,
     id?: number
