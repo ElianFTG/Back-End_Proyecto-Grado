@@ -43,6 +43,7 @@ app.use(
 
 AppDataSource.initialize()
   .then(async () => {
+    console.log(new Date().toISOString())
     await seedCountries();
     await seedClientTypes();
     await seedBusinessTypes();

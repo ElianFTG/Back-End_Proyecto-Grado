@@ -17,8 +17,8 @@ export class RouteEntity {
   @PrimaryGeneratedColumn({ type: "int", unsigned: true })
   id!: number;
 
-  @Column({ type: "timestamp" })
-  assigned_date!: Date;
+  @Column({ type: "date" })
+  assigned_date!: string;
 
   @Index()
   @Column({ type: "smallint", unsigned: true })

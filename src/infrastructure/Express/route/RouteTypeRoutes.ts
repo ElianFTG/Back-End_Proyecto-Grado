@@ -24,11 +24,6 @@ RouteRouter.get(
   controller.findById
 );
 
-RouteRouter.get(
-  "/route-get-clients",
-  authJwt(authService),
-  controller.getClientsByRouteUserDate
-)
 
 
 export { RouteRouter };

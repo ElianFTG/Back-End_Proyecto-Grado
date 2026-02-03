@@ -24,6 +24,7 @@ export class MysqlRouteRepository implements RouteRepository {
   }
 
   async create(route: Route, auditUserId: number | null): Promise<Route | null> {
+    console.log("Accediendo a Creado de ruta", route.assignedDate)
     try {
       const row = await this.repo.save({
         assigned_date: route.assignedDate,
@@ -33,6 +34,7 @@ export class MysqlRouteRepository implements RouteRepository {
       });
 
       const created = await this.repo.findOneBy({ id: row.id });
+      console.log("Creado de ruta", created)
       return created ? this.toDomain(created) : null;
     } catch (error) {
       console.log(error);
@@ -53,15 +55,14 @@ export class MysqlRouteRepository implements RouteRepository {
   
   async findAreaForRouteByUserAndDate(userId: number, assignedDate: string) : Promise<Route | null>{
     try {
-      const start = new Date(`${assignedDate}T00:00:00.000Z`);
-      const end = new Date(`${assignedDate}T23:59:59.999Z`);
       const row = await this.repo.createQueryBuilder("r")
         .select()
         .where("r.assigned_id_user = :uid", { uid: userId })
-        .andWhere("r.assigned_date >= :start AND r.assigned_date <= :end", { start, end })
+        .andWhere("r.assigned_date = :assignedDate", { assignedDate})
         .orderBy("r.id", "DESC")
         .getOne();
       if(!row) throw new Error("No existe fecha o usuario");
+      console.log("Ruta encontrada",row)
       const foundRoute = this.toDomain(row)
       return foundRoute;
     } catch (error) {
