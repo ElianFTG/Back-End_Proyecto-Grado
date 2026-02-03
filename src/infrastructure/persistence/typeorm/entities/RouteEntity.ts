@@ -12,6 +12,8 @@ import {
 import { UserEntity } from "./UserEntity";
 import { AreaEntity } from "./AreaEntity";
 
+
+@Index("UQ_ROUTES_USER_DATE", ["assigned_id_user", "assigned_date"], { unique: true })
 @Entity({ name: "routes" })
 export class RouteEntity {
   @PrimaryGeneratedColumn({ type: "int", unsigned: true })
@@ -20,7 +22,6 @@ export class RouteEntity {
   @Column({ type: "date" })
   assigned_date!: string;
 
-  @Index()
   @Column({ type: "smallint", unsigned: true })
   assigned_id_user!: number;
 
