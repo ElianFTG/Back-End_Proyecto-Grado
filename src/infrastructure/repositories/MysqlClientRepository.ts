@@ -17,7 +17,6 @@ export class MysqlClientRepository implements ClientRepository {
       row.last_name,
       row.second_last_name,
       row.phone,
-      row.client_type_id,
       row.ci ?? null,
       row.id
     );
@@ -31,7 +30,6 @@ export class MysqlClientRepository implements ClientRepository {
         second_last_name: client.secondLastName,
         phone: client.phone,
         ci: client.ci ?? null,
-        client_type_id: client.clientTypeId,
         user_id: userId,
         state: true,
       });
@@ -75,7 +73,6 @@ export class MysqlClientRepository implements ClientRepository {
         ...(client.secondLastName !== undefined ? { second_last_name: client.secondLastName } : {}),
         ...(client.phone !== undefined ? { phone: client.phone } : {}),
         ...(client.ci !== undefined ? { ci: client.ci } : {}),
-        ...(client.clientTypeId !== undefined ? { client_type_id: client.clientTypeId } : {}),
         user_id: userId,
       };
       await this.repo.update({ id }, patch);

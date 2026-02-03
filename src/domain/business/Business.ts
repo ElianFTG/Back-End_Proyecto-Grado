@@ -9,12 +9,14 @@ export class Business {
   address: string | null;
   businessTypeId: number;
   clientId: number;
+  priceTypeId: number | null;
   areaId: number | null;
   isActive: boolean;
   constructor(
     name: string,
     businessTypeId: number,
     clientId: number,
+    priceTypeId: number | null,
     areaId: number | null,
     nit: string | null,
     position: Position | null,
@@ -27,6 +29,7 @@ export class Business {
     this.name = name;
     this.businessTypeId = businessTypeId;
     this.clientId = clientId;
+    this.priceTypeId = priceTypeId;
     this.areaId = areaId;
     this.nit = nit;
     this.position = position;

@@ -1,8 +1,8 @@
-export interface SalePrice {
-    mayorista?: number;
-    minorista?: number;
-    regular?: number;
-    [key: string]: number | undefined;
+
+export interface ProductPrice {
+    priceTypeId: number;
+    priceTypeName?: string;
+    price: number;
 }
 
 export class Product {
@@ -12,7 +12,7 @@ export class Product {
     internalCode: string | null;
     presentationId: number | null;
     colorId: number | null;
-    salePrice: SalePrice;
+    prices: ProductPrice[];
     state: boolean;
     categoryId: number;
     brandId: number;
@@ -27,7 +27,7 @@ export class Product {
 
     constructor(
         name: string,
-        salePrice: SalePrice,
+        prices: ProductPrice[],
         categoryId: number,
         brandId: number,
         userId: number | null,
@@ -35,7 +35,6 @@ export class Product {
         internalCode: string | null = null,
         presentationId: number | null = null,
         colorId: number | null = null,
-        
         state: boolean = true,
         id?: number,
         createdAt?: Date,
@@ -52,7 +51,7 @@ export class Product {
         this.internalCode = internalCode;
         this.presentationId = presentationId;
         this.colorId = colorId;
-        this.salePrice = salePrice;
+        this.prices = prices;
         this.state = state;
         this.categoryId = categoryId;
         this.brandId = brandId;

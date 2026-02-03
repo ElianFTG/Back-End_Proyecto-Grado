@@ -1,0 +1,19 @@
+import { Presale, PresaleDetail,  PresaleStatusHistory } from './Presale';
+import { CreatePresaleDTO, PresaleFilters , UpdateDetailDTO, ConfirmDeliveryDTO, PaginatedPresalesResult } from './PresaleFilter';
+
+
+export interface PresaleRepository {
+    create(dto: CreatePresaleDTO): Promise<Presale>;
+    getAll(filters: PresaleFilters): Promise<PaginatedPresalesResult>;
+    getById(id: number): Promise<Presale | null>;
+    getByIdWithDetails(id: number): Promise<Presale | null>;
+    assignDistributor(id: number, distributorId: number, userId: number): Promise<Presale | null>;
+    startDelivery(id: number, userId: number): Promise<Presale | null>;
+    confirmDelivery(id: number, dto: ConfirmDeliveryDTO, userId: number): Promise<Presale | null>;
+    cancelPresale(id: number, reason: string | null, userId: number): Promise<Presale | null>;
+    updateDetail(detailId: number, data: UpdateDetailDTO, userId: number): Promise<PresaleDetail | null>;
+    getDetailsByPresaleId(presaleId: number): Promise<PresaleDetail[]>;
+    getStatusHistory(presaleId: number): Promise<PresaleStatusHistory[]>;
+    softDelete(id: number, userId: number): Promise<boolean>;
+    canDistributorAccess(presaleId: number, distributorId: number): Promise<boolean>;
+}

@@ -1,3 +1,5 @@
+import { ProductPriceInfo } from './ProductBranchFilters';
+
 export class ProductBranch {
     productId: number;
     branchId: number;
@@ -6,7 +8,7 @@ export class ProductBranch {
     updatedAt?: Date | undefined;
     productName?: string | undefined;
     productBarcode?: string | null | undefined;
-    productSalePrice?: Record<string, number> | undefined;
+    productPrices?: ProductPriceInfo[] | undefined;
 
     constructor(
         productId: number,
@@ -16,7 +18,7 @@ export class ProductBranch {
         updatedAt?: Date,
         productName?: string,
         productBarcode?: string | null,
-        productSalePrice?: Record<string, number>
+        productPrices?: ProductPriceInfo[]
     ) {
         this.productId = productId;
         this.branchId = branchId;
@@ -25,6 +27,6 @@ export class ProductBranch {
         this.updatedAt = updatedAt;
         this.productName = productName;
         this.productBarcode = productBarcode;
-        this.productSalePrice = productSalePrice;
+        this.productPrices = productPrices;
     }
 }

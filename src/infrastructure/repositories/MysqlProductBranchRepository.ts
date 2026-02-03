@@ -1,6 +1,6 @@
 import { ProductBranchRepository } from "../../domain/product_branch/ProductBranchRepository";
 import { ProductBranch } from "../../domain/product_branch/ProductBranch";
-import { ProductBranchFilters, PaginatedBranchProducts, ProductWithBranchInfo } from "../../domain/product_branch/ProductBranchFilters";
+import { ProductBranchFilters, PaginatedBranchProducts, ProductWithBranchInfo, ProductPriceInfo } from "../../domain/product_branch/ProductBranchFilters";
 import { Repository } from 'typeorm';
 import { ProductBranchEntity } from "../persistence/typeorm/entities/ProductBranchEntity";
 import { ProductEntity } from "../persistence/typeorm/entities/ProductEntity";
@@ -15,90 +15,35 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
         this.productRepo = AppDataSource.getRepository(ProductEntity);
     }
 
-    async getProductsByBranchPaginated(filters: ProductBranchFilters): Promise<PaginatedBranchProducts<ProductWithBranchInfo>> {
+    async getProductsByBranch(filters: ProductBranchFilters): Promise<PaginatedBranchProducts<ProductWithBranchInfo>> {
         const {
             branchId,
             search = '',
-            categoryId,
-            brandId,
-            onlyAvailable = false,
             page = 1,
             limit = 50
         } = filters;
 
         const safeLimit = Math.min(Math.max(1, limit), 100);
         const safePage = Math.max(1, page);
-        const offset = (safePage - 1) * safeLimit;
 
         try {
             const qb = this.productRepo.createQueryBuilder('p')
                 .leftJoinAndSelect('p.category', 'cat')
                 .leftJoinAndSelect('p.brand', 'brand')
+                .leftJoinAndSelect('p.prices', 'prices')
+                .leftJoinAndSelect('prices.priceType', 'priceType')
                 .where('p.state = :state', { state: true });
 
-            if (onlyAvailable) {
-                qb.innerJoin(
-                    ProductBranchEntity,
-                    'pb',
-                    'pb.product_id = p.id AND pb.branch_id = :branchId AND pb.has_stock = true',
-                    { branchId }
-                );
-                qb.addSelect('pb.has_stock', 'pb_has_stock');
-                qb.addSelect('pb.stock_qty', 'pb_stock_qty');
-            } else {
-                qb.leftJoin(
-                    ProductBranchEntity,
-                    'pb',
-                    'pb.product_id = p.id AND pb.branch_id = :branchId',
-                    { branchId }
-                );
-                qb.addSelect('pb.has_stock', 'pb_has_stock');
-                qb.addSelect('pb.stock_qty', 'pb_stock_qty');
-            }
-            if (search && search.trim().length > 0) {
-                const searchTerm = `%${search.trim()}%`;
-                qb.andWhere(
-                    '(p.name LIKE :search OR p.barcode LIKE :search OR p.internal_code LIKE :search)',
-                    { search: searchTerm }
-                );
-            }
-            if (categoryId) {
-                qb.andWhere('p.category_id = :categoryId', { categoryId });
-            }
-            if (brandId) {
-                qb.andWhere('p.brand_id = :brandId', { brandId });
-            }
-            
-            qb.orderBy('p.name', 'ASC');
+            this.applyFilters(qb, branchId, filters);
+            this.applySearch(qb, search);
+
             const total = await qb.getCount();
-            qb.skip(offset).take(safeLimit);
+
+            this.applyPagination(qb, safePage, safeLimit);
+
             const rawResults = await qb.getRawAndEntities();
 
-            const data: ProductWithBranchInfo[] = rawResults.entities.map((product, index) => {
-                const raw = rawResults.raw[index];
-                return {
-                    id: product.id,
-                    name: product.name,
-                    barcode: product.barcode,
-                    internalCode: product.internal_code,
-                    presentationId: product.presentation_id,
-                    colorId: product.color_id,
-                    salePrice: product.sale_price,
-                    brand: {
-                        id: product.brand?.id ?? product.brand_id,
-                        name: product.brand?.name ?? ''
-                    },
-                    category: {
-                        id: product.category?.id ?? product.category_id,
-                        name: product.category?.name ?? ''
-                    },
-                    branch: {
-                        branchId: branchId,
-                        hasStock: raw.pb_has_stock === true || raw.pb_has_stock === 1,
-                        stockQty: raw.pb_stock_qty ?? null
-                    }
-                };
-            });
+            const data = this.mapToDomain(rawResults, branchId);
 
             return {
                 data,
@@ -117,6 +62,85 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
                 totalPages: 0
             };
         }
+    }
+
+    private applyFilters(qb: any, branchId: number, filters: ProductBranchFilters) {
+        if (filters.onlyAvailable) {
+            qb.innerJoin(
+                ProductBranchEntity,
+                'pb',
+                'pb.product_id = p.id AND pb.branch_id = :branchId AND pb.has_stock = true',
+                { branchId }
+            );
+            qb.addSelect('pb.has_stock', 'pb_has_stock');
+            qb.addSelect('pb.stock_qty', 'pb_stock_qty');
+        } else {
+            qb.leftJoin(
+                ProductBranchEntity,
+                'pb',
+                'pb.product_id = p.id AND pb.branch_id = :branchId',
+                { branchId }
+            );
+            qb.addSelect('pb.has_stock', 'pb_has_stock');
+            qb.addSelect('pb.stock_qty', 'pb_stock_qty');
+        }
+
+        if (filters.categoryId) {
+            qb.andWhere('p.category_id = :categoryId', { categoryId: filters.categoryId });
+        }
+        if (filters.brandId) {
+            qb.andWhere('p.brand_id = :brandId', { brandId: filters.brandId });
+        }
+    }
+
+    private applyPagination(qb: any, page: number, limit: number) {
+        qb.orderBy('p.name', 'ASC');
+        const offset = (page - 1) * limit;
+        qb.skip(offset).take(limit);
+    }
+
+    private applySearch(qb: any, search: string) {
+        if (search && search.trim().length > 0) {
+            const searchTerm = `%${search.trim()}%`;
+            qb.andWhere(
+                '(p.name LIKE :search OR p.barcode LIKE :search OR p.internal_code LIKE :search)',
+                { search: searchTerm }
+            );
+        }
+    }
+
+    private mapToDomain(rawResults: { entities: ProductEntity[], raw: any[] }, branchId: number): ProductWithBranchInfo[] {
+        return rawResults.entities.map((product, index) => {
+            const raw = rawResults.raw[index];
+            const prices: ProductPriceInfo[] = (product.prices || []).map(p => ({
+                priceTypeId: p.price_type_id,
+                priceTypeName: p.priceType?.name ?? '',
+                price: Number(p.price)
+            }));
+
+            return {
+                id: product.id,
+                name: product.name,
+                barcode: product.barcode,
+                internalCode: product.internal_code,
+                presentationId: product.presentation_id,
+                colorId: product.color_id,
+                prices,
+                brand: {
+                    id: product.brand?.id ?? product.brand_id,
+                    name: product.brand?.name ?? ''
+                },
+                category: {
+                    id: product.category?.id ?? product.category_id,
+                    name: product.category?.name ?? ''
+                },
+                branch: {
+                    branchId: branchId,
+                    hasStock: raw.pb_has_stock === true || raw.pb_has_stock === 1,
+                    stockQty: raw.pb_stock_qty ?? null
+                }
+            };
+        });
     }
 
     async upsertStock(
@@ -173,10 +197,16 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
         try {
             const row = await this.repo.findOne({
                 where: { product_id: productId, branch_id: branchId },
-                relations: ['product']
+                relations: ['product', 'product.prices', 'product.prices.priceType']
             });
 
             if (!row) return null;
+
+            const prices: ProductPriceInfo[] = (row.product?.prices || []).map(p => ({
+                priceTypeId: p.price_type_id,
+                priceTypeName: p.priceType?.name ?? '',
+                price: Number(p.price)
+            }));
 
             return new ProductBranch(
                 row.product_id,
@@ -186,7 +216,7 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
                 row.updated_at,
                 row.product?.name,
                 row.product?.barcode,
-                row.product?.sale_price
+                prices
             );
         } catch (error) {
             return null;

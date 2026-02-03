@@ -4,6 +4,6 @@ import { ProductBranchFilters, PaginatedBranchProducts, ProductWithBranchInfo } 
 export class GetProductsByBranch {
     constructor(private repository: ProductBranchRepository) {}
     async runPaginated(filters: ProductBranchFilters): Promise<PaginatedBranchProducts<ProductWithBranchInfo>> {
-        return this.repository.getProductsByBranchPaginated(filters);
+        return this.repository.getProductsByBranch(filters);
     }
 }

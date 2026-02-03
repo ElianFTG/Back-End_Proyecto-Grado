@@ -10,7 +10,6 @@ function toResponse(c: Client) {
     secondLastName: c.secondLastName,
     phone: c.phone,
     ci: c.ci,
-    clientTypeId: c.clientTypeId,
   };
 }
 
@@ -23,15 +22,11 @@ export class ClientController {
       return res.status(400).json({ message: "Campos requeridos: name, lastName, secondLastName, phone" });
     }
 
-    const clientTypeId = Number(body.clientTypeId);
-    if (Number.isNaN(clientTypeId)) return res.status(400).json({ message: "clientTypeId inválido" });
-
     const client = new Client(
       body.name,
       body.lastName,
       body.secondLastName,
       body.phone,
-      clientTypeId,
       body.ci ?? null
     );
 
@@ -69,12 +64,6 @@ export class ClientController {
     if (body.secondLastName !== undefined) patch.secondLastName = body.secondLastName;
     if (body.phone !== undefined) patch.phone = body.phone;
     if (body.ci !== undefined) patch.ci = body.ci;
-
-    if (body.clientTypeId !== undefined) {
-      const ct = Number(body.clientTypeId);
-      if (Number.isNaN(ct)) return res.status(400).json({ message: "clientTypeId inválido" });
-      patch.clientTypeId = ct;
-    }
 
     const updated = await ClientServiceContainer.client.updateClient.run(id, patch, userId);
     if (!updated) return res.status(404).json({ message: "Cliente no encontrado" });

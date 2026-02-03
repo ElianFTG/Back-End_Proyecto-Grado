@@ -8,7 +8,8 @@ import { BranchEntity } from '../persistence/typeorm/entities/BranchEntity';
 import { BrandEntity } from '../persistence/typeorm/entities/BrandEntity';
 import { ProductEntity } from '../persistence/typeorm/entities/ProductEntity';
 import { ProductBranchEntity } from '../persistence/typeorm/entities/ProductBranchEntity';
-import { ClientTypeEntity } from "../persistence/typeorm/entities/ClientTypeEntity";
+import { ProductPriceEntity } from '../persistence/typeorm/entities/ProductPriceEntity';
+import { PriceTypeEntity } from "../persistence/typeorm/entities/PriceTypeEntity";
 import { ClientEntity } from "../persistence/typeorm/entities/ClientEntity";
 import { BusinessTypeEntity } from "../persistence/typeorm/entities/BusinessTypeEntity";
 import { BusinessEntity } from "../persistence/typeorm/entities/BusinessEntity";
@@ -18,6 +19,9 @@ import { ColorEntity } from '../persistence/typeorm/entities/ColorEntity';
 import { RouteEntity } from '../persistence/typeorm/entities/RouteEntity';
 import { RejectionEntity } from '../persistence/typeorm/entities/RejectionEntity';
 import { ActivityEntity } from '../persistence/typeorm/entities/ActivityEntity';
+import { PresaleEntity } from '../persistence/typeorm/entities/PresaleEntity';
+import { PresaleDetailEntity } from '../persistence/typeorm/entities/PresaleDetailEntity';
+import { PresaleStatusHistoryEntity } from '../persistence/typeorm/entities/PresaleStatusHistoryEntity';
 
 import { config } from 'dotenv';
 
@@ -40,8 +44,9 @@ export const AppDataSource = new DataSource({
     BrandEntity,
     ProductEntity,
     ProductBranchEntity,
+    ProductPriceEntity,
     ClientEntity,
-    ClientTypeEntity,
+    PriceTypeEntity,
     BusinessTypeEntity,
     BusinessEntity,
     AreaEntity,
@@ -50,6 +55,9 @@ export const AppDataSource = new DataSource({
     RouteEntity,
     RejectionEntity,
     ActivityEntity,
+    PresaleEntity,
+    PresaleDetailEntity,
+    PresaleStatusHistoryEntity,
   ],
   synchronize: true,
   logging: false,
