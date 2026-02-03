@@ -38,22 +38,23 @@ export class ProductController {
             internalCode,
             presentationId,
             colorId,
-            salePrice,
-
+            prices,
             categoryId,
             brandId,
             userId
         } = req.body;
 
-        if (!name || !salePrice || !categoryId || !brandId || !userId) {
+        if (!name || !prices || !categoryId || !brandId || !userId) {
             return res.status(400).json({
-                message: 'name, salePrice, categoryId, brandId y userId son requeridos'
+                message: 'name, prices, categoryId, brandId y userId son requeridos'
             });
         }
 
+        const parsedPrices = typeof prices === 'string' ? JSON.parse(prices) : prices;
+
         const product = await ProductServiceContainer.product.create.run(
             name,
-            salePrice,
+            parsedPrices,
             categoryId,
             brandId,
             userId,
@@ -138,7 +139,9 @@ export class ProductController {
         if (body.internalCode !== undefined) productPatch.internalCode = body.internalCode;
         if (body.presentationId !== undefined) productPatch.presentationId = body.presentationId ? Number(body.presentationId) : null;
         if (body.colorId !== undefined) productPatch.colorId = body.colorId ? Number(body.colorId) : null;
-        if (body.salePrice !== undefined) productPatch.salePrice = body.salePrice;
+        if (body.prices !== undefined) {
+            productPatch.prices = typeof body.prices === 'string' ? JSON.parse(body.prices) : body.prices;
+        }
         if (body.categoryId !== undefined) productPatch.categoryId = body.categoryId;
         if (body.brandId !== undefined) productPatch.brandId = body.brandId;
 

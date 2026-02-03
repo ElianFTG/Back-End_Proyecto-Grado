@@ -17,6 +17,12 @@ export interface PaginatedBranchProducts<T> {
     totalPages: number;
 }
 
+export interface ProductPriceInfo {
+    priceTypeId: number;
+    priceTypeName: string;
+    price: number;
+}
+
 export interface ProductWithBranchInfo {
     id: number;
     name: string;
@@ -24,7 +30,7 @@ export interface ProductWithBranchInfo {
     internalCode: string | null;
     presentationId: number | null;
     colorId: number | null;
-    salePrice: Record<string, number>;
+    prices: ProductPriceInfo[];
     brand: {
         id: number;
         name: string;

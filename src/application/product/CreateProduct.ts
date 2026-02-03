@@ -1,4 +1,4 @@
-import { Product, SalePrice } from "../../domain/product/Product";
+import { Product, ProductPrice } from "../../domain/product/Product";
 import { ProductRepository } from "../../domain/product/ProductRepository";
 
 export class CreateProduct {
@@ -8,7 +8,7 @@ export class CreateProduct {
 
     async run(
         name: string,
-        salePrice: SalePrice,
+        prices: ProductPrice[],
         categoryId: number,
         brandId: number,
         userId: number,
@@ -21,7 +21,7 @@ export class CreateProduct {
         const product = await this.repository.create(
             new Product(
                 name,
-                salePrice,
+                prices,
                 categoryId,
                 brandId,
                 userId,

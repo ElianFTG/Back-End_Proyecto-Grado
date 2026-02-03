@@ -12,7 +12,7 @@ const authService = AuthServiceContainer.authService();
 RouteRouter.post(
   "/routes",
   authJwt(authService),
-  requireRole("super administrador"),
+  requireRole("propietario", "administrador"),
   controller.create
 );
 
@@ -20,7 +20,7 @@ RouteRouter.post(
 RouteRouter.get(
   "/routes/:id",
   authJwt(authService),
-  requireRole("super administrador"),
+  requireRole("propietario", "administrador"),
   controller.findById
 );
 

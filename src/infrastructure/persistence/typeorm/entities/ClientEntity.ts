@@ -9,7 +9,6 @@ import {
   JoinColumn,
   Index,
 } from "typeorm";
-import { ClientTypeEntity } from "./ClientTypeEntity";
 import { BusinessEntity } from "./BusinessEntity";
 
 @Entity({ name: "clients" })
@@ -31,14 +30,6 @@ export class ClientEntity {
 
   @Column({ type: "varchar", length: 30, nullable: true })
   ci!: string | null;
-
-  @Index()
-  @Column({ type: "smallint", unsigned: true })
-  client_type_id!: number;
-
-  @ManyToOne(() => ClientTypeEntity, (t) => t.clients, { nullable: false })
-  @JoinColumn({ name: "client_type_id" })
-  client_type!: ClientTypeEntity;
 
   @OneToMany(() => BusinessEntity, (b) => b.client)
   businesses!: BusinessEntity[];

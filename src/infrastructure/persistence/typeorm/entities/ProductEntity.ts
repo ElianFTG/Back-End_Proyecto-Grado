@@ -4,6 +4,7 @@ import { BrandEntity } from './BrandEntity';
 import { PresentationEntity } from './PresentationEntity';
 import { ColorEntity } from './ColorEntity';
 import { ProductBranchEntity } from './ProductBranchEntity';
+import { ProductPriceEntity } from './ProductPriceEntity';
 
 @Entity({ name: 'products' })
 @Index('idx_products_category', ['category_id'])
@@ -27,9 +28,6 @@ export class ProductEntity {
 
     @Column({ type: 'smallint', unsigned: true, nullable: true })
     color_id!: number | null;
-
-    @Column({ type: 'json' })
-    sale_price!: Record<string, number>;
 
     @Column({ type: 'varchar', length: 500, nullable: true })
     url_image!: string | null;
@@ -70,4 +68,7 @@ export class ProductEntity {
 
     @OneToMany(() => ProductBranchEntity, pb => pb.product, { eager: false })
     productBranches!: ProductBranchEntity[];
+
+    @OneToMany(() => ProductPriceEntity, pp => pp.product, { eager: false })
+    prices!: ProductPriceEntity[];
 }

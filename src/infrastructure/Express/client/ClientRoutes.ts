@@ -15,42 +15,42 @@ const authService = AuthServiceContainer.authService();
 ClientRouter.post(
     "/clients",
     authJwt(authService),
-    requireRole("super administrador", "prevendedor", "administrador"),
+    requireRole("propietario", "administrador", "prevendedor"),
     controller.create
 );
 
 ClientRouter.get(
     "/clients/search",
     authJwt(authService),
-    requireRole("super administrador", "administrador", "prevendedor"),
+    requireRole("propietario", "administrador", "prevendedor"),
     controller.search
 );
 
 ClientRouter.get(
     "/clients",
     authJwt(authService),
-    requireRole("super administrador", "administrador", "prevendedor"),
+    requireRole("propietario", "administrador", "prevendedor"),
     controller.getAll
 );
 
 ClientRouter.get(
     "/clients/:id",
     authJwt(authService),
-    requireRole("super administrador", "administrador"),
+    requireRole("propietario", "administrador"),
     controller.findById
 );
 
 ClientRouter.patch(
     "/clients/:id",
     authJwt(authService),
-    requireRole("super administrador", "administrador"),
+    requireRole("propietario", "administrador"),
     controller.update
 );
 
 ClientRouter.delete(
     "/clients/:id",
     authJwt(authService),
-    requireRole("super administrador", "administrador"),
+    requireRole("propietario", "administrador"),
     controller.softDelete
 );
 

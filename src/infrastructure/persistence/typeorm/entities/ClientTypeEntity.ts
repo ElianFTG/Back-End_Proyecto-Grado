@@ -4,11 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from "typeorm";
-import { ClientEntity } from "./ClientEntity";
 
-@Entity({ name: "client_types" })
+@Entity({ name: "price_types" })
 export class ClientTypeEntity {
   @PrimaryGeneratedColumn({ type: "smallint", unsigned: true })
   id!: number;
@@ -28,6 +26,4 @@ export class ClientTypeEntity {
   @Column({ type: "boolean", default: true })
   state!: boolean;
 
-  @OneToMany(() => ClientEntity, (c) => c.client_type)
-  clients!: ClientEntity[];
 }

@@ -15,17 +15,18 @@ import { ProductRouter } from "./infrastructure/Express/product/ProductRoutes";
 import { PresentationRouter } from "./infrastructure/Express/presentation/PresentationRoutes";
 import { ColorRouter } from "./infrastructure/Express/color/ColorRoutes";
 import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
-import { ClientTypeRouter } from "./infrastructure/Express/clientType/ClientTypeRoutes";
+import { PriceTypeRouter } from "./infrastructure/Express/priceType/PriceTypeRoutes";
 import { BusinessRouter } from "./infrastructure/Express/business/BusinessRoutes";
 import { BusinessTypeRouter } from "./infrastructure/Express/businessType/BusinessTypeRoutes";
 import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
 import { RouteRouter } from "./infrastructure/Express/route/RouteTypeRoutes";
 import { RejectionRouter } from "./infrastructure/Express/rejection/RejectionRoutes";
 import { ActivityRouter } from "./infrastructure/Express/activity/ActivityRoutes";
+import PresaleRouter from "./infrastructure/Express/presale/PresaleRoutes";
 
 
 import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
-import { seedClientTypes } from "./infrastructure/db/seeders/ClientTypeSeeder";
+import { seedPriceTypes } from "./infrastructure/db/seeders/PriceTypeSeeder";
 import { seedBusinessTypes } from "./infrastructure/db/seeders/BusinessTypeSeeder";
 import { seedRejections } from "./infrastructure/db/seeders/seedRejections";
 
@@ -44,7 +45,7 @@ app.use(
 AppDataSource.initialize()
   .then(async () => {
     await seedCountries();
-    await seedClientTypes();
+    await seedPriceTypes();
     await seedBusinessTypes();
     await seedRejections();
   })
@@ -66,7 +67,7 @@ app.use(ProductRouter);
 app.use(PresentationRouter);
 app.use(ColorRouter);
 app.use(ClientRouter);
-app.use(ClientTypeRouter);
+app.use(PriceTypeRouter);
 app.use(BusinessTypeRouter);
 app.use(ClientRouter);
 app.use(BusinessRouter);
@@ -74,6 +75,7 @@ app.use(AreaRouter);
 app.use(RouteRouter);
 app.use(RejectionRouter);
 app.use(ActivityRouter);
+app.use('/presales', PresaleRouter);
 
 
 app.use((req, res, next) => {

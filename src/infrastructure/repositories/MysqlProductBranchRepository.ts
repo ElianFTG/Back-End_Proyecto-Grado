@@ -1,6 +1,6 @@
 import { ProductBranchRepository } from "../../domain/product_branch/ProductBranchRepository";
 import { ProductBranch } from "../../domain/product_branch/ProductBranch";
-import { ProductBranchFilters, PaginatedBranchProducts, ProductWithBranchInfo } from "../../domain/product_branch/ProductBranchFilters";
+import { ProductBranchFilters, PaginatedBranchProducts, ProductWithBranchInfo, ProductPriceInfo } from "../../domain/product_branch/ProductBranchFilters";
 import { Repository } from 'typeorm';
 import { ProductBranchEntity } from "../persistence/typeorm/entities/ProductBranchEntity";
 import { ProductEntity } from "../persistence/typeorm/entities/ProductEntity";
@@ -30,6 +30,8 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
             const qb = this.productRepo.createQueryBuilder('p')
                 .leftJoinAndSelect('p.category', 'cat')
                 .leftJoinAndSelect('p.brand', 'brand')
+                .leftJoinAndSelect('p.prices', 'prices')
+                .leftJoinAndSelect('prices.priceType', 'priceType')
                 .where('p.state = :state', { state: true });
 
             this.applyFilters(qb, branchId, filters);
@@ -110,6 +112,12 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
     private mapToDomain(rawResults: { entities: ProductEntity[], raw: any[] }, branchId: number): ProductWithBranchInfo[] {
         return rawResults.entities.map((product, index) => {
             const raw = rawResults.raw[index];
+            const prices: ProductPriceInfo[] = (product.prices || []).map(p => ({
+                priceTypeId: p.price_type_id,
+                priceTypeName: p.priceType?.name ?? '',
+                price: Number(p.price)
+            }));
+
             return {
                 id: product.id,
                 name: product.name,
@@ -117,7 +125,7 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
                 internalCode: product.internal_code,
                 presentationId: product.presentation_id,
                 colorId: product.color_id,
-                salePrice: product.sale_price,
+                prices,
                 brand: {
                     id: product.brand?.id ?? product.brand_id,
                     name: product.brand?.name ?? ''
@@ -189,10 +197,16 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
         try {
             const row = await this.repo.findOne({
                 where: { product_id: productId, branch_id: branchId },
-                relations: ['product']
+                relations: ['product', 'product.prices', 'product.prices.priceType']
             });
 
             if (!row) return null;
+
+            const prices: ProductPriceInfo[] = (row.product?.prices || []).map(p => ({
+                priceTypeId: p.price_type_id,
+                priceTypeName: p.priceType?.name ?? '',
+                price: Number(p.price)
+            }));
 
             return new ProductBranch(
                 row.product_id,
@@ -202,7 +216,7 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
                 row.updated_at,
                 row.product?.name,
                 row.product?.barcode,
-                row.product?.sale_price
+                prices
             );
         } catch (error) {
             return null;

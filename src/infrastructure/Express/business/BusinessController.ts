@@ -20,6 +20,7 @@ function toResponse(b: Business) {
     address: b.address,
     businessTypeId: b.businessTypeId,
     clientId: b.clientId,
+    priceTypeId: b.priceTypeId,
     areaId: b.areaId,
     isActive: b.isActive,
   };
@@ -109,9 +110,11 @@ export class BusinessController {
 
     const businessTypeId = Number(body.businessTypeId);
     const clientId = Number(body.clientId);
+    const priceTypeId = body.priceTypeId !== undefined ? Number(body.priceTypeId) : null;
 
     if (Number.isNaN(businessTypeId)) return res.status(400).json({ message: "businessTypeId inválido" });
     if (Number.isNaN(clientId)) return res.status(400).json({ message: "clientId inválido" });
+    if (body.priceTypeId !== undefined && Number.isNaN(priceTypeId)) return res.status(400).json({ message: "priceTypeId inválido" });
 
 
     const areaId = parseOptionalNumber(body.areaId);
@@ -130,6 +133,7 @@ export class BusinessController {
       body.name,
       businessTypeId,
       clientId,
+      priceTypeId,
       areaId,
       body.nit ?? null,
       position,
@@ -196,6 +200,16 @@ export class BusinessController {
       const v = Number(body.clientId);
       if (Number.isNaN(v)) return res.status(400).json({ message: "clientId inválido" });
       patch.clientId = v;
+    }
+
+    if (body.priceTypeId !== undefined) {
+      if (body.priceTypeId === null || body.priceTypeId === "") {
+        patch.priceTypeId = null;
+      } else {
+        const v = Number(body.priceTypeId);
+        if (Number.isNaN(v)) return res.status(400).json({ message: "priceTypeId inválido" });
+        patch.priceTypeId = v;
+      }
     }
 
     if (body.areaId !== undefined) {

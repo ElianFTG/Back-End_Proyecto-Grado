@@ -12,6 +12,7 @@ import {
 import { BusinessTypeEntity } from "./BusinessTypeEntity";
 import { ClientEntity } from "./ClientEntity";
 import { AreaEntity } from "./AreaEntity";
+import { PriceTypeEntity } from "./PriceTypeEntity";
 
 @Entity({ name: "business" })
 export class BusinessEntity {
@@ -56,6 +57,14 @@ export class BusinessEntity {
   @ManyToOne(() => ClientEntity, (c) => c.businesses, { nullable: false })
   @JoinColumn({ name: "client_id" })
   client!: ClientEntity;
+
+  @Index()
+  @Column({ type: "smallint", unsigned: true, nullable: true })
+  price_type_id!: number | null;
+
+  @ManyToOne(() => PriceTypeEntity, (p) => p.businesses, { nullable: true })
+  @JoinColumn({ name: "price_type_id" })
+  price_type!: PriceTypeEntity | null;
 
   @Index()
   @Column({ type: "smallint", unsigned: true, nullable: true })

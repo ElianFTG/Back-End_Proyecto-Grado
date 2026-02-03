@@ -1,7 +1,7 @@
 import { UserRepository } from "../../domain/user/UserRepository";
 import { User } from "../../domain/user/User";
 import { UserAuthRecord } from "../../domain/user/UserAuthRecord";
-import { Repository, QueryDeepPartialEntity} from 'typeorm';
+import { Repository, QueryDeepPartialEntity } from 'typeorm';
 import { UserEntity } from "../persistence/typeorm/entities/UserEntity";
 import { AppDataSource } from "../db/Mysql"
 import { error } from "console";
@@ -16,11 +16,11 @@ export class MysqlUserRepository implements UserRepository {
         try {
             const rows = await this.repo.find(
                 {
-                    select: { id: true, ci: true, names: true, last_name: true, second_last_name: true, role: true, branch_id: true, user_name: true },
+                    select: { id: true, ci: true, names: true, last_name: true, second_last_name: true, role: true, branch_id: true, user_name: true, email: true, is_first_login: true },
                     where: { state: true },
                     order: { id: "DESC" }
                 });
-            return rows.map((row) => new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id));
+            return rows.map((row) => new User(row.ci, row.names, row.last_name, row.second_last_name, row.email, row.role, row.branch_id, row.user_name, row.is_first_login, row.id));
         } catch (err) {
             console.log(error)
             return [];
@@ -39,10 +39,12 @@ export class MysqlUserRepository implements UserRepository {
                     role: user.role,
                     branch_id: user.branchId,
                     user_name: user.userName,
+                    email: user.email,
+                    is_first_login: user.isFirstLogin,
                     password: password,
                     user_id: userId,
                 });
-            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id);
+            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.email, row.role, row.branch_id, row.user_name, row.is_first_login, row.id);
         } catch (error) {
             console.log(error);
             return null;
@@ -55,7 +57,7 @@ export class MysqlUserRepository implements UserRepository {
         try {
             const row = await this.repo.findOne({ where: { id, state: true } });
             if (!row) return null;
-            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id)
+            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.email, row.role, row.branch_id, row.user_name, row.is_first_login, row.id)
         } catch (error) {
             return null
         }
@@ -71,7 +73,23 @@ export class MysqlUserRepository implements UserRepository {
 
             if (!row) return null;
 
-            return  new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id)
+            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.email, row.role, row.branch_id, row.user_name, row.is_first_login, row.id)
+        } catch (error) {
+            return null
+        }
+    }
+
+    async findByEmail(email: string): Promise<User | null> {
+        try {
+            const emailNormalized = email.trim().toLowerCase();
+            const row = await this.repo.createQueryBuilder('u')
+                .where('LOWER(u.email) = LOWER(:email)', { email: emailNormalized })
+                .andWhere('u.state = :state', { state: true })
+                .getOne();
+
+            if (!row) return null;
+
+            return new User(row.ci, row.names, row.last_name, row.second_last_name, row.email, row.role, row.branch_id, row.user_name, row.is_first_login, row.id)
         } catch (error) {
             return null
         }
@@ -87,6 +105,7 @@ export class MysqlUserRepository implements UserRepository {
                 ...(user.role !== undefined ? { role: user.role } : {}),
                 ...(user.branchId !== undefined ? { branch_id: user.branchId } : {}),
                 ...(user.userName !== undefined ? { user_name: user.userName } : {}),
+                ...(user.email !== undefined ? { email: user.email } : {}),
                 user_id: userId,
             };
             await this.repo.update({ id }, patch);
@@ -94,7 +113,7 @@ export class MysqlUserRepository implements UserRepository {
 
             if (!updatedUser) return null;
 
-            return new User(updatedUser.ci, updatedUser.names, updatedUser.last_name, updatedUser.second_last_name, updatedUser.role, updatedUser.branch_id, updatedUser.user_name, updatedUser.id)
+            return new User(updatedUser.ci, updatedUser.names, updatedUser.last_name, updatedUser.second_last_name, updatedUser.email, updatedUser.role, updatedUser.branch_id, updatedUser.user_name, updatedUser.is_first_login, updatedUser.id)
         } catch (error) {
             return null
         }
@@ -118,7 +137,7 @@ export class MysqlUserRepository implements UserRepository {
             await this.repo.update({ id }, patch);
             const updated = await this.repo.findOneBy({ id });
             if (!updated) return null;
-            return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.role, updated.branch_id, updated.user_name, updated.id);
+            return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.email, updated.role, updated.branch_id, updated.user_name, updated.is_first_login, updated.id);
         } catch (error) {
             console.log(error);
             return null;
@@ -135,27 +154,37 @@ export class MysqlUserRepository implements UserRepository {
             if (!result.affected || result.affected === 0) return null;
             const updated = await this.repo.findOneBy({ id });
             if (!updated) return null;
-            return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.role, updated.branch_id, updated.user_name, updated.id);
+            return new User(updated.ci, updated.names, updated.last_name, updated.second_last_name, updated.email, updated.role, updated.branch_id, updated.user_name, updated.is_first_login, updated.id);
         } catch (error) {
             console.log(error);
             return null;
         }
     }
 
+    async setFirstLoginComplete(id: number): Promise<boolean> {
+        try {
+            const result = await this.repo.update({ id }, { is_first_login: false });
+            return result.affected !== undefined && result.affected > 0;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
     async findByUserName(userName: string): Promise<UserAuthRecord | null> {
         try {
             const row = await this.repo.findOne({
-                where: {user_name : userName, state: true},
+                where: { user_name: userName, state: true },
             })
             if (!row) return null;
-            const foundUser = new User(row.ci, row.names, row.last_name, row.second_last_name, row.role, row.branch_id, row.user_name, row.id)
+            const foundUser = new User(row.ci, row.names, row.last_name, row.second_last_name, row.email, row.role, row.branch_id, row.user_name, row.is_first_login, row.id)
             const passwordHash = row.password;
             const state = row.state;
-            
-            return {user: foundUser, passwordHash, state};
+
+            return { user: foundUser, passwordHash, state };
         } catch (error) {
             return null;
-        }  
+        }
     }
 
 }

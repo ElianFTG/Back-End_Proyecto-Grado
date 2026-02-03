@@ -19,10 +19,13 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 50 })
   second_last_name!: string;
 
+  @Column({ type: 'varchar', length: 100, unique: true })
+  email!: string;
+
   @Column({ type: 'varchar', length: 50 })
   role!: string;
 
-  @Column({ type: 'smallint', unsigned: true })
+  @Column({ type: 'smallint', unsigned: true, nullable: true })
   branch_id!: number | null;
 
   @ManyToOne(() => BranchEntity, { eager: false })
@@ -34,6 +37,9 @@ export class UserEntity {
   
   @Column({ type: 'varchar', length: 255})
   password!: string;
+
+  @Column({ type: 'boolean', default: true })
+  is_first_login!: boolean;
 
   @Column({ type: 'boolean', default: 1 })
   state!: boolean;

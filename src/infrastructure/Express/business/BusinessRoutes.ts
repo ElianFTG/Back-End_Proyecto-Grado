@@ -37,7 +37,7 @@ BusinessRouter.get(
 BusinessRouter.patch(
   "/business/:id",
   authJwt(authService),
-  requireRole("super administrador","administrador"),
+  requireRole("propietario","administrador"),
   upload.single("image"),
   controller.update
 );
@@ -45,7 +45,7 @@ BusinessRouter.patch(
 BusinessRouter.delete(
   "/business/:id",
   authJwt(authService),
-  requireRole("super administrador","administrador"),
+  requireRole("propietario","administrador"),
   controller.softDelete
 );
 
