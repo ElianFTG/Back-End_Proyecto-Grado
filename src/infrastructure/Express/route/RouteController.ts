@@ -25,6 +25,7 @@ export class RouteController {
       const route = new Route(assignedDate, assignedIdUser, assignedIdArea);
       const created = await RouteServiceContainer.route.createRoute.run(route, auditUserId);
       if (!created?.id) return res.status(400).json({ message: "No se pudo crear la ruta" });
+      return res.status(201).json({created})
     } catch (error : any) {
       console.log(error);
       if (error?.message === "ROUTE_USER_DATE_DUPLICATE") {

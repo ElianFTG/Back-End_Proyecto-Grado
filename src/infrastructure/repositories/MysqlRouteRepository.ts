@@ -4,9 +4,6 @@ import { AppDataSource } from "../db/Mysql";
 import { Route } from "../../domain/route/Route";
 import { RouteRepository } from "../../domain/route/RouteRepository";
 import { RouteEntity } from "../persistence/typeorm/entities/RouteEntity";
-import { ActivityWork } from "../../domain/customs/ActivityWork";
-
-import { ActivityEntity } from "../persistence/typeorm/entities/ActivityEntity";
 export class MysqlRouteRepository implements RouteRepository {
   private readonly repo: Repository<RouteEntity>;
 
@@ -24,7 +21,6 @@ export class MysqlRouteRepository implements RouteRepository {
   }
 
   async create(route: Route, auditUserId: number | null): Promise<Route | null> {
-    console.log("Accediendo a Creado de ruta", route.assignedDate)
     try {
       const row = await this.repo.save({
         assigned_date: route.assignedDate,
@@ -32,7 +28,6 @@ export class MysqlRouteRepository implements RouteRepository {
         assigned_id_area: route.assignedIdArea,
         user_id: auditUserId ?? null,
       });
-
       const created = await this.repo.findOneBy({ id: row.id });
       return created ? this.toDomain(created) : null;
     } catch (error: any) {
@@ -64,7 +59,6 @@ export class MysqlRouteRepository implements RouteRepository {
         .orderBy("r.id", "DESC")
         .getOne();
       if(!row) throw new Error("No existe fecha o usuario");
-      console.log("Ruta encontrada",row)
       const foundRoute = this.toDomain(row)
       return foundRoute;
     } catch (error) {
