@@ -11,23 +11,16 @@ function toResponse(route: Route) {
   };
 }
 
-function parseAssignedDate(raw: any): Date | null {
-  if (!raw) return null;
-  const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
 export class RouteController {
   async create(req: Request, res: Response) {
     const auditUserId = req.auth?.userId ?? null;
     const body: any = req.body;
 
-    const assignedDate = parseAssignedDate(body.assignedDate ?? body.assigned_date);
+    const assignedDate = body.assignedDate;
     const assignedIdUser = Number(body.assignedIdUser ?? body.assigned_id_user);
     const assignedIdArea = Number(body.assignedIdArea ?? body.assigned_id_area);
     const validated = Number.isNaN(assignedIdUser) || Number.isNaN(assignedIdArea) || !assignedDate;
     if (validated) return res.status(400).json({ message: "Datos inválidos" });
-
     const route = new Route(assignedDate, assignedIdUser, assignedIdArea);
 
     const created = await RouteServiceContainer.route.createRoute.run(route, auditUserId);
@@ -48,18 +41,7 @@ export class RouteController {
     return res.status(200).json(toResponse(route));
   }
 
-  async getClientsByRouteUserDate(req: Request, res: Response) {
-    const userId = req.auth?.userId;
-    const date = String(req.query.date || "");
-
-    if (!userId) return res.status(401).json({ message: "No autenticado" });
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return res.status(400).json({ message: "fecha inválida (YYYY-MM-DD)" });
-    }
-
-    // const clients = await RouteServiceContainer.route.getClientsByRouteUserDate.run(userId, date);
-    // return res.status(200).json(clients);
-  }
+  
 
   
 }
