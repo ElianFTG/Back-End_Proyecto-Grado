@@ -6,19 +6,24 @@ export class NodemailerEmailService implements EmailService {
     private transporter: nodemailer.Transporter;
 
     constructor() {
+        // Configuración optimizada para Gmail con SSL (puerto 465)
+        // Esto funciona mejor en entornos cloud como Railway
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: Number(process.env.SMTP_PORT) || 587,
-            secure: process.env.SMTP_SECURE === 'true', 
+            port: Number(process.env.SMTP_PORT) || 465,
+            secure: process.env.SMTP_SECURE === 'true', // true para puerto 465
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
-            connectionTimeout: 10000, 
-            greetingTimeout: 5000,    
-            socketTimeout: 15000,     
+            // Timeouts más generosos para Railway
+            connectionTimeout: 30000,
+            greetingTimeout: 15000,
+            socketTimeout: 30000,
         } as nodemailer.TransportOptions);
-    }    async sendCredentials(to: string, username: string, temporaryPassword: string, recipientName: string): Promise<boolean> {
+    }
+
+    async sendCredentials(to: string, username: string, temporaryPassword: string, recipientName: string): Promise<boolean> {
         const htmlContent = getWelcomeEmailTemplate(recipientName, username, temporaryPassword);
 
         const mailOptions = {
@@ -29,10 +34,11 @@ export class NodemailerEmailService implements EmailService {
         };
 
         try {
-            await this.transporter.sendMail(mailOptions);
+            const info = await this.transporter.sendMail(mailOptions);
+            console.log('Correo enviado exitosamente. ID:', info.messageId);
             return true;
         } catch (error) {
-            console.error('Error sending email:', error);
+            console.error('Error enviando correo:', error);
             return false;
         }
     }
