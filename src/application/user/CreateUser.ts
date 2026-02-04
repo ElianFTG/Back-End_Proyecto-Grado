@@ -74,8 +74,11 @@ export class CreateUser {
         );
 
         if (user && email && this.emailService) {
-            this.emailService.sendCredentials(email, userName, tempPassword, names)
-                .catch(emailError => console.error('Error al enviar correo con credenciales (en segundo plano):', emailError));
+            try {
+                await this.emailService.sendCredentials(email, userName, tempPassword, names);
+            } catch (error) {
+                console.error("Error enviando credenciales por correo:", error);
+            }
         }
 
         return user;

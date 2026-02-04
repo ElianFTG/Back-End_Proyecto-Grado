@@ -7,13 +7,17 @@ export class NodemailerEmailService implements EmailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
-            service: 'gmail', // Opción mágica de nuevo, pero con un truco:
-            // Railway ha recomendado a veces usar el servicio predefinido cuando las conexiones manuales fallan
+            host: process.env.SMTP_HOST || 'smtp.gmail.com',
+            port: Number(process.env.SMTP_PORT) || 587,
+            secure: process.env.SMTP_SECURE === 'true', 
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
-        });
+            connectionTimeout: 10000, 
+            greetingTimeout: 5000,    
+            socketTimeout: 15000,     
+        } as nodemailer.TransportOptions);
     }    async sendCredentials(to: string, username: string, temporaryPassword: string, recipientName: string): Promise<boolean> {
         const htmlContent = getWelcomeEmailTemplate(recipientName, username, temporaryPassword);
 
