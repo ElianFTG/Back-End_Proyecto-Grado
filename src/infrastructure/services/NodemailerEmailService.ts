@@ -7,24 +7,14 @@ export class NodemailerEmailService implements EmailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: Number(process.env.SMTP_PORT) || 587,
-            secure: process.env.SMTP_SECURE === 'true', 
+            service: 'gmail', // Opción mágica de nuevo, pero con un truco:
+            // Railway ha recomendado a veces usar el servicio predefinido cuando las conexiones manuales fallan
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
-            connectionTimeout: 20000, 
-            greetingTimeout: 20000,    
-            socketTimeout: 30000,
-            logger: true,
-            debug: true,
-            // Forzar IPv4 para evitar problemas de resolución IPv6 en Railway
-            family: 4,
-        } as any);
-    }
-
-    async sendCredentials(to: string, username: string, temporaryPassword: string, recipientName: string): Promise<boolean> {
+        });
+    }    async sendCredentials(to: string, username: string, temporaryPassword: string, recipientName: string): Promise<boolean> {
         const htmlContent = getWelcomeEmailTemplate(recipientName, username, temporaryPassword);
 
         const mailOptions = {
