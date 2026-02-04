@@ -14,9 +14,11 @@ export class NodemailerEmailService implements EmailService {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
-            connectionTimeout: 10000, 
-            greetingTimeout: 5000,    
-            socketTimeout: 15000,     
+            connectionTimeout: 20000, 
+            greetingTimeout: 20000,    
+            socketTimeout: 30000,
+            logger: true,
+            debug: true,     
         } as nodemailer.TransportOptions);
     }
 
