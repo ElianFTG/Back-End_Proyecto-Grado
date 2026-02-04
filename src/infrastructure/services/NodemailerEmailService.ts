@@ -18,8 +18,10 @@ export class NodemailerEmailService implements EmailService {
             greetingTimeout: 20000,    
             socketTimeout: 30000,
             logger: true,
-            debug: true,     
-        } as nodemailer.TransportOptions);
+            debug: true,
+            // Forzar IPv4 para evitar problemas de resolución IPv6 en Railway
+            family: 4,
+        } as any);
     }
 
     async sendCredentials(to: string, username: string, temporaryPassword: string, recipientName: string): Promise<boolean> {
