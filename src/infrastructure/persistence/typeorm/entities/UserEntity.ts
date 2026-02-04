@@ -7,7 +7,7 @@ export class UserEntity {
   @PrimaryGeneratedColumn({ type: "smallint", unsigned: true })
   id!: number;
 
-  @Column({ type: 'varchar', length: 15})
+  @Column({ type: 'varchar', length: 15 , unique:true})
   ci!: string;
 
   @Column({ type: 'varchar', length: 120})

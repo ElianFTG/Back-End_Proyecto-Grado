@@ -39,18 +39,6 @@ export class CreateUser {
                 );
             }
         }
-        
-        const existingByCi = await this.repository.findByCi(ci);
-        if (existingByCi) {
-            throw new Error('Ya existe un usuario con este CI');
-        }
-
-        if (email) {
-            const existingByEmail = await this.repository.findByEmail(email);
-            if (existingByEmail) {
-                throw new Error('Ya existe un usuario con este correo electrónico');
-            }
-        }
 
         let userName = generateUsername(lastName, secondLastName, ci);
         const tempPassword = crypto.randomBytes(3).toString('hex'); 

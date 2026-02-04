@@ -7,6 +7,9 @@ export class NodemailerEmailService implements EmailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT),
+            secure: false,
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
