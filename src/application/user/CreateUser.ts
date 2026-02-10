@@ -39,18 +39,6 @@ export class CreateUser {
                 );
             }
         }
-        
-        const existingByCi = await this.repository.findByCi(ci);
-        if (existingByCi) {
-            throw new Error('Ya existe un usuario con este CI');
-        }
-
-        if (email) {
-            const existingByEmail = await this.repository.findByEmail(email);
-            if (existingByEmail) {
-                throw new Error('Ya existe un usuario con este correo electrónico');
-            }
-        }
 
         let userName = generateUsername(lastName, secondLastName, ci);
         const tempPassword = crypto.randomBytes(3).toString('hex'); 
@@ -88,8 +76,8 @@ export class CreateUser {
         if (user && email && this.emailService) {
             try {
                 await this.emailService.sendCredentials(email, userName, tempPassword, names);
-            } catch (emailError) {
-                console.error('Error al enviar correo con credenciales:', emailError);
+            } catch (error) {
+                console.error("Error enviando credenciales por correo:", error);
             }
         }
 
