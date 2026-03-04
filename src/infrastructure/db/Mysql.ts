@@ -12,6 +12,7 @@ import { ProductPriceEntity } from '../persistence/typeorm/entities/ProductPrice
 import { PriceTypeEntity } from "../persistence/typeorm/entities/PriceTypeEntity";
 import { ClientEntity } from "../persistence/typeorm/entities/ClientEntity";
 import { BusinessTypeEntity } from "../persistence/typeorm/entities/BusinessTypeEntity";
+import { ClientTypeEntity } from '../persistence/typeorm/entities/ClientTypeEntity';
 import { BusinessEntity } from "../persistence/typeorm/entities/BusinessEntity";
 import { AreaEntity } from '../persistence/typeorm/entities/AreaEntity';
 import { PresentationEntity } from '../persistence/typeorm/entities/PresentationEntity';
@@ -48,6 +49,7 @@ export const AppDataSource = new DataSource({
     ClientEntity,
     PriceTypeEntity,
     BusinessTypeEntity,
+    ClientTypeEntity,
     BusinessEntity,
     AreaEntity,
     PresentationEntity,
