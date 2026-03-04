@@ -9,20 +9,19 @@ export class NodemailerEmailService implements EmailService {
     private transporter: nodemailer.Transporter;
 
     constructor() {
-        // Configuración optimizada para Gmail con SSL (puerto 465)
         // Esto funciona mejor en entornos cloud como Railway
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: Number(process.env.SMTP_PORT) || 587,
-            secure: false,
+            port: Number(process.env.SMTP_PORT) || 465,
+            secure: true,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
             // Timeouts más generosos para Railway
-            // connectionTimeout: 30000,
-            // greetingTimeout: 15000,
-            // socketTimeout: 30000,
+            connectionTimeout: 30000,
+            greetingTimeout: 15000,
+            socketTimeout: 30000,
         } as nodemailer.TransportOptions);
     }
 
