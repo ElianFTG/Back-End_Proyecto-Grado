@@ -1,6 +1,9 @@
-import nodemailer from 'nodemailer';
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first')
+
 import { EmailService } from '../../domain/services/EmailService';
 import { getWelcomeEmailTemplate } from './templates/WelcomeEmailTemplate';
+import nodemailer from 'nodemailer';
 
 export class NodemailerEmailService implements EmailService {
     private transporter: nodemailer.Transporter;
@@ -12,16 +15,14 @@ export class NodemailerEmailService implements EmailService {
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
             port: Number(process.env.SMTP_PORT) || 587,
             secure: false,
-            family: 4,
-            requireTLS: true,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
             // Timeouts más generosos para Railway
-            connectionTimeout: 30000,
-            greetingTimeout: 15000,
-            socketTimeout: 30000,
+            // connectionTimeout: 30000,
+            // greetingTimeout: 15000,
+            // socketTimeout: 30000,
         } as nodemailer.TransportOptions);
     }
 
