@@ -10,8 +10,8 @@ export class NodemailerEmailService implements EmailService {
         // Esto funciona mejor en entornos cloud como Railway
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: Number(process.env.SMTP_PORT) || 465,
-            secure: true,
+            port: Number(process.env.SMTP_PORT) || 587,
+            secure: false,
             family: 4,
             auth: {
                 user: process.env.EMAIL_USER,
