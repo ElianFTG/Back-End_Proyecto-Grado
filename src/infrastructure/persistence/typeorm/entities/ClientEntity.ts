@@ -22,7 +22,7 @@ export class ClientEntity {
   @Column({ type: "varchar", length: 120 })
   last_name!: string;
 
-  @Column({ type: "varchar", length: 120 })
+  @Column({ type: "varchar", length: 120, nullable: true })
   second_last_name!: string;
 
   @Column({ type: "varchar", length: 30 })
