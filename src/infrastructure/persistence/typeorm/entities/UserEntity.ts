@@ -17,7 +17,7 @@ export class UserEntity {
   last_name!: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true})
-  second_last_name!: string;
+  second_last_name!: string | null;
 
   @Column({ type: 'varchar', length: 100, unique: true })
   email!: string;

@@ -18,14 +18,14 @@ export class ClientController {
     const userId = req.auth?.userId ?? null;
     const body: any = req.body;
 
-    if (!body.name || !body.lastName || !body.secondLastName || !body.phone) {
+    if (!body.name || !body.lastName || !body.phone) {
       return res.status(400).json({ message: "Campos requeridos: name, lastName, secondLastName, phone" });
     }
 
     const client = new Client(
       body.name,
       body.lastName,
-      body.secondLastName,
+      body.secondLastName ?? null,
       body.phone,
       body.ci ?? null
     );

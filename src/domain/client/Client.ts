@@ -2,14 +2,14 @@ export class Client {
   id?: number| undefined;
   name: string;
   lastName: string;
-  secondLastName: string;
+  secondLastName: string | null;
   phone: string;
   ci: string | null;
 
   constructor(
     name: string,
     lastName: string,
-    secondLastName: string,
+    secondLastName: string | null,
     phone: string,
     ci: string | null,
     id?: number

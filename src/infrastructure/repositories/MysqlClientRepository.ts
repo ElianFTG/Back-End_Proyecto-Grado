@@ -27,7 +27,7 @@ export class MysqlClientRepository implements ClientRepository {
       const row = await this.repo.save({
         name: client.name,
         last_name: client.lastName,
-        second_last_name: client.secondLastName,
+        second_last_name: client.secondLastName ?? null,
         phone: client.phone,
         ci: client.ci ?? null,
         user_id: userId,

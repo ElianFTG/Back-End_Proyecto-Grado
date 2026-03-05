@@ -4,7 +4,7 @@ export class User {
     ci: string;
     names: string;
     lastName: string;
-    secondLastName: string;
+    secondLastName: string | null;
     email: string;
     role: string;
     branchId: number | null;
@@ -15,7 +15,7 @@ export class User {
         ci: string,
         names: string,
         lastName: string,
-        secondLastName: string,
+        secondLastName: string | null,
         email: string,
         role: string,
         branchId: number | null,
