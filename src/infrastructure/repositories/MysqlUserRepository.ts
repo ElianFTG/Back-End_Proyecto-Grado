@@ -35,7 +35,7 @@ export class MysqlUserRepository implements UserRepository {
                     ci: user.ci,
                     names: user.names,
                     last_name: user.lastName,
-                    second_last_name: user.secondLastName,
+                    second_last_name: user.secondLastName ?? null,
                     role: user.role,
                     branch_id: user.branchId,
                     user_name: user.userName,
