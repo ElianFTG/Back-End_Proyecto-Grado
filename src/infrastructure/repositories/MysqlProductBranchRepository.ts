@@ -110,8 +110,18 @@ export class MysqlProductBranchRepository implements ProductBranchRepository {
     }
 
     private mapToDomain(rawResults: { entities: ProductEntity[], raw: any[] }, branchId: number): ProductWithBranchInfo[] {
-        return rawResults.entities.map((product, index) => {
-            const raw = rawResults.raw[index];
+        // Build a map from product id to its first raw row to avoid index mismatch
+        // caused by multiple raw rows per entity (due to prices/priceType joins)
+        const rawByProductId = new Map<number, any>();
+        for (const raw of rawResults.raw) {
+            const id = raw.p_id;
+            if (id !== undefined && !rawByProductId.has(id)) {
+                rawByProductId.set(id, raw);
+            }
+        }
+
+        return rawResults.entities.map((product) => {
+            const raw = rawByProductId.get(product.id) ?? {};
             const prices: ProductPriceInfo[] = (product.prices || []).map(p => ({
                 priceTypeId: p.price_type_id,
                 priceTypeName: p.priceType?.name ?? '',
