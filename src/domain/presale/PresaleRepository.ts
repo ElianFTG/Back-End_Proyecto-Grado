@@ -1,9 +1,17 @@
-import { Presale, PresaleDetail,  PresaleStatusHistory } from './Presale';
-import { CreatePresaleDTO, PresaleFilters , UpdateDetailDTO, ConfirmDeliveryDTO, PaginatedPresalesResult } from './PresaleFilter';
+import { Presale, PresaleDetail, PresaleStatusHistory } from './Presale';
+import {
+    CreatePresaleDTO,
+    PresaleFilters,
+    UpdateDetailDTO,
+    UpdatePresaleDTO,
+    ConfirmDeliveryDTO,
+    PaginatedPresalesResult
+} from './PresaleFilter';
 
 
 export interface PresaleRepository {
     create(dto: CreatePresaleDTO): Promise<Presale>;
+    update(id: number, dto: UpdatePresaleDTO, userId: number): Promise<Presale | null>;
     getAll(filters: PresaleFilters): Promise<PaginatedPresalesResult>;
     getById(id: number): Promise<Presale | null>;
     getByIdWithDetails(id: number): Promise<Presale | null>;
