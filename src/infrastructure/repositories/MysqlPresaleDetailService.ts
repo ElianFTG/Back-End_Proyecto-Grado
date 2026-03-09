@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { PresaleDetailEntity } from '../persistence/typeorm/entities/PresaleDetailEntity';
 import { PresaleStatusHistoryEntity } from '../persistence/typeorm/entities/PresaleStatusHistoryEntity';
 import { ProductBranchEntity } from '../persistence/typeorm/entities/ProductBranchEntity';
@@ -16,6 +16,7 @@ export class PresaleDetailService {
         this.historyRepo = AppDataSource.getRepository(PresaleStatusHistoryEntity);
         this.productBranchRepo = AppDataSource.getRepository(ProductBranchEntity);
     }
+
     private mapToDomain(entity: PresaleDetailEntity): PresaleDetail {
         return new PresaleDetail(
             entity.presale_id,
@@ -41,7 +42,10 @@ export class PresaleDetailService {
         );
     }
 
-    private mapToDomainWithStock(entity: PresaleDetailEntity, stockQty: number | null | undefined): PresaleDetail {
+    private mapToDomainWithStock(
+        entity: PresaleDetailEntity,
+        stockQty: number | null | undefined
+    ): PresaleDetail {
         return new PresaleDetail(
             entity.presale_id,
             entity.product_id,
@@ -74,19 +78,24 @@ export class PresaleDetailService {
         });
 
         if (!detail) return null;
-
-        // Solo permitir actualizar si la preventa está en tránsito
         if (detail.presale.status !== 'in_transit') {
             throw new Error('Solo se puede actualizar detalles de preventas en tránsito');
         }
 
-        // REGLA CRÍTICA: No puede aumentar la cantidad
+        // No puede aumentar la cantidad respecto a la solicitada
         if (data.quantityDelivered > detail.quantity_requested) {
             throw new Error('No se puede entregar más de lo solicitado');
         }
 
+        if (data.quantityDelivered < 0) {
+            throw new Error('La cantidad entregada no puede ser negativa');
+        }
+
         detail.quantity_delivered = data.quantityDelivered;
         if (data.finalUnitPrice !== undefined) {
+            if (data.finalUnitPrice <= 0) {
+                throw new Error('El precio final debe ser mayor a 0');
+            }
             detail.final_unit_price = data.finalUnitPrice;
         }
         detail.user_id = userId;
@@ -95,28 +104,33 @@ export class PresaleDetailService {
         return this.mapToDomain(detail);
     }
 
-    // ==================== OBTENER DETALLES ====================
     async getDetailsByPresaleId(presaleId: number): Promise<PresaleDetail[]> {
         const details = await this.detailRepo.find({
             where: { presale_id: presaleId, state: true },
             relations: ['product', 'priceType']
+        }) ;
+        if (details.length === 0 || !details[0]) return [];
+        const branchId = details[0].branch_id;
+        const productIds = details.map(d => d.product_id);
+
+        const productBranches = await this.productBranchRepo.find({
+            where: {
+                product_id: In(productIds),
+                branch_id: branchId
+            }
         });
 
-        // Obtener stock actual para cada detalle
-        const detailsWithStock: PresaleDetail[] = [];
-
-        for (const detail of details) {
-            const productBranch = await this.productBranchRepo.findOne({
-                where: { product_id: detail.product_id, branch_id: detail.branch_id }
-            });
-
-            detailsWithStock.push(this.mapToDomainWithStock(detail, productBranch?.stock_qty));
+        // Mapa product_id -> stock_qty
+        const stockMap = new Map<number, number | null>();
+        for (const pb of productBranches) {
+            stockMap.set(pb.product_id, pb.stock_qty ?? null);
         }
 
-        return detailsWithStock;
+        return details.map(detail =>
+            this.mapToDomainWithStock(detail, stockMap.get(detail.product_id))
+        );
     }
 
-    // ==================== HISTORIAL ====================
     async getStatusHistory(presaleId: number): Promise<PresaleStatusHistory[]> {
         const entities = await this.historyRepo.find({
             where: { presale_id: presaleId },

@@ -1,16 +1,16 @@
-
 import { Repository, Brackets } from 'typeorm';
 import { PresaleEntity } from '../persistence/typeorm/entities/PresaleEntity';
 import { PresaleDetailEntity } from '../persistence/typeorm/entities/PresaleDetailEntity';
 import { Presale, PresaleDetail, PresaleStatus, PresaleStatusHistory } from '../../domain/presale/Presale';
+import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 import {
-    PresaleRepository,
-} from '../../domain/presale/PresaleRepository';
-import { PresaleFilters,
+    PresaleFilters,
     PaginatedPresalesResult,
     CreatePresaleDTO,
+    UpdatePresaleDTO,
     UpdateDetailDTO,
-    ConfirmDeliveryDTO} from '../../domain/presale/PresaleFilter';
+    ConfirmDeliveryDTO
+} from '../../domain/presale/PresaleFilter';
 import { AppDataSource } from '../db/Mysql';
 import { PresaleDeliveryService } from './MysqlPresaleDeliveryService';
 import { PresaleDetailService } from './MysqlPresaleDetailService';
@@ -56,17 +56,16 @@ export class MysqlPresaleRepository implements PresaleRepository {
             entity.branch?.name
         );
     }
-
-    // ==================== CREAR PREVENTA ====================
     async create(dto: CreatePresaleDTO): Promise<Presale> {
-        // Calcular subtotal y total basado en los detalles
-        const subtotal = dto.details.reduce((sum, d) => sum + (d.quantityRequested * d.unitPrice), 0);
+        const subtotal = dto.details.reduce(
+            (sum, d) => sum + d.quantityRequested * d.unitPrice,
+            0
+        );
         const total = subtotal;
 
-        // Crear entidad de preventa
         const presaleEntity = this.presaleRepo.create({
             client_id: dto.clientId,
-            business_id: dto.businessId || null,
+            business_id: dto.businessId ?? null,
             preseller_id: dto.presellerId,
             distributor_id: null,
             branch_id: dto.branchId,
@@ -74,45 +73,134 @@ export class MysqlPresaleRepository implements PresaleRepository {
             status: 'pending',
             subtotal,
             total,
-            notes: dto.notes || null,
+            notes: dto.notes ?? null,
             user_id: dto.userId,
             state: true
         });
 
         const savedPresale = await this.presaleRepo.save(presaleEntity);
 
-        // Crear detalles
-        const detailEntities = dto.details.map(d => this.detailRepo.create({
-            presale_id: savedPresale.id,
-            product_id: d.productId,
-            product_branch_id: d.productBranchId,
-            branch_id: dto.branchId,
-            quantity_requested: d.quantityRequested,
-            quantity_delivered: null,
+        const detailEntities = dto.details.map(d =>
+            this.detailRepo.create({
+                presale_id: savedPresale.id,
+                product_id: d.productId,
+                product_branch_id: d.productBranchId,
+                branch_id: dto.branchId,
+                quantity_requested: d.quantityRequested,
+                quantity_delivered: null,
                 price_type_id: d.priceTypeId,
-            unit_price: d.unitPrice,
-            final_unit_price: null,
-            subtotal_requested: d.quantityRequested * d.unitPrice,
-            subtotal_delivered: null,
-            user_id: dto.userId,
-            state: true
-        }));
+                unit_price: d.unitPrice,
+                final_unit_price: null,
+                subtotal_requested: d.quantityRequested * d.unitPrice,
+                subtotal_delivered: null,
+                user_id: dto.userId,
+                state: true
+            })
+        );
 
         await this.detailRepo.save(detailEntities);
 
-        // Registrar historial inicial
-        await this.deliveryService.addStatusHistory(savedPresale.id, 'pending', null, 'Preventa creada', dto.userId);
+        await this.deliveryService.addStatusHistory(
+            savedPresale.id,
+            'pending',
+            null,
+            'Preventa creada',
+            dto.userId
+        );
 
-        // Retornar con relaciones
         return this.getById(savedPresale.id) as Promise<Presale>;
     }
+    async update(id: number, dto: UpdatePresaleDTO, userId: number): Promise<Presale | null> {
+        const entity = await this.presaleRepo.findOne({
+            where: { id, state: true },
+            relations: ['details']
+        });
 
-    // ==================== LISTAR PREVENTAS ====================
+        if (!entity) return null;
+
+        if (entity.status !== 'pending') {
+            throw new Error('Solo se pueden editar preventas en estado pendiente');
+        }
+        if (dto.clientId !== undefined) entity.client_id = dto.clientId;
+        if (dto.businessId !== undefined) entity.business_id = dto.businessId;
+        if (dto.branchId !== undefined) entity.branch_id = dto.branchId;
+        if (dto.deliveryDate !== undefined) entity.delivery_date = new Date(dto.deliveryDate);
+        if (dto.notes !== undefined) entity.notes = dto.notes;
+        entity.user_id = userId;
+        if (dto.details) {
+            // 1. Soft-delete detalles removidos
+            if (dto.details.remove && dto.details.remove.length > 0) {
+                const toRemove = entity.details.filter(
+                    d => dto.details!.remove!.includes(d.id) && d.state
+                );
+                for (const d of toRemove) {
+                    d.state = false;
+                    d.user_id = userId;
+                    await this.detailRepo.save(d);
+                }
+            }
+            if (dto.details.update && dto.details.update.length > 0) {
+                for (const upd of dto.details.update) {
+                    const existing = entity.details.find(
+                        d => d.id === upd.detailId && d.state
+                    );
+                    if (!existing) continue;
+                    existing.quantity_requested = upd.quantityRequested;
+                    existing.unit_price = upd.unitPrice;
+                    existing.subtotal_requested = upd.quantityRequested * upd.unitPrice;
+                    existing.user_id = userId;
+                    await this.detailRepo.save(existing);
+                }
+            }
+
+            if (dto.details.add && dto.details.add.length > 0) {
+                const newDetails = dto.details.add.map(d =>
+                    this.detailRepo.create({
+                        presale_id: id,
+                        product_id: d.productId,
+                        product_branch_id: d.productBranchId,
+                        branch_id: dto.branchId ?? entity.branch_id,
+                        quantity_requested: d.quantityRequested,
+                        quantity_delivered: null,
+                        price_type_id: d.priceTypeId,
+                        unit_price: d.unitPrice,
+                        final_unit_price: null,
+                        subtotal_requested: d.quantityRequested * d.unitPrice,
+                        subtotal_delivered: null,
+                        user_id: userId,
+                        state: true
+                    })
+                );
+                await this.detailRepo.save(newDetails);
+            }
+        }
+        const activeDetails = await this.detailRepo.find({
+            where: { presale_id: id, state: true }
+        });
+
+        const newSubtotal = activeDetails.reduce(
+            (sum, d) => sum + Number(d.subtotal_requested),
+            0
+        );
+        entity.subtotal = newSubtotal;
+        entity.total = newSubtotal;
+
+        // Verificar que queden detalles activos
+        if (activeDetails.length === 0) {
+            throw new Error('La preventa debe tener al menos un producto');
+        }
+
+        await this.presaleRepo.save(entity);
+
+        return this.getByIdWithDetails(id);
+    }
+
     async getAll(filters: PresaleFilters): Promise<PaginatedPresalesResult> {
-        const page = filters.page || 1;
-        const limit = filters.limit || 10;
+        const page = Math.max(1, filters.page ?? 1);
+        const limit = Math.min(100, Math.max(1, filters.limit ?? 10));
 
-        const qb = this.presaleRepo.createQueryBuilder('p')
+        const qb = this.presaleRepo
+            .createQueryBuilder('p')
             .leftJoinAndSelect('p.client', 'client')
             .leftJoinAndSelect('p.business', 'business')
             .leftJoinAndSelect('p.preseller', 'preseller')
@@ -120,14 +208,14 @@ export class MysqlPresaleRepository implements PresaleRepository {
             .leftJoinAndSelect('p.branch', 'branch')
             .where('p.state = :state', { state: true });
 
-        // Aplicar filtros
         this.applyFilters(qb, filters);
 
-        // Contar total
         const total = await qb.getCount();
 
-        // Paginar y ordenar
-        this.applyPagination(qb, page, limit);
+        qb.orderBy('p.delivery_date', 'ASC')
+            .addOrderBy('p.created_at', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
 
         const entities = await qb.getMany();
 
@@ -140,7 +228,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
         };
     }
 
-    private applyFilters(qb: ReturnType<Repository<PresaleEntity>['createQueryBuilder']>, filters: PresaleFilters): void {
+    private applyFilters(
+        qb: ReturnType<Repository<PresaleEntity>['createQueryBuilder']>,
+        filters: PresaleFilters
+    ): void {
         if (filters.status) {
             qb.andWhere('p.status = :status', { status: filters.status });
         }
@@ -164,22 +255,16 @@ export class MysqlPresaleRepository implements PresaleRepository {
         }
         if (filters.search) {
             const searchTerm = `%${filters.search}%`;
-            qb.andWhere(new Brackets(sub => {
-                sub.where('client.name LIKE :search', { search: searchTerm })
-                    .orWhere('client.last_name LIKE :search', { search: searchTerm })
-                    .orWhere('business.name LIKE :search', { search: searchTerm });
-            }));
+            qb.andWhere(
+                new Brackets(sub => {
+                    sub.where('client.name LIKE :search', { search: searchTerm })
+                        .orWhere('client.last_name LIKE :search', { search: searchTerm })
+                        .orWhere('business.name LIKE :search', { search: searchTerm });
+                })
+            );
         }
     }
 
-    private applyPagination(qb: ReturnType<Repository<PresaleEntity>['createQueryBuilder']>, page: number, limit: number): void {
-        qb.orderBy('p.delivery_date', 'ASC')
-            .addOrderBy('p.created_at', 'DESC')
-            .skip((page - 1) * limit)
-            .take(limit);
-    }
-
-    // ==================== OBTENER POR ID ====================
     async getById(id: number): Promise<Presale | null> {
         const entity = await this.presaleRepo.findOne({
             where: { id, state: true },
@@ -191,14 +276,12 @@ export class MysqlPresaleRepository implements PresaleRepository {
     async getByIdWithDetails(id: number): Promise<Presale | null> {
         const entity = await this.presaleRepo.findOne({
             where: { id, state: true },
-            relations: ['client', 'business', 'preseller', 'distributor', 'branch', 'details', 'details.product']
+            relations: ['client', 'business', 'preseller', 'distributor', 'branch']
         });
-
         if (!entity) return null;
 
         const presale = this.mapToDomain(entity);
 
-        // Obtener detalles con stock actual
         const detailsWithStock = await this.detailService.getDetailsByPresaleId(id);
 
         return new Presale(
@@ -230,16 +313,24 @@ export class MysqlPresaleRepository implements PresaleRepository {
         );
     }
 
-    // ==================== SOFT DELETE ====================
     async softDelete(id: number, userId: number): Promise<boolean> {
-        const result = await this.presaleRepo.update(
-            { id },
-            { state: false, user_id: userId }
-        );
-        return (result.affected ?? 0) > 0;
+        // Verificar que existe y está activa
+        const entity = await this.presaleRepo.findOne({ where: { id, state: true } });
+
+        if (!entity) return false;
+
+        // No permitir eliminar preventas ya entregadas
+        if (['delivered', 'partial'].includes(entity.status)) {
+            throw new Error('No se puede eliminar una preventa ya entregada');
+        }
+
+        entity.state = false;
+        entity.user_id = userId;
+        await this.presaleRepo.save(entity);
+
+        return true;
     }
 
-    // ==================== DELEGACIÓN A DELIVERY SERVICE ====================
     async assignDistributor(id: number, distributorId: number, userId: number): Promise<Presale | null> {
         return this.deliveryService.assignDistributor(id, distributorId, userId);
     }
@@ -260,7 +351,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
         return this.deliveryService.canDistributorAccess(presaleId, distributorId);
     }
 
-    // ==================== DELEGACIÓN A DETAIL SERVICE ====================
+    // Detail service
     async updateDetail(detailId: number, data: UpdateDetailDTO, userId: number): Promise<PresaleDetail | null> {
         return this.detailService.updateDetail(detailId, data, userId);
     }
