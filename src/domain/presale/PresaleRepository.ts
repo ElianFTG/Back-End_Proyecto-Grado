@@ -16,7 +16,6 @@ export interface PresaleRepository {
     getById(id: number): Promise<Presale | null>;
     getByIdWithDetails(id: number): Promise<Presale | null>;
     assignDistributor(id: number, distributorId: number, userId: number): Promise<Presale | null>;
-    startDelivery(id: number, userId: number): Promise<Presale | null>;
     confirmDelivery(id: number, dto: ConfirmDeliveryDTO, userId: number): Promise<Presale | null>;
     cancelPresale(id: number, reason: string | null, userId: number): Promise<Presale | null>;
     updateDetail(detailId: number, data: UpdateDetailDTO, userId: number): Promise<PresaleDetail | null>;

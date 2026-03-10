@@ -77,7 +77,7 @@ app.use(AreaRouter);
 app.use(RouteRouter);
 app.use(RejectionRouter);
 app.use(ActivityRouter);
-app.use('/presales', PresaleRouter);
+app.use(PresaleRouter);
 
 
 app.use((req, res, next) => {

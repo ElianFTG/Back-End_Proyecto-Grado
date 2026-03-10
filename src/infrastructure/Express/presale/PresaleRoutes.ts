@@ -10,54 +10,48 @@ const controller = new PresaleController();
 
 router.use(authJwt(authService));
 router.post(
-    '/presale',
+    '/presales',
     requireRole('prevendedor', 'administrador', 'propietario'),
     controller.create
 );
 
 router.put(
-    '/presale/:id',
+    '/presales/:id',
     requireRole('prevendedor', 'administrador', 'propietario'),
     controller.update
 );
 router.get(
-    '/presale',
+    '/presales',
     requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
     controller.getAll
 );
 
 router.get(
-    '/presale/:id',
+    '/presales/:id',
     requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
     controller.getById
 );
 
 router.get(
-    '/presale/history',
+    '/presales/history',
     requireRole('administrador', 'propietario'),
     controller.getHistory
 );
 
 router.patch(
-    '/presale/:id/assign',
+    '/presales/:id/assign',
     requireRole('administrador', 'propietario'),
     controller.assign
 );
 
 router.patch(
-    '/presale/:id/start-delivery',
-    requireRole('transportista', 'administrador', 'propietario'),
-    controller.startDelivery
-);
-
-router.patch(
-    '/presale/:id/deliver',
+    '/presales/:id/deliver',
     requireRole('transportista', 'administrador', 'propietario'),
     controller.confirmDelivery
 );
 
 router.patch(
-    '/presale/:id/cancel',
+    '/presales/:id/cancel',
     requireRole('prevendedor', 'administrador', 'propietario'),
     controller.cancel
 );

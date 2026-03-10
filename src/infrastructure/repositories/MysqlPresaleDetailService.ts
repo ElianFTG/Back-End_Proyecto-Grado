@@ -78,9 +78,6 @@ export class PresaleDetailService {
         });
 
         if (!detail) return null;
-        if (detail.presale.status !== 'in_transit') {
-            throw new Error('Solo se puede actualizar detalles de preventas en tránsito');
-        }
 
         // No puede aumentar la cantidad respecto a la solicitada
         if (data.quantityDelivered > detail.quantity_requested) {

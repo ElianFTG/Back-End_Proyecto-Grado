@@ -57,6 +57,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
         );
     }
     async create(dto: CreatePresaleDTO): Promise<Presale> {
+        
         const subtotal = dto.details.reduce(
             (sum, d) => sum + d.quantityRequested * d.unitPrice,
             0
@@ -333,10 +334,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
     async assignDistributor(id: number, distributorId: number, userId: number): Promise<Presale | null> {
         return this.deliveryService.assignDistributor(id, distributorId, userId);
-    }
-
-    async startDelivery(id: number, userId: number): Promise<Presale | null> {
-        return this.deliveryService.startDelivery(id, userId);
     }
 
     async confirmDelivery(id: number, dto: ConfirmDeliveryDTO, userId: number): Promise<Presale | null> {
