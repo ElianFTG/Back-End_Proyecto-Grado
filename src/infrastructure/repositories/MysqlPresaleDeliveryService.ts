@@ -69,25 +69,6 @@ export class PresaleDeliveryService {
         return this.getById(id);
     }
 
-   
-    async startDelivery(id: number, userId: number): Promise<Presale | null> {
-        const entity = await this.presaleRepo.findOne({ where: { id, state: true } });
-
-        if (!entity) return null;
-        if (entity.status !== 'assigned') {
-            throw new Error('Solo se puede iniciar entrega de preventas asignadas');
-        }
-
-        const previousStatus = entity.status;
-        entity.status = 'in_transit';
-        entity.user_id = userId;
-
-        await this.presaleRepo.save(entity);
-        await this.addStatusHistory(id, 'in_transit', previousStatus, 'Salió a entregar', userId);
-
-        return this.getById(id);
-    }
-
     
     async confirmDelivery(
         id: number,
@@ -101,9 +82,6 @@ export class PresaleDeliveryService {
         });
 
         if (!entity) return null;
-        if (entity.status !== 'in_transit') {
-            throw new Error('Solo se puede confirmar entrega de preventas en tránsito');
-        }
 
         let totalDelivered = 0;
         let isPartial = false;

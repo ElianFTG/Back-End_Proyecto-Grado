@@ -5,7 +5,6 @@ import {
     getPresales,
     getPresaleById,
     assignDistributor,
-    startDelivery,
     confirmDelivery,
     cancelPresale,
     getPresaleHistory,
@@ -69,7 +68,7 @@ export class PresaleController {
         try {
             const statusParam = req.query.status as string | undefined;
             const validStatuses: PresaleStatus[] = [
-                'pending', 'assigned', 'in_transit', 'delivered', 'partial', 'cancelled'
+                'pending', 'assigned', 'delivered', 'partial', 'cancelled'
             ];
 
             const filters = {
@@ -149,34 +148,6 @@ export class PresaleController {
             res.json({presale});
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al asignar distribuidor';
-            res.status(400).json({ error: message });
-        }
-    }
-
-    async startDelivery(req: Request, res: Response): Promise<void> {
-        try {
-            const userId = req.auth?.userId;
-            if (!userId) {
-                res.status(401).json({ error: 'Usuario no autenticado' });
-                return;
-            }
-
-            const id = Number(req.params.id);
-            if (!id || isNaN(id)) {
-                res.status(400).json({ error: 'ID de preventa inválido' });
-                return;
-            }
-
-            const presale = await startDelivery.run(id, userId);
-
-            if (!presale) {
-                res.status(404).json({ error: 'Preventa no encontrada' });
-                return;
-            }
-
-            res.json({presale});
-        } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Error al iniciar entrega';
             res.status(400).json({ error: message });
         }
     }

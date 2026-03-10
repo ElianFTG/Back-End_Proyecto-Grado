@@ -335,10 +335,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
         return this.deliveryService.assignDistributor(id, distributorId, userId);
     }
 
-    async startDelivery(id: number, userId: number): Promise<Presale | null> {
-        return this.deliveryService.startDelivery(id, userId);
-    }
-
     async confirmDelivery(id: number, dto: ConfirmDeliveryDTO, userId: number): Promise<Presale | null> {
         return this.deliveryService.confirmDelivery(id, dto, userId, this.getByIdWithDetails.bind(this));
     }

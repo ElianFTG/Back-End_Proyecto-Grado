@@ -45,12 +45,6 @@ router.patch(
 );
 
 router.patch(
-    '/presale/:id/start-delivery',
-    requireRole('transportista', 'administrador', 'propietario'),
-    controller.startDelivery
-);
-
-router.patch(
     '/presale/:id/deliver',
     requireRole('transportista', 'administrador', 'propietario'),
     controller.confirmDelivery

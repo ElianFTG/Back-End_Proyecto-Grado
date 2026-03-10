@@ -1,4 +1,4 @@
-export type PresaleStatus = 'pending' | 'assigned' | 'in_transit' | 'delivered' | 'partial' | 'cancelled';
+export type PresaleStatus = 'pending' | 'assigned' | 'delivered' | 'partial' | 'cancelled';
 
 export class Presale {
     id?: number | undefined;
