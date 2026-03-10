@@ -57,6 +57,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
         );
     }
     async create(dto: CreatePresaleDTO): Promise<Presale> {
+        
         const subtotal = dto.details.reduce(
             (sum, d) => sum + d.quantityRequested * d.unitPrice,
             0

@@ -30,7 +30,7 @@ export class PresaleController {
 
             const presale = await createPresale.run(dto);
 
-            res.status(201).json({presale});
+            res.status(201).json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al crear preventa';
             res.status(400).json({ error: message });
@@ -57,7 +57,7 @@ export class PresaleController {
                 res.status(404).json({ error: 'Preventa no encontrada' });
                 return;
             }
-            res.json({presale});
+            res.json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al editar preventa';
             res.status(400).json({ error: message });
@@ -111,7 +111,7 @@ export class PresaleController {
                 return;
             }
 
-            res.json({ presale });
+            res.json( presale );
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al obtener preventa';
             res.status(500).json({ error: message });
@@ -145,7 +145,7 @@ export class PresaleController {
                 return;
             }
 
-            res.json({presale});
+            res.json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al asignar distribuidor';
             res.status(400).json({ error: message });
@@ -174,7 +174,7 @@ export class PresaleController {
                 return;
             }
 
-            res.json({presale});
+            res.json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al confirmar entrega';
             res.status(400).json({ error: message });
@@ -219,7 +219,7 @@ export class PresaleController {
             }
 
             const history = await getPresaleHistory.run(id);
-            res.json({ history });
+            res.json( history );
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al obtener historial';
             res.status(500).json({ error: message });
