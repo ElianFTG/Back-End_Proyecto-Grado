@@ -21,6 +21,14 @@ export class PresaleDeliveryService {
     }
 
     private mapToDomain(entity: PresaleEntity): Presale {
+        const distributorFullName = entity.distributor
+            ? [
+                entity.distributor.names,
+                entity.distributor.last_name,
+                entity.distributor.second_last_name
+              ].filter(Boolean).join(' ')
+            : undefined;
+
         return new Presale(
             entity.client_id,
             entity.preseller_id,
@@ -44,7 +52,7 @@ export class PresaleDeliveryService {
             entity.client?.phone,
             entity.business?.name,
             entity.preseller?.names,
-            entity.distributor?.names,
+            distributorFullName,
             entity.branch?.name
         );
     }
