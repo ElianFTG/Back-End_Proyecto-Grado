@@ -1,10 +1,3 @@
-/**
- * ============================================
- * USE CASE: CANCEL PRESALE
- * ============================================
- * Cancela una preventa que no ha sido entregada
- */
-
 import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 import { Presale } from '../../domain/presale/Presale';
 

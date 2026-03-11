@@ -21,6 +21,14 @@ export class PresaleDeliveryService {
     }
 
     private mapToDomain(entity: PresaleEntity): Presale {
+        const distributorFullName = entity.distributor
+            ? [
+                entity.distributor.names,
+                entity.distributor.last_name,
+                entity.distributor.second_last_name
+              ].filter(Boolean).join(' ')
+            : undefined;
+
         return new Presale(
             entity.client_id,
             entity.preseller_id,
@@ -44,32 +52,30 @@ export class PresaleDeliveryService {
             entity.client?.phone,
             entity.business?.name,
             entity.preseller?.names,
-            entity.distributor?.names,
+            distributorFullName,
             entity.branch?.name
         );
     }
 
-    
     async assignDistributor(id: number, distributorId: number, userId: number): Promise<Presale | null> {
         const entity = await this.presaleRepo.findOne({ where: { id, state: true } });
 
         if (!entity) return null;
-        if (entity.status !== 'pending') {
+        if (entity.status !== 'pendiente') {
             throw new Error('Solo se puede asignar distribuidor a preventas pendientes');
         }
 
         const previousStatus = entity.status;
         entity.distributor_id = distributorId;
-        entity.status = 'assigned';
+        entity.status = 'asignado';
         entity.user_id = userId;
 
         await this.presaleRepo.save(entity);
-        await this.addStatusHistory(id, 'assigned', previousStatus, 'Distribuidor asignado', userId);
+        await this.addStatusHistory(id, 'asignado', previousStatus, 'Distribuidor asignado', userId);
 
         return this.getById(id);
     }
 
-    
     async confirmDelivery(
         id: number,
         dto: ConfirmDeliveryDTO,
@@ -86,7 +92,6 @@ export class PresaleDeliveryService {
         let totalDelivered = 0;
         let isPartial = false;
 
-        
         for (const detailUpdate of dto.details) {
             const detail = entity.details.find(d => d.id === detailUpdate.detailId && d.state);
             if (!detail) continue;
@@ -108,13 +113,17 @@ export class PresaleDeliveryService {
             await this.detailRepo.save(detail);
 
             totalDelivered += subtotalDelivered;
-            if (detailUpdate.quantityDelivered > 0) {
-                await this.decrementStock(detail.product_id, detail.branch_id, detailUpdate.quantityDelivered);
+
+            if (isPartial) {
+                const undeliveredQty = detail.quantity_requested - detailUpdate.quantityDelivered;
+                if (undeliveredQty > 0) {
+                    await this.incrementStock(detail.product_id, detail.branch_id, undeliveredQty);
+                }
             }
         }
 
         const previousStatus = entity.status;
-        const newStatus: PresaleStatus = isPartial ? 'partial' : 'delivered';
+        const newStatus: PresaleStatus = isPartial ? 'parcial' : 'entregado';
 
         entity.status = newStatus;
         entity.delivered_at = new Date();
@@ -134,21 +143,30 @@ export class PresaleDeliveryService {
         return getByIdWithDetails(id);
     }
 
-    
     async cancelPresale(id: number, reason: string | null, userId: number): Promise<Presale | null> {
-        const entity = await this.presaleRepo.findOne({ where: { id, state: true } });
+        const entity = await this.presaleRepo.findOne({
+            where: { id, state: true },
+            relations: ['details']
+        });
 
         if (!entity) return null;
-        if (['delivered', 'partial'].includes(entity.status)) {
+        if (['entregado', 'parcial'].includes(entity.status)) {
             throw new Error('No se puede cancelar una preventa ya entregada');
         }
 
+        const activeDetails = entity.details.filter(d => d.state);
+        for (const detail of activeDetails) {
+            if (detail.quantity_requested > 0) {
+                await this.incrementStock(detail.product_id, detail.branch_id, detail.quantity_requested);
+            }
+        }
+
         const previousStatus = entity.status;
-        entity.status = 'cancelled';
+        entity.status = 'cancelado';
         entity.user_id = userId;
 
         await this.presaleRepo.save(entity);
-        await this.addStatusHistory(id, 'cancelled', previousStatus, reason, userId);
+        await this.addStatusHistory(id, 'cancelado', previousStatus, reason, userId);
 
         return this.getById(id);
     }
@@ -168,12 +186,26 @@ export class PresaleDeliveryService {
         return entity ? this.mapToDomain(entity) : null;
     }
 
-    private async decrementStock(productId: number, branchId: number, quantity: number): Promise<void> {
+    async decrementStock(productId: number, branchId: number, quantity: number): Promise<void> {
         await this.productBranchRepo
             .createQueryBuilder()
             .update(ProductBranchEntity)
             .set({
-                stock_qty: () => `stock_qty - ${quantity}`
+                stock_qty: () => `GREATEST(0, stock_qty - ${quantity})`
+            })
+            .where('product_id = :productId AND branch_id = :branchId', {
+                productId,
+                branchId
+            })
+            .execute();
+    }
+
+    private async incrementStock(productId: number, branchId: number, quantity: number): Promise<void> {
+        await this.productBranchRepo
+            .createQueryBuilder()
+            .update(ProductBranchEntity)
+            .set({
+                stock_qty: () => `stock_qty + ${quantity}`
             })
             .where('product_id = :productId AND branch_id = :branchId', {
                 productId,

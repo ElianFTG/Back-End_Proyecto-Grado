@@ -29,6 +29,14 @@ export class MysqlPresaleRepository implements PresaleRepository {
     }
 
     private mapToDomain(entity: PresaleEntity): Presale {
+        const distributorFullName = entity.distributor
+            ? [
+                entity.distributor.names,
+                entity.distributor.last_name,
+                entity.distributor.second_last_name
+              ].filter(Boolean).join(' ')
+            : undefined;
+
         return new Presale(
             entity.client_id,
             entity.preseller_id,
@@ -52,12 +60,13 @@ export class MysqlPresaleRepository implements PresaleRepository {
             entity.client?.phone,
             entity.business?.name,
             entity.preseller?.names,
-            entity.distributor?.names,
+            distributorFullName,
             entity.branch?.name
         );
     }
+
     async create(dto: CreatePresaleDTO): Promise<Presale> {
-        
+
         const subtotal = dto.details.reduce(
             (sum, d) => sum + d.quantityRequested * d.unitPrice,
             0
@@ -71,7 +80,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
             distributor_id: null,
             branch_id: dto.branchId,
             delivery_date: new Date(dto.deliveryDate),
-            status: 'pending',
+            status: 'pendiente',
             subtotal,
             total,
             notes: dto.notes ?? null,
@@ -85,7 +94,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
             this.detailRepo.create({
                 presale_id: savedPresale.id,
                 product_id: d.productId,
-                product_branch_id: d.productBranchId,
                 branch_id: dto.branchId,
                 quantity_requested: d.quantityRequested,
                 quantity_delivered: null,
@@ -101,9 +109,15 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         await this.detailRepo.save(detailEntities);
 
+        for (const d of dto.details) {
+            if (d.quantityRequested > 0) {
+                await this.deliveryService.decrementStock(d.productId, dto.branchId, d.quantityRequested);
+            }
+        }
+
         await this.deliveryService.addStatusHistory(
             savedPresale.id,
-            'pending',
+            'pendiente',
             null,
             'Preventa creada',
             dto.userId
@@ -111,6 +125,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         return this.getById(savedPresale.id) as Promise<Presale>;
     }
+
     async update(id: number, dto: UpdatePresaleDTO, userId: number): Promise<Presale | null> {
         const entity = await this.presaleRepo.findOne({
             where: { id, state: true },
@@ -119,7 +134,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         if (!entity) return null;
 
-        if (entity.status !== 'pending') {
+        if (entity.status !== 'pendiente') {
             throw new Error('Solo se pueden editar preventas en estado pendiente');
         }
         if (dto.clientId !== undefined) entity.client_id = dto.clientId;
@@ -128,24 +143,42 @@ export class MysqlPresaleRepository implements PresaleRepository {
         if (dto.deliveryDate !== undefined) entity.delivery_date = new Date(dto.deliveryDate);
         if (dto.notes !== undefined) entity.notes = dto.notes;
         entity.user_id = userId;
+
         if (dto.details) {
-            // 1. Soft-delete detalles removidos
             if (dto.details.remove && dto.details.remove.length > 0) {
                 const toRemove = entity.details.filter(
                     d => dto.details!.remove!.includes(d.id) && d.state
                 );
                 for (const d of toRemove) {
+                    if (d.quantity_requested > 0) {
+                        await this.deliveryService.decrementStock(
+                            d.product_id,
+                            d.branch_id,
+                            -d.quantity_requested
+                        );
+                    }
                     d.state = false;
                     d.user_id = userId;
                     await this.detailRepo.save(d);
                 }
             }
+
             if (dto.details.update && dto.details.update.length > 0) {
                 for (const upd of dto.details.update) {
                     const existing = entity.details.find(
                         d => d.id === upd.detailId && d.state
                     );
                     if (!existing) continue;
+
+                    const qtyDiff = upd.quantityRequested - existing.quantity_requested;
+                    if (qtyDiff !== 0) {
+                        await this.deliveryService.decrementStock(
+                            existing.product_id,
+                            existing.branch_id,
+                            qtyDiff
+                        );
+                    }
+
                     existing.quantity_requested = upd.quantityRequested;
                     existing.unit_price = upd.unitPrice;
                     existing.subtotal_requested = upd.quantityRequested * upd.unitPrice;
@@ -155,12 +188,12 @@ export class MysqlPresaleRepository implements PresaleRepository {
             }
 
             if (dto.details.add && dto.details.add.length > 0) {
+                const branchId = dto.branchId ?? entity.branch_id;
                 const newDetails = dto.details.add.map(d =>
                     this.detailRepo.create({
                         presale_id: id,
                         product_id: d.productId,
-                        product_branch_id: d.productBranchId,
-                        branch_id: dto.branchId ?? entity.branch_id,
+                        branch_id: branchId,
                         quantity_requested: d.quantityRequested,
                         quantity_delivered: null,
                         price_type_id: d.priceTypeId,
@@ -173,8 +206,15 @@ export class MysqlPresaleRepository implements PresaleRepository {
                     })
                 );
                 await this.detailRepo.save(newDetails);
+
+                for (const d of dto.details.add) {
+                    if (d.quantityRequested > 0) {
+                        await this.deliveryService.decrementStock(d.productId, branchId, d.quantityRequested);
+                    }
+                }
             }
         }
+
         const activeDetails = await this.detailRepo.find({
             where: { presale_id: id, state: true }
         });
@@ -186,7 +226,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
         entity.subtotal = newSubtotal;
         entity.total = newSubtotal;
 
-        // Verificar que queden detalles activos
         if (activeDetails.length === 0) {
             throw new Error('La preventa debe tener al menos un producto');
         }
@@ -282,7 +321,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
         if (!entity) return null;
 
         const presale = this.mapToDomain(entity);
-
         const detailsWithStock = await this.detailService.getDetailsByPresaleId(id);
 
         return new Presale(
@@ -315,13 +353,14 @@ export class MysqlPresaleRepository implements PresaleRepository {
     }
 
     async softDelete(id: number, userId: number): Promise<boolean> {
-        // Verificar que existe y está activa
-        const entity = await this.presaleRepo.findOne({ where: { id, state: true } });
+        const entity = await this.presaleRepo.findOne({
+            where: { id, state: true },
+            relations: ['details']
+        });
 
         if (!entity) return false;
 
-        // No permitir eliminar preventas ya entregadas
-        if (['delivered', 'partial'].includes(entity.status)) {
+        if (['entregado', 'parcial'].includes(entity.status)) {
             throw new Error('No se puede eliminar una preventa ya entregada');
         }
 
@@ -348,7 +387,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
         return this.deliveryService.canDistributorAccess(presaleId, distributorId);
     }
 
-    // Detail service
     async updateDetail(detailId: number, data: UpdateDetailDTO, userId: number): Promise<PresaleDetail | null> {
         return this.detailService.updateDetail(detailId, data, userId);
     }

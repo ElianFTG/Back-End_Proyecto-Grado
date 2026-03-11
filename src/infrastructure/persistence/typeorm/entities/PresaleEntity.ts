@@ -53,8 +53,8 @@ export class PresaleEntity {
     @Column({
         name: 'status',
         type: 'enum',
-        enum: ['pending', 'assigned', 'delivered', 'partial', 'cancelled'],
-        default: 'pending'
+        enum: ['pendiente', 'asignado', 'entregado', 'parcial', 'cancelado'],
+        default: 'pendiente'
     })
     status!: string;
 

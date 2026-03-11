@@ -68,9 +68,8 @@ export class PresaleController {
         try {
             const statusParam = req.query.status as string | undefined;
             const validStatuses: PresaleStatus[] = [
-                'pending', 'assigned', 'delivered', 'partial', 'cancelled'
+                'pendiente', 'asignado', 'entregado', 'parcial', 'cancelado'
             ];
-
             const filters = {
                 status: statusParam && validStatuses.includes(statusParam as PresaleStatus)
                     ? (statusParam as PresaleStatus)
@@ -86,7 +85,6 @@ export class PresaleController {
                 page: req.query.page ? Number(req.query.page) : 1,
                 limit: req.query.limit ? Number(req.query.limit) : 10
             };
-
             const result = await getPresales.run(filters);
             res.json(result);
         } catch (error: unknown) {
@@ -102,16 +100,13 @@ export class PresaleController {
                 res.status(400).json({ error: 'ID de preventa inválido' });
                 return;
             }
-
             const withDetails = req.query.withDetails === 'true';
             const presale = await getPresaleById.run(id, withDetails);
-
             if (!presale) {
                 res.status(404).json({ error: 'Preventa no encontrada' });
                 return;
             }
-
-            res.json( presale );
+            res.json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al obtener preventa';
             res.status(500).json({ error: message });
@@ -125,26 +120,21 @@ export class PresaleController {
                 res.status(401).json({ error: 'Usuario no autenticado' });
                 return;
             }
-
             const id = Number(req.params.id);
             if (!id || isNaN(id)) {
                 res.status(400).json({ error: 'ID de preventa inválido' });
                 return;
             }
-
             const { distributorId } = req.body;
             if (!distributorId) {
                 res.status(400).json({ error: 'El distributorId es obligatorio' });
                 return;
             }
-
             const presale = await assignDistributor.run(id, distributorId, userId);
-
             if (!presale) {
                 res.status(404).json({ error: 'Preventa no encontrada' });
                 return;
             }
-
             res.json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al asignar distribuidor';
@@ -159,21 +149,17 @@ export class PresaleController {
                 res.status(401).json({ error: 'Usuario no autenticado' });
                 return;
             }
-
             const id = Number(req.params.id);
             if (!id || isNaN(id)) {
                 res.status(400).json({ error: 'ID de preventa inválido' });
                 return;
             }
-
             const dto = req.body;
             const presale = await confirmDelivery.run(id, dto, userId);
-
             if (!presale) {
                 res.status(404).json({ error: 'Preventa no encontrada' });
                 return;
             }
-
             res.json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al confirmar entrega';
@@ -203,13 +189,12 @@ export class PresaleController {
                 return;
             }
 
-            res.json({presale});
+            res.json({ presale });
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al cancelar preventa';
             res.status(400).json({ error: message });
         }
     }
-
     async getHistory(req: Request, res: Response): Promise<void> {
         try {
             const id = Number(req.params.id);
@@ -219,7 +204,7 @@ export class PresaleController {
             }
 
             const history = await getPresaleHistory.run(id);
-            res.json( history );
+            res.json(history);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al obtener historial';
             res.status(500).json({ error: message });
@@ -239,14 +224,11 @@ export class PresaleController {
                 res.status(400).json({ error: 'ID de preventa inválido' });
                 return;
             }
-
             const deleted = await presaleRepository.softDelete(id, userId);
-
             if (!deleted) {
                 res.status(404).json({ error: 'Preventa no encontrada' });
                 return;
             }
-
             res.json({ message: 'Preventa eliminada correctamente' });
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al eliminar preventa';

@@ -9,6 +9,7 @@ const authService = AuthServiceContainer.authService();
 const controller = new PresaleController();
 
 router.use(authJwt(authService));
+
 router.post(
     '/presales',
     requireRole('prevendedor', 'administrador', 'propietario'),
@@ -20,6 +21,7 @@ router.put(
     requireRole('prevendedor', 'administrador', 'propietario'),
     controller.update
 );
+
 router.get(
     '/presales',
     requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
@@ -27,15 +29,15 @@ router.get(
 );
 
 router.get(
-    '/presales/:id',
-    requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
-    controller.getById
+    '/presales/history/:id',
+    requireRole('administrador', 'propietario', 'prevendedor', 'transportista'),
+    controller.getHistory
 );
 
 router.get(
-    '/presales/history',
-    requireRole('administrador', 'propietario'),
-    controller.getHistory
+    '/presales/:id',
+    requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
+    controller.getById
 );
 
 router.patch(
@@ -52,13 +54,12 @@ router.patch(
 
 router.patch(
     '/presales/:id/cancel',
-    requireRole('prevendedor', 'administrador', 'propietario'),
+    requireRole('transportista', 'prevendedor', 'administrador', 'propietario'),
     controller.cancel
 );
 
-
 router.delete(
-    '/:id',
+    '/presales/:id',
     requireRole('administrador', 'propietario'),
     controller.delete
 );
