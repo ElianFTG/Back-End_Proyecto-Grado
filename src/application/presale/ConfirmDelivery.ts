@@ -1,4 +1,3 @@
-
 import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 import { ConfirmDeliveryDTO } from '../../domain/presale/PresaleFilter';
 import { Presale } from '../../domain/presale/Presale';

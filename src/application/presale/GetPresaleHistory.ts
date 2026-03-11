@@ -1,10 +1,3 @@
-/**
- * ============================================
- * USE CASE: GET PRESALE HISTORY
- * ============================================
- * Obtiene el historial de estados de una preventa
- */
-
 import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 import { PresaleStatusHistory } from '../../domain/presale/Presale';
 

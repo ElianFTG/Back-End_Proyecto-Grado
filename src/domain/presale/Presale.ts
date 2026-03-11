@@ -1,4 +1,4 @@
-export type PresaleStatus = 'pending' | 'assigned' | 'delivered' | 'partial' | 'cancelled';
+export type PresaleStatus = 'pendiente' | 'asignado' | 'entregado' | 'parcial' | 'cancelado';
 
 export class Presale {
     id?: number | undefined;
@@ -35,7 +35,7 @@ export class Presale {
         userId: number,
         businessId: number | null = null,
         distributorId: number | null = null,
-        status: PresaleStatus = 'pending',
+        status: PresaleStatus = 'pendiente',
         subtotal: number = 0,
         total: number = 0,
         notes: string | null = null,
@@ -87,7 +87,6 @@ export class PresaleDetail {
     id?: number | undefined;
     presaleId: number;
     productId: number;
-    productBranchId: number;
     branchId?: number | undefined;
     quantityRequested: number;
     quantityDelivered: number | null;
@@ -109,7 +108,6 @@ export class PresaleDetail {
     constructor(
         presaleId: number,
         productId: number,
-        productBranchId: number,
         quantityRequested: number,
         priceTypeId: number,
         unitPrice: number,
@@ -131,7 +129,6 @@ export class PresaleDetail {
         this.id = id;
         this.presaleId = presaleId;
         this.productId = productId;
-        this.productBranchId = productBranchId;
         this.quantityRequested = quantityRequested;
         this.quantityDelivered = quantityDelivered;
         this.priceTypeId = priceTypeId;
@@ -151,9 +148,6 @@ export class PresaleDetail {
     }
 }
 
-/**
- * Entidad de Historial de Estados
- */
 export class PresaleStatusHistory {
     id?: number | undefined;
     presaleId: number;

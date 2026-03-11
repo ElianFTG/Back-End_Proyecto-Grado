@@ -21,7 +21,6 @@ export class PresaleDetailService {
         return new PresaleDetail(
             entity.presale_id,
             entity.product_id,
-            entity.product_branch_id,
             entity.quantity_requested,
             entity.price_type_id,
             Number(entity.unit_price),
@@ -49,7 +48,6 @@ export class PresaleDetailService {
         return new PresaleDetail(
             entity.presale_id,
             entity.product_id,
-            entity.product_branch_id,
             entity.quantity_requested,
             entity.price_type_id,
             Number(entity.unit_price),
@@ -70,7 +68,6 @@ export class PresaleDetailService {
         );
     }
 
-    // ==================== ACTUALIZAR DETALLE ====================
     async updateDetail(detailId: number, data: UpdateDetailDTO, userId: number): Promise<PresaleDetail | null> {
         const detail = await this.detailRepo.findOne({
             where: { id: detailId, state: true },
@@ -79,7 +76,6 @@ export class PresaleDetailService {
 
         if (!detail) return null;
 
-        // No puede aumentar la cantidad respecto a la solicitada
         if (data.quantityDelivered > detail.quantity_requested) {
             throw new Error('No se puede entregar más de lo solicitado');
         }
@@ -105,7 +101,7 @@ export class PresaleDetailService {
         const details = await this.detailRepo.find({
             where: { presale_id: presaleId, state: true },
             relations: ['product', 'priceType']
-        }) ;
+        });
         if (details.length === 0 || !details[0]) return [];
         const branchId = details[0].branch_id;
         const productIds = details.map(d => d.product_id);
@@ -117,7 +113,6 @@ export class PresaleDetailService {
             }
         });
 
-        // Mapa product_id -> stock_qty
         const stockMap = new Map<number, number | null>();
         for (const pb of productBranches) {
             stockMap.set(pb.product_id, pb.stock_qty ?? null);

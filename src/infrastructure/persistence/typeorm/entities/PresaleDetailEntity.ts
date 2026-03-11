@@ -28,9 +28,6 @@ export class PresaleDetailEntity {
     @Column({ name: 'product_id', type: 'smallint', unsigned: true })
     product_id!: number;
 
-    @Column({ name: 'product_branch_id', type: 'smallint', unsigned: true })
-    product_branch_id!: number;
-
     @Column({ name: 'branch_id', type: 'smallint', unsigned: true })
     branch_id!: number;
 
@@ -66,8 +63,6 @@ export class PresaleDetailEntity {
 
     @UpdateDateColumn({ name: 'updated_at', type: 'datetime', nullable: true })
     updated_at!: Date;
-
-    // ==================== RELACIONES ====================
 
     @ManyToOne(() => PresaleEntity, presale => presale.details, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'presale_id' })

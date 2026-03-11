@@ -15,7 +15,7 @@ export class UpdatePresale {
             throw new Error('Preventa no encontrada');
         }
 
-        if (existing.status !== 'pending') {
+        if (existing.status !== 'pendiente') {
             throw new Error('Solo se pueden editar preventas en estado pendiente');
         }
 

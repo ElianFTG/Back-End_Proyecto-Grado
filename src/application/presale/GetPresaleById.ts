@@ -1,10 +1,3 @@
-/**
- * ============================================
- * USE CASE: GET PRESALE BY ID
- * ============================================
- * Obtiene una preventa por su ID con detalles
- */
-
 import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 import { Presale } from '../../domain/presale/Presale';
 

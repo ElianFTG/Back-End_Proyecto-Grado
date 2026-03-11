@@ -6,9 +6,9 @@ export interface PresaleFilters {
     distributorId?: number | undefined;
     clientId?: number | undefined;
     branchId?: number | undefined;
-    deliveryDate?: string | undefined;        // Fecha exacta YYYY-MM-DD
-    deliveryDateFrom?: string | undefined;    // Rango desde
-    deliveryDateTo?: string | undefined;      // Rango hasta
+    deliveryDate?: string | undefined;        
+    deliveryDateFrom?: string | undefined;    
+    deliveryDateTo?: string | undefined;      
     search?: string | undefined;
     page?: number | undefined;
     limit?: number | undefined;
@@ -35,13 +35,11 @@ export interface CreatePresaleDTO {
 
 export interface CreatePresaleDetailDTO {
     productId: number;
-    productBranchId: number;
     quantityRequested: number;
     priceTypeId: number;
     unitPrice: number;
 }
 
-// DTO para editar una preventa (solo campos editables cuando está en estado pending)
 export interface UpdatePresaleDTO {
     clientId?: number;
     businessId?: number | null;
@@ -52,11 +50,8 @@ export interface UpdatePresaleDTO {
 }
 
 export interface UpdatePresaleDetailsDTO {
-    // Detalles a actualizar (por id)
     update?: { detailId: number; quantityRequested: number; unitPrice: number }[];
-    // Detalles a agregar
     add?: CreatePresaleDetailDTO[];
-    // IDs de detalles a eliminar (soft delete)
     remove?: number[];
 }
 

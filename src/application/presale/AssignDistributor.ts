@@ -1,10 +1,3 @@
-/**
- * ============================================
- * USE CASE: ASSIGN DISTRIBUTOR
- * ============================================
- * Asigna un distribuidor a una preventa pendiente
- */
-
 import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 import { Presale } from '../../domain/presale/Presale';
 
