@@ -40,6 +40,12 @@ router.get(
     controller.getById
 );
 
+router.get(
+    '/presales/my-deliveries',
+    requireRole('transportista'),
+    controller.getMyDeliveries
+);
+
 router.patch(
     '/presales/:id/assign',
     requireRole('administrador', 'propietario'),

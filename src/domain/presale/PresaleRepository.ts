@@ -7,6 +7,7 @@ import {
     ConfirmDeliveryDTO,
     PaginatedPresalesResult
 } from './PresaleFilter';
+import { DistributorDeliveryItem } from './DistributorDelivery';
 
 
 export interface PresaleRepository {
@@ -23,4 +24,5 @@ export interface PresaleRepository {
     getStatusHistory(presaleId: number): Promise<PresaleStatusHistory[]>;
     softDelete(id: number, userId: number): Promise<boolean>;
     canDistributorAccess(presaleId: number, distributorId: number): Promise<boolean>;
+    getDeliveriesByDistributor(distributorId: number, deliveryDate: string): Promise<DistributorDeliveryItem[]>;
 }
