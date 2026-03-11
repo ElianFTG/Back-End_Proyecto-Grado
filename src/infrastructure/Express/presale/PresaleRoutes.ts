@@ -64,6 +64,12 @@ router.patch(
     controller.cancel
 );
 
+router.patch(
+    '/presales/:id/return',
+    requireRole('administrador', 'propietario'),
+    controller.returnProducts
+);
+
 router.delete(
     '/presales/:id',
     requireRole('administrador', 'propietario'),

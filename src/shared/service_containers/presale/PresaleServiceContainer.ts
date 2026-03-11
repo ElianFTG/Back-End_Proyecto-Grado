@@ -8,6 +8,7 @@ import { ConfirmDelivery } from '../../../application/presale/ConfirmDelivery';
 import { CancelPresale } from '../../../application/presale/CancelPresale';
 import { GetPresaleHistory } from '../../../application/presale/GetPresaleHistory';
 import { GetDeliveriesByDistributor } from '../../../application/presale/GetDeliveriesByDistributor';
+import { ReturnPresaleProducts } from '../../../application/presale/ReturnPresaleProducts';
 
 const presaleRepository = new MysqlPresaleRepository();
 
@@ -20,5 +21,6 @@ export const confirmDelivery = new ConfirmDelivery(presaleRepository);
 export const cancelPresale = new CancelPresale(presaleRepository);
 export const getPresaleHistory = new GetPresaleHistory(presaleRepository);
 export const getDeliveriesByDistributor = new GetDeliveriesByDistributor(presaleRepository);
+export const returnPresaleProducts = new ReturnPresaleProducts(presaleRepository);
 
 export { presaleRepository };

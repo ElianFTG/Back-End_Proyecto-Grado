@@ -9,6 +9,7 @@ import {
     cancelPresale,
     getPresaleHistory,
     getDeliveriesByDistributor,
+    returnPresaleProducts,
     presaleRepository
 } from '../../../shared/service_containers/presale/PresaleServiceContainer';
 import { PresaleStatus } from '../../../domain/presale/Presale';
@@ -245,6 +246,28 @@ export class PresaleController {
             res.json(deliveries);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al obtener entregas';
+            res.status(400).json({ error: message });
+        }
+    }
+
+    async returnProducts(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.auth?.userId;
+            if (!userId) {
+                res.status(401).json({ error: 'Usuario no autenticado' });
+                return;
+            }
+
+            const id = Number(req.params.id);
+            if (!id || isNaN(id)) {
+                res.status(400).json({ error: 'ID de preventa inválido' });
+                return;
+            }
+
+            const result = await returnPresaleProducts.run(id, req.body ?? {}, userId);
+            res.json(result);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al procesar devolución';
             res.status(400).json({ error: message });
         }
     }

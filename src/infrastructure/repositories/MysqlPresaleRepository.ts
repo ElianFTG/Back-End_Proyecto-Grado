@@ -9,7 +9,9 @@ import {
     CreatePresaleDTO,
     UpdatePresaleDTO,
     UpdateDetailDTO,
-    ConfirmDeliveryDTO
+    ConfirmDeliveryDTO,
+    ReturnPresaleProductsDTO,
+    ReturnPresaleProductsResult
 } from '../../domain/presale/PresaleFilter';
 import { DistributorDeliveryItem } from '../../domain/presale/DistributorDelivery';
 import { AppDataSource } from '../db/Mysql';
@@ -466,5 +468,13 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
     async getStatusHistory(presaleId: number): Promise<PresaleStatusHistory[]> {
         return this.detailService.getStatusHistory(presaleId);
+    }
+
+    async returnProducts(
+        id: number,
+        dto: ReturnPresaleProductsDTO,
+        userId: number
+    ): Promise<ReturnPresaleProductsResult> {
+        return this.deliveryService.returnProducts(id, dto, userId);
     }
 }
