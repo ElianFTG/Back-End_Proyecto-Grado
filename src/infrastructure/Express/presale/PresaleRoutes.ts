@@ -41,7 +41,7 @@ router.get(
 );
 
 router.get(
-    '/presales/my-deliveries',
+    '/my-deliveries',
     requireRole('transportista'),
     controller.getMyDeliveries
 );
