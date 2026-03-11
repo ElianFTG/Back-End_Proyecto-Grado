@@ -11,6 +11,7 @@ import {
     UpdateDetailDTO,
     ConfirmDeliveryDTO
 } from '../../domain/presale/PresaleFilter';
+import { DistributorDeliveryItem } from '../../domain/presale/DistributorDelivery';
 import { AppDataSource } from '../db/Mysql';
 import { PresaleDeliveryService } from './MysqlPresaleDeliveryService';
 import { PresaleDetailService } from './MysqlPresaleDetailService';
@@ -369,6 +370,74 @@ export class MysqlPresaleRepository implements PresaleRepository {
         await this.presaleRepo.save(entity);
 
         return true;
+    }
+
+    async getDeliveriesByDistributor(
+        distributorId: number,
+        deliveryDate: string
+    ): Promise<DistributorDeliveryItem[]> {
+        const presales = await this.presaleRepo.find({
+            where: {
+                distributor_id: distributorId,
+                state: true
+            },
+            relations: [
+                'client',
+                'business',
+                'details',
+                'details.product'
+            ]
+        });
+
+        // Filtrar por fecha de entrega en memoria para evitar problemas de timezone con TypeORM
+        const filtered = presales.filter(p => {
+            const date = new Date(p.delivery_date);
+            const y = date.getUTCFullYear();
+            const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const d = String(date.getUTCDate()).padStart(2, '0');
+            return `${y}-${m}-${d}` === deliveryDate;
+        });
+
+        return filtered.map(presale => {
+            const activeDetails = presale.details.filter(d => d.state);
+
+            const products = activeDetails.map(detail => ({
+                detailId: detail.id,
+                productId: detail.product_id,
+                productName: detail.product?.name ?? '',
+                productBarcode: detail.product?.barcode ?? null,
+                quantityRequested: detail.quantity_requested,
+                unitPrice: Number(detail.unit_price),
+                subtotalRequested: Number(detail.subtotal_requested)
+            }));
+
+            const clientFullName = [
+                presale.client?.name,
+                presale.client?.last_name,
+                presale.client?.second_last_name
+            ].filter(Boolean).join(' ');
+
+            return {
+                presaleId: presale.id,
+                status: presale.status,
+                notes: presale.notes,
+                clientName: presale.client?.name ?? '',
+                clientLastName: [
+                    presale.client?.last_name,
+                    presale.client?.second_last_name
+                ].filter(Boolean).join(' '),
+                clientPhone: presale.client?.phone ?? '',
+                business: {
+                    businessId: presale.business_id,
+                    businessName: presale.business?.name ?? null,
+                    address: presale.business?.address ?? null,
+                    nit: presale.business?.nit ?? null,
+                    position: presale.business?.position ?? null
+                },
+                products,
+                subtotal: Number(presale.subtotal)
+            };
+        });
     }
 
     async assignDistributor(id: number, distributorId: number, userId: number): Promise<Presale | null> {
