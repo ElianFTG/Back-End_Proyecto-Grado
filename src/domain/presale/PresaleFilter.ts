@@ -68,3 +68,29 @@ export interface ConfirmDeliveryDTO {
         finalUnitPrice?: number;
     }[];
 }
+
+// ==================== DEVOLUCIÓN DE PRODUCTOS ====================
+
+export interface ReturnProductDetailDTO {
+    detailId: number;
+    quantityToReturn: number;
+}
+
+export interface ReturnPresaleProductsDTO {
+    notes?: string | null;
+    products?: ReturnProductDetailDTO[];
+}
+
+export interface ReturnedProductItem {
+    detailId: number;
+    productId: number;
+    productName: string;
+    quantityReturned: number;
+}
+
+export interface ReturnPresaleProductsResult {
+    presaleId: number;
+    status: string;
+    returnedProducts: ReturnedProductItem[];
+    notes: string | null;
+}

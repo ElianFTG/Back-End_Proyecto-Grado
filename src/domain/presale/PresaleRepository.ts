@@ -5,7 +5,9 @@ import {
     UpdateDetailDTO,
     UpdatePresaleDTO,
     ConfirmDeliveryDTO,
-    PaginatedPresalesResult
+    PaginatedPresalesResult,
+    ReturnPresaleProductsDTO,
+    ReturnPresaleProductsResult
 } from './PresaleFilter';
 import { DistributorDeliveryItem } from './DistributorDelivery';
 
@@ -25,4 +27,5 @@ export interface PresaleRepository {
     softDelete(id: number, userId: number): Promise<boolean>;
     canDistributorAccess(presaleId: number, distributorId: number): Promise<boolean>;
     getDeliveriesByDistributor(distributorId: number, deliveryDate: string): Promise<DistributorDeliveryItem[]>;
+    returnProducts(id: number, dto: ReturnPresaleProductsDTO, userId: number): Promise<ReturnPresaleProductsResult>;
 }

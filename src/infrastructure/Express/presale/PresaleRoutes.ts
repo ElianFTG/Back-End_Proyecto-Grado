@@ -41,7 +41,7 @@ router.get(
 );
 
 router.get(
-    '/presales/my-deliveries',
+    '/my-deliveries',
     requireRole('transportista'),
     controller.getMyDeliveries
 );
@@ -62,6 +62,12 @@ router.patch(
     '/presales/:id/cancel',
     requireRole('transportista', 'prevendedor', 'administrador', 'propietario'),
     controller.cancel
+);
+
+router.patch(
+    '/presales/:id/return',
+    requireRole('administrador', 'propietario'),
+    controller.returnProducts
 );
 
 router.delete(

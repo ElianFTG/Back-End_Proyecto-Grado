@@ -4,7 +4,11 @@ import { PresaleDetailEntity } from '../persistence/typeorm/entities/PresaleDeta
 import { PresaleStatusHistoryEntity } from '../persistence/typeorm/entities/PresaleStatusHistoryEntity';
 import { ProductBranchEntity } from '../persistence/typeorm/entities/ProductBranchEntity';
 import { Presale, PresaleStatus } from '../../domain/presale/Presale';
-import { ConfirmDeliveryDTO } from '../../domain/presale/PresaleFilter';
+import {
+    ConfirmDeliveryDTO,
+    ReturnPresaleProductsDTO,
+    ReturnPresaleProductsResult
+} from '../../domain/presale/PresaleFilter';
 import { AppDataSource } from '../db/Mysql';
 
 export class PresaleDeliveryService {
@@ -113,13 +117,6 @@ export class PresaleDeliveryService {
             await this.detailRepo.save(detail);
 
             totalDelivered += subtotalDelivered;
-
-            if (isPartial) {
-                const undeliveredQty = detail.quantity_requested - detailUpdate.quantityDelivered;
-                if (undeliveredQty > 0) {
-                    await this.incrementStock(detail.product_id, detail.branch_id, undeliveredQty);
-                }
-            }
         }
 
         const previousStatus = entity.status;
@@ -155,11 +152,6 @@ export class PresaleDeliveryService {
         }
 
         const activeDetails = entity.details.filter(d => d.state);
-        for (const detail of activeDetails) {
-            if (detail.quantity_requested > 0) {
-                await this.incrementStock(detail.product_id, detail.branch_id, detail.quantity_requested);
-            }
-        }
 
         const previousStatus = entity.status;
         entity.status = 'cancelado';
@@ -169,6 +161,82 @@ export class PresaleDeliveryService {
         await this.addStatusHistory(id, 'cancelado', previousStatus, reason, userId);
 
         return this.getById(id);
+    }
+
+    async returnProducts(
+        presaleId: number,
+        dto: ReturnPresaleProductsDTO,
+        userId: number
+    ): Promise<ReturnPresaleProductsResult> {
+        const entity = await this.presaleRepo.findOne({
+            where: { id: presaleId, state: true },
+            relations: ['details', 'details.product']
+        });
+
+        if (!entity) throw new Error('Preventa no encontrada');
+
+        if (!['parcial', 'cancelado'].includes(entity.status)) {
+            throw new Error(
+                'Solo se pueden devolver productos de preventas en estado parcial o cancelado'
+            );
+        }
+
+        const alreadyReturned = await this.historyRepo.findOne({
+            where: { presale_id: presaleId, new_status: 'devuelto' }
+        });
+        if (alreadyReturned) {
+            throw new Error('Los productos de esta preventa ya fueron devueltos al stock');
+        }
+
+        const activeDetails = entity.details.filter(d => d.state);
+        const returnedProducts = [];
+
+        for (const detail of activeDetails) {
+            const delivered = detail.quantity_delivered ?? 0;
+            const maxReturnable = detail.quantity_requested - delivered;
+
+            if (maxReturnable <= 0) continue;
+
+            const override = dto.products?.find(p => p.detailId === detail.id);
+
+            if (dto.products && !override) {
+                continue;
+            }
+
+            const toReturn = override ? override.quantityToReturn : maxReturnable;
+
+            if (toReturn <= 0) continue;
+
+            if (toReturn > maxReturnable) {
+                throw new Error(
+                    `La cantidad a devolver (${toReturn}) para el detalle ${detail.id} supera ` +
+                    `el máximo devolvible (${maxReturnable})`
+                );
+            }
+
+            await this.incrementStock(detail.product_id, detail.branch_id, toReturn);
+            returnedProducts.push({
+                detailId: detail.id,
+                productId: detail.product_id,
+                productName: detail.product?.name ?? '',
+                quantityReturned: toReturn
+            });
+        }
+
+        await this.addStatusHistory(
+            presaleId,
+            'devuelto',
+            entity.status,
+            dto.notes ?? 'Devolución de productos al stock',
+            userId
+        );
+
+        return {
+            presaleId,
+            status: entity.status,
+            returnedProducts,
+            notes: dto.notes ?? null
+        };
     }
 
     async canDistributorAccess(presaleId: number, distributorId: number): Promise<boolean> {
@@ -200,7 +268,7 @@ export class PresaleDeliveryService {
             .execute();
     }
 
-    private async incrementStock(productId: number, branchId: number, quantity: number): Promise<void> {
+    async incrementStock(productId: number, branchId: number, quantity: number): Promise<void> {
         await this.productBranchRepo
             .createQueryBuilder()
             .update(ProductBranchEntity)
