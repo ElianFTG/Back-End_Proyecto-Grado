@@ -233,6 +233,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
             throw new Error('La preventa debe tener al menos un producto');
         }
 
+        delete (entity as any).details;
         await this.presaleRepo.save(entity);
 
         return this.getByIdWithDetails(id);
