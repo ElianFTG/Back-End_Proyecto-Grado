@@ -30,7 +30,7 @@ export class PresaleDeliveryService {
                 entity.distributor.names,
                 entity.distributor.last_name,
                 entity.distributor.second_last_name
-              ].filter(Boolean).join(' ')
+            ].filter(Boolean).join(' ')
             : undefined;
 
         return new Presale(
@@ -151,7 +151,17 @@ export class PresaleDeliveryService {
             throw new Error('No se puede cancelar una preventa ya entregada');
         }
 
+        if (['cancelado'].includes(entity.status)) {
+            throw new Error('Esta preventa ya se encuentra cancelada');
+        }
+
         const activeDetails = entity.details.filter(d => d.state);
+
+        for (const detail of activeDetails) {
+            if (detail.quantity_requested > 0) {
+                await this.incrementStock(detail.product_id, detail.branch_id, detail.quantity_requested);
+            }
+        }
 
         const previousStatus = entity.status;
         entity.status = 'cancelado';
