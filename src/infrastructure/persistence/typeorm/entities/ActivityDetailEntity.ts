@@ -42,7 +42,7 @@ export class ActivityDetailEntity {
   activity_id!: number;
 
   @ManyToOne(() => ActivityEntity, { nullable: false })
-  @JoinColumn({ name: "rejection_id" })
+  @JoinColumn({ name: "activity_id" })
   activity!: ActivityEntity;
 
   

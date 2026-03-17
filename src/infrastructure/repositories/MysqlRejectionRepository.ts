@@ -42,4 +42,14 @@ export class MysqlRejectionRepository implements RejectionRepository {
       return [];
     }
   }
+
+  async findById(id: number): Promise<Rejection | null> {
+    try {
+      const row = await this.repo.findOneBy({ id, state: true } as any);
+      return row ? this.toDomain(row) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 }

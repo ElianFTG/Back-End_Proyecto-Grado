@@ -25,6 +25,7 @@ import { PresaleDetailEntity } from '../persistence/typeorm/entities/PresaleDeta
 import { PresaleStatusHistoryEntity } from '../persistence/typeorm/entities/PresaleStatusHistoryEntity';
 
 import { config } from 'dotenv';
+import { ActivityDetailEntity } from '../persistence/typeorm/entities/ActivityDetailEntity';
 
 config();
 
@@ -57,6 +58,7 @@ export const AppDataSource = new DataSource({
     RouteEntity,
     RejectionEntity,
     ActivityEntity,
+    ActivityDetailEntity,
     PresaleEntity,
     PresaleDetailEntity,
     PresaleStatusHistoryEntity,

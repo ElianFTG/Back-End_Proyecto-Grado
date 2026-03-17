@@ -143,7 +143,7 @@ export class PresaleController {
             }
 
             const presale = await assignDistributor.run(id, distributorId, userId);
-            // NICO
+
             if(presale && presale.distributorId) {
                 const activity = new Activity(presale.deliveryDate, presale.distributorId)
                 await ActivityServiceContainer.activity.createActivity.run(activity, userId)

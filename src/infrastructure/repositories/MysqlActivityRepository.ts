@@ -34,4 +34,14 @@ export class MysqlActivityRepository implements ActivityRepository {
       return null;
     }
   }
+
+  async findById(id: number): Promise<Activity | null> {
+    try {
+      const row = await this.repo.findOneBy({ id } as any);
+      return row ? this.toDomain(row) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 }
