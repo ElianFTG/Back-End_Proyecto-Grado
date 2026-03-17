@@ -14,29 +14,44 @@ export class MysqlActivityRepository implements ActivityRepository {
 
   private toDomain(row: ActivityEntity): Activity {
     return new Activity(
-        row.action,
-        row.route_id,
-        row.responsible_user_id,
-        row.business_id,
-        row.rejection_id ?? null,
-        row.id,
-        row.created_at 
+      row.assigned_date,
+      row.responsible_user_id,
+      row.id,
     );
   }
 
-  async create(activity: Activity, userId: number | null): Promise<Activity | null> {
+  async createActivity(activity: Activity, userId: number | null): Promise<Activity | null> {
     try {
       const saved = await this.repo.save({
-        action: activity.action,
-        rejection_id: activity.rejectionId ?? null,
-        route_id: activity.routeId,
+        assigned_date: activity.assignedDate,
         responsible_user_id: activity.responsibleUserId,
-        business_id: activity.businessId,
-        user_id: userId ?? null,
-        state: true,
+        user_id: userId,
       });
       const created = await this.repo.findOneBy({ id: saved.id } as any);
       return created ? this.toDomain(created) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async findById(id: number): Promise<Activity | null> {
+    try {
+      const row = await this.repo.findOneBy({ id } as any);
+      return row ? this.toDomain(row) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async findByPreseller(presellerId: number, assignedDate: string): Promise<Activity | null> {
+    try {
+      const row = await this.repo.createQueryBuilder("a")
+        .where("a.responsible_user_id = :presellerId", { presellerId })
+        .andWhere("a.assigned_date = :assignedDate", { assignedDate })
+        .getOne();
+      return row ? this.toDomain(row) : null;
     } catch (e) {
       console.log(e);
       return null;

@@ -1,18 +1,13 @@
 import { Router } from "express";
 import { ActivityController } from "./ActivityController";
-
 import { AuthServiceContainer } from "../../../shared/service_containers/auth/AuthServiceContainer";
 import { authJwt } from "../middlewares/authJwt";
-import { requireRole } from "../middlewares/requireRole";
 
 const ActivityRouter = Router();
 const controller = new ActivityController();
 const authService = AuthServiceContainer.authService();
 
-ActivityRouter.post(
-  "/activities",
-  authJwt(authService),
-  controller.create.bind(controller)
-);
-
+ActivityRouter.post("/activity-details", authJwt(authService), controller.createDetail.bind(controller));
+ActivityRouter.get("/activity/preseller", authJwt(authService), controller.getForPreseller.bind(controller));
+ActivityRouter.get("/activity/distributor", authJwt(authService), controller.getForDistributor.bind(controller));
 export { ActivityRouter };

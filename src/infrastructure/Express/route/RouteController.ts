@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { Route } from "../../../domain/route/Route";
 import { RouteServiceContainer } from "../../../shared/service_containers/route/RouteServiceContainer";
+import { Activity } from "../../../domain/activity/Activity";
+import { ActivityServiceContainer } from "../../../shared/service_containers/activity/ActivityServiceContainer";
 
 function toResponse(route: Route) {
   return {
@@ -25,6 +27,10 @@ export class RouteController {
       const route = new Route(assignedDate, assignedIdUser, assignedIdArea);
       const created = await RouteServiceContainer.route.createRoute.run(route, auditUserId);
       if (!created?.id) return res.status(400).json({ message: "No se pudo crear la ruta" });
+
+      const activity = new Activity(assignedDate, assignedIdUser)
+      await ActivityServiceContainer.activity.createActivity.run(activity, auditUserId) 
+
       return res.status(201).json({created})
     } catch (error : any) {
       console.log(error);
