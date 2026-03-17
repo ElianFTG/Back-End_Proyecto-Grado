@@ -12,7 +12,9 @@ import {
     returnPresaleProducts,
     presaleRepository
 } from '../../../shared/service_containers/presale/PresaleServiceContainer';
+import { ActivityServiceContainer } from '../../../shared/service_containers/activity/ActivityServiceContainer';
 import { PresaleStatus } from '../../../domain/presale/Presale';
+import { Activity } from '../../../domain/activity/Activity';
 
 export class PresaleController {
 
@@ -141,7 +143,11 @@ export class PresaleController {
             }
 
             const presale = await assignDistributor.run(id, distributorId, userId);
-            // NICO    presale.idDistributor y  presale.assignedDate
+            // NICO
+            if(presale && presale.distributorId) {
+                const activity = new Activity(presale.deliveryDate, presale.distributorId)
+                await ActivityServiceContainer.activity.createActivity.run(activity, userId)
+            }
 
             if (!presale) {
                 res.status(404).json({ error: 'Preventa no encontrada' });

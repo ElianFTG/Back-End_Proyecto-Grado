@@ -29,7 +29,7 @@ export class ActivityEntity {
   @Column({ type: "smallint", nullable: true })
   user_id!: number | null;
 
-  @CreateDateColumn({ type: "date" })
+  @Column({ type: "date" })
   assigned_date!: Date;
 
   @CreateDateColumn({ type: "timestamp" })

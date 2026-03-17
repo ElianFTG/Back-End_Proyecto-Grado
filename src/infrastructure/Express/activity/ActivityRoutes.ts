@@ -9,10 +9,10 @@ const ActivityRouter = Router();
 const controller = new ActivityController();
 const authService = AuthServiceContainer.authService();
 
-ActivityRouter.post(
-  "/activities",
-  authJwt(authService),
-  controller.create.bind(controller)
-);
+// ActivityRouter.post(
+//   "/activities",
+//   authJwt(authService),
+//   controller.create.bind(controller)
+// );
 
 export { ActivityRouter };
