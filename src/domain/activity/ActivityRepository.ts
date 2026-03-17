@@ -1,5 +1,6 @@
-import { Activity } from "./Activity";
+import { Activity, ActivityDetail } from "./Activity";
 
 export interface ActivityRepository {
-  create(activity: Activity, userId: number | null): Promise<Activity | null>;
+  createActivity(activity: Activity, userId: number | null): Promise<Activity | null>;
+  createActivityDetail(activityDetail: ActivityDetail, activityId: number): Promise<ActivityDetail | null>;
 }

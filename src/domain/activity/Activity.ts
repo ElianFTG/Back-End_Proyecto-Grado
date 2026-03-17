@@ -1,27 +1,38 @@
 export class Activity {
   id?: number | undefined;
-  createdAt?: Date | undefined;
-  rejectionId: number | null;
-  action: string;
-  routeId: number;
+  assignedDate?: Date | undefined;
   responsibleUserId: number;
+
+  constructor(
+    responsibleUserId: number,
+    id?: number,
+    assignedDate?: Date
+  ) {
+    this.id = id;
+    this.responsibleUserId = responsibleUserId;
+    this.assignedDate = assignedDate;
+  }
+}
+
+export class ActivityDetail {
+  id?: number | undefined;
+  action: string;
+  rejectionId?: number | undefined;
+  activityId: number;
   businessId: number;
 
   constructor(
-    action : string,
-    routeId: number,
-    responsibleUserId: number,
+    action: string,
+    activityId: number,
     businessId: number,
-    rejectionId: number | null = null,
     id?: number,
-    createdAt?: Date
+    rejectionId?: number,
+    
   ) {
     this.id = id;
     this.action = action;
-    this.routeId = routeId;
-    this.responsibleUserId = responsibleUserId;
-    this.businessId = businessId;
     this.rejectionId = rejectionId;
-    this.createdAt = createdAt;
+    this.activityId = activityId;
+    this.businessId = businessId;
   }
 }
