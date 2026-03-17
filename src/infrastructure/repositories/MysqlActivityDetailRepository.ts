@@ -38,4 +38,14 @@ export class MysqlActivityDetailRepository implements ActivityDetailRepository {
       return null;
     }
   }
+
+  async findByActivityId(activityId: number): Promise<ActivityDetail[]> {
+    try {
+      const rows = await this.repo.findBy({ activity_id: activityId } as any);
+      return rows.map((r) => this.toDomain(r));
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+  }
 }

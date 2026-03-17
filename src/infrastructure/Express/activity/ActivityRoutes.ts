@@ -8,5 +8,5 @@ const controller = new ActivityController();
 const authService = AuthServiceContainer.authService();
 
 ActivityRouter.post("/activity-details", authJwt(authService), controller.createDetail.bind(controller));
-
+ActivityRouter.get("/activity/preseller", authJwt(authService), controller.getForPreseller.bind(controller));
 export { ActivityRouter };

@@ -6,7 +6,9 @@ import { BusinessRepository } from "../../domain/business/BusinessRepository";
 import { BusinessEntity } from "../persistence/typeorm/entities/BusinessEntity";
 import { ActivityEntity } from "../persistence/typeorm/entities/ActivityEntity";
 import { Route } from "../../domain/route/Route";
-import { ActivityWork } from "../../domain/customs/ActivityWork";
+import { ActivityWork, BusinessActivityForPreseller } from "../../domain/customs/ActivityWork";
+import { Activity } from "../../domain/activity/Activity";
+import { ActivityDetailEntity } from "../persistence/typeorm/entities/ActivityDetailEntity";
 
 export class MysqlBusinessRepository implements BusinessRepository {
   private readonly repo: Repository<BusinessEntity>;
@@ -28,9 +30,9 @@ export class MysqlBusinessRepository implements BusinessRepository {
     return { lat, lng };
   }
 
-  private parseXYToPoint(x: number, y:number): Position | null{
+  private parseXYToPoint(x: number, y: number): Position | null {
     if (Number.isNaN(x) || Number.isNaN(y)) return null;
-    return {lat: x, lng: y}
+    return { lat: x, lng: y }
   }
 
   private toDomain(row: BusinessEntity): Business {
@@ -136,7 +138,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
   }
 
 
-  async getDistanceInMetersBetweenPoints(businessId: number,point: Position): Promise<any | null> {
+  async getDistanceInMetersBetweenPoints(businessId: number, point: Position): Promise<any | null> {
     try {
       const pointWbkt = this.toWktPoint(point);
       const raw = await this.repo.createQueryBuilder("b")
@@ -145,14 +147,14 @@ export class MysqlBusinessRepository implements BusinessRepository {
           position, 
           ST_GeomFromText(:pointWbkt, 4326) 
           ) 
-        `,"distance")
-        .setParameters({pointWbkt})
-        .where("b.id = :businessId", {businessId})
+        `, "distance")
+        .setParameters({ pointWbkt })
+        .where("b.id = :businessId", { businessId })
         .getRawOne();
-      if(!raw) throw Error("Negocio no encontrado");
+      if (!raw) throw Error("Negocio no encontrado");
       const distance = +Number(raw.distance).toFixed(2);
-      return { distance , isLessTo100: distance <= 100}
-      
+      return { distance, isLessTo100: distance <= 100 }
+
     } catch (error) {
       console.log(error);
       return null
@@ -167,9 +169,9 @@ export class MysqlBusinessRepository implements BusinessRepository {
           ActivityEntity,
           "a",
           "a.business_id = b.id AND a.route_id = :routeId",
-          {routeId: route.id}
+          { routeId: route.id }
         )
-        .where("b.area_id = :areaId" , {areaId : route.assignedIdArea})
+        .where("b.area_id = :areaId", { areaId: route.assignedIdArea })
         .andWhere("b.state = true")
         .andWhere("b.is_active = true")
         .select([
@@ -180,7 +182,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
           "b.path_image AS business_path_image",
           "b.address AS business_address",
           "b.business_type_id AS business_type_id",
-          "b.client_id AS business_client_id", 
+          "b.client_id AS business_client_id",
           "b.price_type_id AS business_price_type_id",
           "b.area_id AS business_area_id",
 
@@ -190,39 +192,103 @@ export class MysqlBusinessRepository implements BusinessRepository {
           "a.rejection_id AS act_rejection_id",
         ])
         .getRawMany();
-      
-      if(!rows.length) throw new Error("No existe");
-      const businessActivities = rows.map((row)=> {
+
+      if (!rows.length) throw new Error("No existe");
+      const businessActivities = rows.map((row) => {
         return {
-          idRoute : route.id,
+          idRoute: route.id,
           business: {
-            name : row.business_name,
-            businessTypeId : row.business_type_id,
-            clientId : row.business_client_id,
-            priceTypeId : row.business_price_type_id,
-            areaId : row.business_area_id,
-            nit : row.business_nit,
-            position : this.parseXYToPoint(row.business_position.x, row.business_position.y) ,
-            pathImage : row.business_path_image,
-            address : row.business_address,
-            id : row.business_id
+            name: row.business_name,
+            businessTypeId: row.business_type_id,
+            clientId: row.business_client_id,
+            priceTypeId: row.business_price_type_id,
+            areaId: row.business_area_id,
+            nit: row.business_nit,
+            position: this.parseXYToPoint(row.business_position.x, row.business_position.y),
+            pathImage: row.business_path_image,
+            address: row.business_address,
+            id: row.business_id
           },
           activity: {
             id: row.act_id,
-            createdAt : row.act_created_at,
+            createdAt: row.act_created_at,
             action: row.act_action,
             rejectionId: row.act_rejection_id
           }
         }
-         
+
       })
-      
-      return businessActivities; 
+
+      return businessActivities;
     } catch (error) {
       console.log(error)
       return []
     }
   }
 
+  //REVISAR
+  async getBusinessesActivityForPreseller(
+    route: Route,
+    activity: Activity | null
+  ): Promise<any> {
+    try {
+      const rows = await this.repo.createQueryBuilder("b")
+        .leftJoin(
+          ActivityDetailEntity,
+          "ad",
+          activity ? "ad.business_id = b.id AND ad.activity_id = :activityId" : "1=0",
+          activity ? { activityId: activity.id } : {}
+        )
+        .where("b.area_id = :areaId", { areaId: route.assignedIdArea })
+        .andWhere("b.state = true")
+        .andWhere("b.is_active = true")
+        .select([
+          "b.id AS business_id",
+          "b.name AS business_name",
+          "b.nit AS business_nit",
+          "b.position AS business_position",
+          "b.path_image AS business_path_image",
+          "b.address AS business_address",
+          "b.business_type_id AS business_type_id",
+          "b.client_id AS business_client_id",
+          "b.price_type_id AS business_price_type_id",
+          "b.area_id AS business_area_id",
+          "ad.id AS detail_id",
+          "ad.action AS detail_action",
+          "ad.rejection_id AS detail_rejection_id",
+        ])
+        .getRawMany();
 
+      return {
+        activity: activity ?? null,
+        businesses: rows.map((row) => ({
+          business: {
+            id: row.business_id,
+            name: row.business_name,
+            nit: row.business_nit,
+            position: row.business_position
+              ? this.parseXYToPoint(row.business_position.x, row.business_position.y)
+              : null,
+            pathImage: row.business_path_image,
+            address: row.business_address,
+            businessTypeId: row.business_type_id,
+            clientId: row.business_client_id,
+            priceTypeId: row.business_price_type_id,
+            areaId: row.business_area_id,
+          },
+          activityDetail: row.detail_id? {
+              id: row.detail_id,
+              action: row.detail_action,
+              rejectionId: row.detail_rejection_id,
+              activityId: activity?.id,
+              businessId: row.business_id,
+            }
+            : null,
+        })),
+      };
+    } catch (error) {
+      console.log(error);
+      return { activity: null, businesses: [] };
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ActivityDetail } from "../../../domain/activity/Activity";
 import { ActivityServiceContainer } from "../../../shared/service_containers/activity/ActivityServiceContainer";
+import { UserServiceContainer } from "../../../shared/service_containers/user/UserServiceContainer";
 import { MysqlActivityRepository } from "../../repositories/MysqlActivityRepository";
 import { MysqlRejectionRepository } from "../../repositories/MysqlRejectionRepository";
 
@@ -69,6 +70,33 @@ export class ActivityController {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Error al registrar el detalle de actividad";
       res.status(400).json({ message });
+    }
+  }
+
+  async getForPreseller(req: Request, res: Response): Promise<void> {
+    try {
+      const presellerId = Number(req.query.userId ?? req.query.user_id);
+      const assignedDate = (req.query.assignedDate ?? req.query.assigned_date) as string;
+
+
+      if (!presellerId || isNaN(presellerId)) { res.status(400).json({ message: "presellerId inválido" }); return; }
+
+      const user = await UserServiceContainer.user.findById.run(presellerId)
+      if (!user || user.role != 'prevendedor') { res.status(400).json({ message: "El usuario no es un prevendedor" }); return; }
+
+      if (!assignedDate) { res.status(400).json({ message: "assignedDate es requerido" }); return; }
+
+      const result = await ActivityServiceContainer.activity.getBusinessesActivityForPreseller.run(
+        presellerId,
+        assignedDate
+      );
+
+      if (!result) { res.status(404).json({ message: "No se encontró ruta para ese preseller y fecha" }); return; }
+
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al obtener actividad";
+      res.status(500).json({ message });
     }
   }
 }

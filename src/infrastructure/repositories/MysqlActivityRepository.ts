@@ -14,9 +14,9 @@ export class MysqlActivityRepository implements ActivityRepository {
 
   private toDomain(row: ActivityEntity): Activity {
     return new Activity(
-        row.assigned_date,
-        row.responsible_user_id,
-        row.id,
+      row.assigned_date,
+      row.responsible_user_id,
+      row.id,
     );
   }
 
@@ -38,6 +38,19 @@ export class MysqlActivityRepository implements ActivityRepository {
   async findById(id: number): Promise<Activity | null> {
     try {
       const row = await this.repo.findOneBy({ id } as any);
+      return row ? this.toDomain(row) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async findByPreseller(presellerId: number, assignedDate: string): Promise<Activity | null> {
+    try {
+      const row = await this.repo.createQueryBuilder("a")
+        .where("a.responsible_user_id = :presellerId", { presellerId })
+        .andWhere("a.assigned_date = :assignedDate", { assignedDate })
+        .getOne();
       return row ? this.toDomain(row) : null;
     } catch (e) {
       console.log(e);
