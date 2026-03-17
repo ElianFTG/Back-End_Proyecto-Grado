@@ -37,7 +37,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
                 entity.distributor.names,
                 entity.distributor.last_name,
                 entity.distributor.second_last_name
-              ].filter(Boolean).join(' ')
+            ].filter(Boolean).join(' ')
             : undefined;
 
         return new Presale(
@@ -477,5 +477,37 @@ export class MysqlPresaleRepository implements PresaleRepository {
         userId: number
     ): Promise<ReturnPresaleProductsResult> {
         return this.deliveryService.returnProducts(id, dto, userId);
+    }
+
+    async findBusinessIdsByDistributorAndDate(
+        distributorId: number,
+        deliveryDate: string
+    ): Promise<number[]> {
+        try {
+            const presales = await this.presaleRepo.find({
+                where: {
+                    distributor_id: distributorId,
+                    state: true,
+                },
+                select: ["business_id", "delivery_date"],
+            });
+
+            const filtered = presales.filter((p) => {
+                const date = new Date(p.delivery_date);
+                const y = date.getUTCFullYear();
+                const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+                const d = String(date.getUTCDate()).padStart(2, "0");
+                return `${y}-${m}-${d}` === deliveryDate;
+            });
+
+            const ids = filtered
+                .map((p) => p.business_id)
+                .filter((id): id is number => id !== null);
+
+            return [...new Set(ids)];
+        } catch (e) {
+            console.log(e);
+            return [];
+        }
     }
 }

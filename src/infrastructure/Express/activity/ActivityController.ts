@@ -76,15 +76,15 @@ export class ActivityController {
   async getForPreseller(req: Request, res: Response): Promise<void> {
     try {
       const presellerId = Number(req.query.userId ?? req.query.user_id);
-      const assignedDate = (req.query.assignedDate ?? req.query.assigned_date) as string;
+      const assignedDate = (req.query.date ?? req.query.date) as string;
 
 
-      if (!presellerId || isNaN(presellerId)) { res.status(400).json({ message: "presellerId inválido" }); return; }
+      if (!presellerId || isNaN(presellerId)) { res.status(400).json({ message: "userId inválido" }); return; }
 
       const user = await UserServiceContainer.user.findById.run(presellerId)
       if (!user || user.role != 'prevendedor') { res.status(400).json({ message: "El usuario no es un prevendedor" }); return; }
 
-      if (!assignedDate) { res.status(400).json({ message: "assignedDate es requerido" }); return; }
+      if (!assignedDate) { res.status(400).json({ message: "date es requerido" }); return; }
 
       const result = await ActivityServiceContainer.activity.getBusinessesActivityForPreseller.run(
         presellerId,
@@ -92,6 +92,32 @@ export class ActivityController {
       );
 
       if (!result) { res.status(404).json({ message: "No se encontró ruta para ese preseller y fecha" }); return; }
+
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al obtener actividad";
+      res.status(500).json({ message });
+    }
+  }
+
+  async getForDistributor(req: Request, res: Response): Promise<void> {
+    try {
+      const distributorId = Number(req.query.userId ?? req.query.user_id);
+      const deliveryDate = (req.query.date ?? req.query.date) as string;
+
+      if (!distributorId || isNaN(distributorId)) { res.status(400).json({ message: "userId inválido" }); return; }
+
+      const user = await UserServiceContainer.user.findById.run(distributorId)
+      if (!user || user.role != 'transportista') { res.status(400).json({ message: "El usuario no es un transportista" }); return; }
+
+      if (!deliveryDate) { res.status(400).json({ message: "date es requerido" }); return; }
+
+      const result = await ActivityServiceContainer.activity.getBusinessesActivityForDistributor.run(
+        distributorId,
+        deliveryDate
+      );
+
+      if (!result) { res.status(404).json({ message: "No se encontraron preventa para ese distribuidor y fecha" }); return; }
 
       res.status(200).json(result);
     } catch (error: unknown) {

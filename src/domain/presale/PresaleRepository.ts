@@ -28,4 +28,5 @@ export interface PresaleRepository {
     canDistributorAccess(presaleId: number, distributorId: number): Promise<boolean>;
     getDeliveriesByDistributor(distributorId: number, deliveryDate: string): Promise<DistributorDeliveryItem[]>;
     returnProducts(id: number, dto: ReturnPresaleProductsDTO, userId: number): Promise<ReturnPresaleProductsResult>;
+    findBusinessIdsByDistributorAndDate(distributorId: number, deliveryDate: string): Promise<number[]>;
 }

@@ -13,4 +13,5 @@ export interface BusinessRepository {
   getDistanceInMetersBetweenPoints(businessId: number, point: Position): Promise<any | null>;
   getBusinessActivitiesByRoute(route: Route): Promise<ActivityWork[] | []>;
   getBusinessesActivityForPreseller(route: Route, activity: Activity | null): Promise<BusinessActivityForPreseller>;
+  getBusinessesActivityForDistributor(businessIds: number[], activity: Activity | null): Promise<BusinessActivityForPreseller>;
 }

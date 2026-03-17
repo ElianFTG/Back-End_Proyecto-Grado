@@ -226,11 +226,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
     }
   }
 
-  //REVISAR
-  async getBusinessesActivityForPreseller(
-    route: Route,
-    activity: Activity | null
-  ): Promise<any> {
+  async getBusinessesActivityForPreseller(route: Route, activity: Activity | null): Promise<any> {
     try {
       const rows = await this.repo.createQueryBuilder("b")
         .leftJoin(
@@ -276,7 +272,70 @@ export class MysqlBusinessRepository implements BusinessRepository {
             priceTypeId: row.business_price_type_id,
             areaId: row.business_area_id,
           },
-          activityDetail: row.detail_id? {
+          activityDetail: row.detail_id ? {
+            id: row.detail_id,
+            action: row.detail_action,
+            rejectionId: row.detail_rejection_id,
+            activityId: activity?.id,
+            businessId: row.business_id,
+          }
+            : null,
+        })),
+      };
+    } catch (error) {
+      console.log(error);
+      return { activity: null, businesses: [] };
+    }
+  }
+
+  async getBusinessesActivityForDistributor(businessIds: number[], activity: Activity | null): Promise<any> {
+    try {
+      const rows = await this.repo.createQueryBuilder("b")
+        .leftJoin(
+          ActivityDetailEntity,
+          "ad",
+          activity ? "ad.business_id = b.id AND ad.activity_id = :activityId" : "1=0",
+          activity ? { activityId: activity.id } : {}
+        )
+        .where("b.id IN (:...businessIds)", { businessIds })
+        .andWhere("b.state = true")
+        .andWhere("b.is_active = true")
+        .select([
+          "b.id AS business_id",
+          "b.name AS business_name",
+          "b.nit AS business_nit",
+          "b.position AS business_position",
+          "b.path_image AS business_path_image",
+          "b.address AS business_address",
+          "b.business_type_id AS business_type_id",
+          "b.client_id AS business_client_id",
+          "b.price_type_id AS business_price_type_id",
+          "b.area_id AS business_area_id",
+          "ad.id AS detail_id",
+          "ad.action AS detail_action",
+          "ad.rejection_id AS detail_rejection_id",
+        ])
+        .getRawMany();
+
+      return {
+        activity: activity ?? null,
+        businesses: rows.map((row) => ({
+          business: {
+            id: row.business_id,
+            name: row.business_name,
+            nit: row.business_nit,
+            position: row.business_position
+              ? this.parseXYToPoint(row.business_position.x, row.business_position.y)
+              : null,
+            pathImage: row.business_path_image,
+            address: row.business_address,
+            businessTypeId: row.business_type_id,
+            clientId: row.business_client_id,
+            priceTypeId: row.business_price_type_id,
+            areaId: row.business_area_id,
+          },
+          activityDetail: row.detail_id
+            ? {
               id: row.detail_id,
               action: row.detail_action,
               rejectionId: row.detail_rejection_id,
