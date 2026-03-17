@@ -14,11 +14,11 @@ import { UserEntity } from "./UserEntity";
 
 
 @Entity({ name: "activities" })
+@Index("ICX_ACTIVITIES_RESPONSIBLE_DATE", ["responsible_user_id", "assigned_date"], { unique: true })
 export class ActivityEntity {
   @PrimaryGeneratedColumn({ type: "int", unsigned: true })
   id!: number;
 
-  @Index()
   @Column({ type: "smallint", unsigned: true })
   responsible_user_id!: number;
 

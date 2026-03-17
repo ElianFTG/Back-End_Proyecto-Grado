@@ -141,6 +141,7 @@ export class PresaleController {
             }
 
             const presale = await assignDistributor.run(id, distributorId, userId);
+            // NICO    presale.idDistributor y  presale.assignedDate
 
             if (!presale) {
                 res.status(404).json({ error: 'Preventa no encontrada' });

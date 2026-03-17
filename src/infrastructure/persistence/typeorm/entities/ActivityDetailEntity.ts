@@ -11,10 +11,11 @@ import {
 
 import { RejectionEntity } from "./RejectionEntity";
 import { BusinessEntity } from "./BusinessEntity";
+import { ActivityEntity } from "./ActivityEntity";
 
 
 @Entity({ name: "activitiy_details" })
-export class ActivityEntity {
+export class ActivityDetailEntity {
   @PrimaryGeneratedColumn({ type: "int", unsigned: true })
   id!: number;
 

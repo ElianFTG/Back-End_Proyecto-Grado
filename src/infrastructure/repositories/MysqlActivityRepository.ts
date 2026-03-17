@@ -14,26 +14,18 @@ export class MysqlActivityRepository implements ActivityRepository {
 
   private toDomain(row: ActivityEntity): Activity {
     return new Activity(
-        row.action,
-        row.route_id,
+        row.assigned_date,
         row.responsible_user_id,
-        row.business_id,
-        row.rejection_id ?? null,
         row.id,
-        row.created_at 
     );
   }
 
-  async create(activity: Activity, userId: number | null): Promise<Activity | null> {
+  async createActivity(activity: Activity, userId: number | null): Promise<Activity | null> {
     try {
       const saved = await this.repo.save({
-        action: activity.action,
-        rejection_id: activity.rejectionId ?? null,
-        route_id: activity.routeId,
+        assigned_date: activity.assignedDate,
         responsible_user_id: activity.responsibleUserId,
-        business_id: activity.businessId,
-        user_id: userId ?? null,
-        state: true,
+        user_id: userId,
       });
       const created = await this.repo.findOneBy({ id: saved.id } as any);
       return created ? this.toDomain(created) : null;

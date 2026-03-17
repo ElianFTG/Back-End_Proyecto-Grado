@@ -1,12 +1,13 @@
 export class Activity {
   id?: number | undefined;
-  assignedDate?: Date | undefined;
+  assignedDate: Date;
   responsibleUserId: number;
 
   constructor(
+    assignedDate: Date,
     responsibleUserId: number,
     id?: number,
-    assignedDate?: Date
+    
   ) {
     this.id = id;
     this.responsibleUserId = responsibleUserId;
@@ -17,7 +18,7 @@ export class Activity {
 export class ActivityDetail {
   id?: number | undefined;
   action: string;
-  rejectionId?: number | undefined;
+  rejectionId: number | null;
   activityId: number;
   businessId: number;
 
@@ -25,9 +26,8 @@ export class ActivityDetail {
     action: string,
     activityId: number,
     businessId: number,
-    id?: number,
-    rejectionId?: number,
-    
+    rejectionId: number | null,
+    id?: number,    
   ) {
     this.id = id;
     this.action = action;
