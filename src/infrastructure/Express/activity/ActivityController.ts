@@ -4,6 +4,7 @@ import { ActivityServiceContainer } from "../../../shared/service_containers/act
 import { UserServiceContainer } from "../../../shared/service_containers/user/UserServiceContainer";
 import { MysqlActivityRepository } from "../../repositories/MysqlActivityRepository";
 import { MysqlRejectionRepository } from "../../repositories/MysqlRejectionRepository";
+import { BusinessServiceContainer } from "../../../shared/service_containers/business/BusinessServiceContainer";
 
 const VALID_ACTIONS = ["visitado", "preventa", "venta"] as const;
 type ActivityAction = typeof VALID_ACTIONS[number];
@@ -45,6 +46,9 @@ export class ActivityController {
         res.status(404).json({ message: `No existe una actividad con id ${activityId}` });
         return;
       }
+
+      const business = await BusinessServiceContainer.business.findByIdBusiness.run(businessId);
+      if (!business) { res.status(404).json({ message: `No existe un negocio con id ${businessId}` }); return; }
 
       if (rejectionId !== null) {
         const rejection = await rejectionRepo.findById(rejectionId);
