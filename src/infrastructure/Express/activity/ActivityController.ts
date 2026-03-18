@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ActivityDetail } from "../../../domain/activity/Activity";
+import { Activity, ActivityDetail } from "../../../domain/activity/Activity";
 import { ActivityServiceContainer } from "../../../shared/service_containers/activity/ActivityServiceContainer";
 import { UserServiceContainer } from "../../../shared/service_containers/user/UserServiceContainer";
 import { MysqlActivityRepository } from "../../repositories/MysqlActivityRepository";
@@ -124,6 +124,41 @@ export class ActivityController {
       if (!result) { res.status(404).json({ message: "No se encontraron preventa para ese distribuidor y fecha" }); return; }
 
       res.status(200).json(result);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al obtener actividad";
+      res.status(500).json({ message });
+    }
+  }
+
+   async getActivityByDateAndUserId(req: Request, res: Response): Promise<void> {
+    try {
+      const body = req.body;
+
+      const userId = Number(body.user_id);
+      const assignedDate = body.assigned_date as string;
+
+      console.log(body)
+
+      if (!userId || isNaN(userId)) {
+        res.status(400).json({ message: "user_id inválido" });
+        return;
+      }
+      if (!assignedDate) {
+        res.status(400).json({ message: "assigned_date es requerido" });
+        return;
+      }
+
+      const activity = await ActivityServiceContainer.activity.getActivityByDateAndUserId.run(
+        assignedDate,
+        userId
+      );
+
+      if (!activity) {
+        res.status(404).json({ message: "No se encontró actividad para ese usuario y fecha" });
+        return;
+      }
+
+      res.status(200).json(activity);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Error al obtener actividad";
       res.status(500).json({ message });

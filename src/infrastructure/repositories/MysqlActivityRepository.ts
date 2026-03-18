@@ -45,7 +45,7 @@ export class MysqlActivityRepository implements ActivityRepository {
     }
   }
 
-  async findByPreseller(presellerId: number, assignedDate: string): Promise<Activity | null> {
+  async findActivityByDateAndUserId(presellerId: number, assignedDate: string): Promise<Activity | null> {
     try {
       const row = await this.repo.createQueryBuilder("a")
         .where("a.responsible_user_id = :presellerId", { presellerId })

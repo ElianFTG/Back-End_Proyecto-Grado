@@ -13,7 +13,7 @@ export class GetBusinessesActivityForPreseller {
   async run(presellerId: number, assignedDate: string): Promise<BusinessActivityForPreseller | null> {
     const route = await this.routeRepo.findAreaForRouteByUserAndDate(presellerId, assignedDate);
     if (!route) return null;
-    const activity = await this.activityRepo.findByPreseller(presellerId, assignedDate);
+    const activity = await this.activityRepo.findActivityByDateAndUserId(presellerId, assignedDate);
     return this.businessRepo.getBusinessesActivityForPreseller(route, activity);
   }
 }
