@@ -164,62 +164,15 @@ export class MysqlBusinessRepository implements BusinessRepository {
 
   async getBusinessActivitiesByRoute(route: Route): Promise<any | []> {
     try {
-      const rows = await this.repo.createQueryBuilder("b")
-        .leftJoin(
-          ActivityEntity,
-          "a",
-          "a.business_id = b.id AND a.route_id = :routeId",
-          { routeId: route.id }
-        )
-        .where("b.area_id = :areaId", { areaId: route.assignedIdArea })
-        .andWhere("b.state = true")
-        .andWhere("b.is_active = true")
-        .select([
-          "b.id AS business_id",
-          "b.name AS business_name",
-          "b.nit AS business_nit",
-          "b.position AS business_position",
-          "b.path_image AS business_path_image",
-          "b.address AS business_address",
-          "b.business_type_id AS business_type_id",
-          "b.client_id AS business_client_id",
-          "b.price_type_id AS business_price_type_id",
-          "b.area_id AS business_area_id",
-
-          "a.id AS act_id",
-          "a.created_at AS act_created_at",
-          "a.action AS act_action",
-          "a.rejection_id AS act_rejection_id",
-        ])
-        .getRawMany();
-
-      if (!rows.length) throw new Error("No existe");
-      const businessActivities = rows.map((row) => {
-        return {
-          idRoute: route.id,
-          business: {
-            name: row.business_name,
-            businessTypeId: row.business_type_id,
-            clientId: row.business_client_id,
-            priceTypeId: row.business_price_type_id,
-            areaId: row.business_area_id,
-            nit: row.business_nit,
-            position: this.parseXYToPoint(row.business_position.x, row.business_position.y),
-            pathImage: row.business_path_image,
-            address: row.business_address,
-            id: row.business_id
-          },
-          activity: {
-            id: row.act_id,
-            createdAt: row.act_created_at,
-            action: row.act_action,
-            rejectionId: row.act_rejection_id
-          }
-        }
-
+      const rows = await this.repo.find({
+        where: {area_id: route.assignedIdArea, state: true, is_active:true},
+      });
+      if (!rows.length ) throw new Error("No existe");
+      const business = rows.map((row) => {
+        const businessToDomain = this.toDomain(row) 
+        return {business: businessToDomain}
       })
-
-      return businessActivities;
+      return business;
     } catch (error) {
       console.log(error)
       return []
