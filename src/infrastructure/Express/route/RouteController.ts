@@ -55,9 +55,6 @@ export class RouteController {
 
 
   async getRoutes(req: Request, res: Response) {
-    
-    const filters: { search?: string; } = {};
-    if(req.query.search) filters.search = String(req.query.search).trim();
 
     const routes = await RouteServiceContainer.route.getRoutes.run();
 
