@@ -17,12 +17,12 @@ export class ActivityController {
     try {
       const body: any = req.body;
 
-      const activityId = Number(body.activity_id);
+      const activityId = Number(body.activityId);
       const action = body.action;
-      const rejectionId = body.rejection_id !== undefined && body.rejection_id !== null
-        ? Number(body.rejection_id)
+      const rejectionId = body.rejectionId !== undefined && body.rejectionId !== null
+        ? Number(body.rejectionId)
         : null;
-      const businessId = Number(body.business_id);
+      const businessId = Number(body.businessId);
 
       if (!activityId || isNaN(activityId)) {
         res.status(400).json({ message: "activity_id inválido" });
@@ -134,10 +134,8 @@ export class ActivityController {
     try {
       const body = req.body;
 
-      const userId = Number(body.user_id);
-      const assignedDate = body.assigned_date as string;
-
-      console.log(body)
+      const userId = Number(body.userId);
+      const assignedDate = body.assignedDate as string;
 
       if (!userId || isNaN(userId)) {
         res.status(400).json({ message: "user_id inválido" });
