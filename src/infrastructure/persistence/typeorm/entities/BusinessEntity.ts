@@ -73,8 +73,7 @@ export class BusinessEntity {
   @ManyToOne(() => AreaEntity, { nullable: true })
   @JoinColumn({ name: "area_id" })
   area!: AreaEntity | null;
-
-  // Auditoría
+  
   @Column({ type: "smallint", nullable: true })
   user_id!: number | null;
 
@@ -84,7 +83,6 @@ export class BusinessEntity {
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
 
-  // Soft-delete / auditoría
   @Column({ type: "boolean", default: true })
   state!: boolean;
 }
