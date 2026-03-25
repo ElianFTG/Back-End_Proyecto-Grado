@@ -6,4 +6,5 @@ export interface RouteRepository {
   findById(id: number): Promise<Route | null>;
   //VerifyByUserIdDate
   findAreaForRouteByUserAndDate(userId: number, assignedDate: string) : Promise<Route | null>;
+  getRoutes(): Promise<Route[] | null>;
 }

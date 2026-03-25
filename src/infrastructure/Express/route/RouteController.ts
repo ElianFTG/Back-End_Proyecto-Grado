@@ -7,16 +7,16 @@ import { ActivityServiceContainer } from "../../../shared/service_containers/act
 function toResponse(route: Route) {
   return {
     id: route.id,
-    assignedDate: route.assignedDate,      
-    assignedIdUser: route.assignedIdUser,  
-    assignedIdArea: route.assignedIdArea,  
+    assignedDate: route.assignedDate,
+    assignedIdUser: route.assignedIdUser,
+    assignedIdArea: route.assignedIdArea,
   };
 }
 
 export class RouteController {
   async create(req: Request, res: Response) {
     try {
-      const auditUserId = req.auth?.userId ?? null;
+      const auditUserId = (req as any).auth?.userId ?? null;
       const body: any = req.body;
 
       const assignedDate = body.assignedDate;
@@ -29,26 +29,19 @@ export class RouteController {
       if (!created?.id) return res.status(400).json({ message: "No se pudo crear la ruta" });
 
       const activity = new Activity(assignedDate, assignedIdUser)
-      await ActivityServiceContainer.activity.createActivity.run(activity, auditUserId) 
+      await ActivityServiceContainer.activity.createActivity.run(activity, auditUserId)
 
-      return res.status(201).json({created})
-    } catch (error : any) {
+      return res.status(201).json({ created })
+    } catch (error: any) {
       console.log(error);
       if (error?.message === "ROUTE_USER_DATE_DUPLICATE") {
         return res.status(409).json({ message: "Ya existe una ruta asignada para ese usuario en esa fecha" });
       }
       return res.status(500).json({ message: "Error interno" });
-      
+
     }
-    
-
-    
-    
-
-    
   }
 
-  
 
   async findById(req: Request, res: Response) {
     const id = Number(req.params.id);
@@ -60,7 +53,19 @@ export class RouteController {
     return res.status(200).json(toResponse(route));
   }
 
-  
 
-  
+  async getRoutes(req: Request, res: Response) {
+    
+    const filters: { search?: string; } = {};
+    if(req.query.search) filters.search = String(req.query.search).trim();
+
+    const routes = await RouteServiceContainer.route.getRoutes.run();
+
+    if (!routes) return res.status(404).json({ message: "No hay rutas registradas" });
+    
+
+    return res.status(200).json(routes);
+  }
+
+
 }

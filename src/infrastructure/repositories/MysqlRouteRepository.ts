@@ -49,16 +49,16 @@ export class MysqlRouteRepository implements RouteRepository {
     }
   }
 
-  
-  async findAreaForRouteByUserAndDate(userId: number, assignedDate: string) : Promise<Route | null>{
+
+  async findAreaForRouteByUserAndDate(userId: number, assignedDate: string): Promise<Route | null> {
     try {
       const row = await this.repo.createQueryBuilder("r")
         .select()
         .where("r.assigned_id_user = :uid", { uid: userId })
-        .andWhere("r.assigned_date = :assignedDate", { assignedDate})
+        .andWhere("r.assigned_date = :assignedDate", { assignedDate })
         .orderBy("r.id", "DESC")
         .getOne();
-      if(!row) throw new Error("No existe fecha o usuario");
+      if (!row) throw new Error("No existe fecha o usuario");
       const foundRoute = this.toDomain(row)
       return foundRoute;
     } catch (error) {
@@ -66,6 +66,17 @@ export class MysqlRouteRepository implements RouteRepository {
       return null;
     }
   }
-  
-  
+
+  async getRoutes(): Promise<Route[] | null> {
+    try {
+      const rows = await this.repo.find();
+
+      return rows.map(row => this.toDomain(row));
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+
 }
