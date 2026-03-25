@@ -133,7 +133,6 @@ export class ActivityController {
    async getActivityByDateAndUserId(req: Request, res: Response): Promise<void> {
     try {
       const body = req.body;
-
       const userId = Number(body.userId);
       const assignedDate = body.assignedDate as string;
 
@@ -145,12 +144,10 @@ export class ActivityController {
         res.status(400).json({ message: "assigned_date es requerido" });
         return;
       }
-
       const activity = await ActivityServiceContainer.activity.getActivityByDateAndUserId.run(
         assignedDate,
         userId
       );
-
       if (!activity) {
         res.status(404).json({ message: "No se encontró actividad para ese usuario y fecha" });
         return;

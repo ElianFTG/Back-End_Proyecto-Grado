@@ -10,5 +10,5 @@ const authService = AuthServiceContainer.authService();
 ActivityRouter.post("/activity-details", authJwt(authService), controller.createDetail.bind(controller));
 ActivityRouter.get("/activity/preseller", authJwt(authService), controller.getForPreseller.bind(controller));
 ActivityRouter.get("/activity/distributor", authJwt(authService), controller.getForDistributor.bind(controller));
-ActivityRouter.get("/activity", authJwt(authService), controller.getActivityByDateAndUserId.bind(controller))
+ActivityRouter.post("/activity", authJwt(authService), controller.getActivityByDateAndUserId.bind(controller))
 export { ActivityRouter };
