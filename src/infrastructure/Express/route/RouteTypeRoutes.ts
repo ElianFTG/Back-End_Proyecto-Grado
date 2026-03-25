@@ -24,6 +24,13 @@ RouteRouter.get(
   controller.findById
 );
 
+RouteRouter.get(
+  "/routes",
+  authJwt(authService),
+  requireRole("propietario", "administrador"),
+  controller.getRoutes
+);
+
 
 
 export { RouteRouter };
