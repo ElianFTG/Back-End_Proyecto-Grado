@@ -30,15 +30,15 @@ export class PresaleController {
             }
 
             let dto;
-            if (userReq.role === 'prevendedor') {
+            if (userReq.role === 'transportista') {
                 dto = {
                     ...req.body,
-                    presellerId: userReq.id,
                     userId: userReq.id,
                 };
             } else {
                 dto = {
                     ...req.body,
+                    presellerId: userReq.id,
                     userId: userReq.id,
                 };
             }

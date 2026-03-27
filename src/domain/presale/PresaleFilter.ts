@@ -28,8 +28,10 @@ export interface CreatePresaleDTO {
     presellerId?: number | null;
     branchId: number;
     deliveryDate: string;
+    status: string | 'pendiente';
     notes?: string | null;
     userId: number;
+    deliveredAt: string | null;
     details: CreatePresaleDetailDTO[];
 }
 
