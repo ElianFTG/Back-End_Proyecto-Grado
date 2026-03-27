@@ -34,6 +34,8 @@ export class PresaleController {
                 dto = {
                     ...req.body,
                     userId: userReq.id,
+                    status: 'entregado',
+                    distributorId: userReq.id,
                 };
             } else {
                 dto = {

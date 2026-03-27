@@ -29,6 +29,7 @@ export interface CreatePresaleDTO {
     branchId: number;
     deliveryDate: string;
     status: string | 'pendiente';
+    distributorId?: number | null;
     notes?: string | null;
     userId: number;
     deliveredAt: string | null;

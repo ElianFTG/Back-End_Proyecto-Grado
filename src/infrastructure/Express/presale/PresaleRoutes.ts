@@ -12,7 +12,7 @@ router.use(authJwt(authService));
 
 router.post(
     '/presales',
-    requireRole('prevendedor', 'administrador', 'propietario'),
+    requireRole('prevendedor', 'transportista', 'administrador', 'propietario'),
     controller.create
 );
 

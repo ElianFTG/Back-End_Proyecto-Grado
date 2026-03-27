@@ -80,7 +80,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
             client_id: dto.clientId,
             business_id: dto.businessId ?? null,
             preseller_id: dto.presellerId ?? null,
-            distributor_id: null,
+            distributor_id: dto.distributorId ?? null,
             branch_id: dto.branchId,
             delivery_date: new Date(dto.deliveryDate),
             delivered_at: dto.deliveredAt ? new Date(dto.deliveredAt) : null,
