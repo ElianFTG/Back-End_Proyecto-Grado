@@ -20,17 +20,30 @@ export class PresaleController {
 
     async create(req: Request, res: Response): Promise<void> {
         try {
-            const userId = req.auth?.userId;
-            if (!userId) {
+            const userReq = {
+                id: req.auth?.userId,
+                role: req.auth?.role,
+            }
+            if (!userReq.id && !userReq.role) {
                 res.status(401).json({ error: 'Usuario no autenticado' });
                 return;
             }
 
-            const dto = {
-                ...req.body,
-                presellerId: userId,
-                userId
-            };
+            let dto;
+            if (userReq.role === 'prevendedor') {
+                dto = {
+                    ...req.body,
+                    presellerId: userReq.id,
+                    userId: userReq.id,
+                };
+            } else {
+                dto = {
+                    ...req.body,
+                    userId: userReq.id,
+                };
+            }
+
+
 
             const presale = await createPresale.run(dto);
 
@@ -144,7 +157,7 @@ export class PresaleController {
 
             const presale = await assignDistributor.run(id, distributorId, userId);
 
-            if(presale && presale.distributorId) {
+            if (presale && presale.distributorId) {
                 const activity = new Activity(presale.deliveryDate, presale.distributorId)
                 await ActivityServiceContainer.activity.createActivity.run(activity, userId)
             }

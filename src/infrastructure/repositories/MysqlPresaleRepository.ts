@@ -42,10 +42,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         return new Presale(
             entity.client_id,
-            entity.preseller_id,
             entity.branch_id,
             entity.delivery_date,
             entity.user_id,
+            entity.preseller_id,
             entity.business_id,
             entity.distributor_id,
             entity.status as PresaleStatus,
@@ -79,7 +79,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
         const presaleEntity = this.presaleRepo.create({
             client_id: dto.clientId,
             business_id: dto.businessId ?? null,
-            preseller_id: dto.presellerId,
+            preseller_id: dto.presellerId ?? null,
             distributor_id: null,
             branch_id: dto.branchId,
             delivery_date: new Date(dto.deliveryDate),
@@ -329,10 +329,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         return new Presale(
             presale.clientId,
-            presale.presellerId,
             presale.branchId,
             presale.deliveryDate,
             presale.userId,
+            presale.presellerId,
             presale.businessId,
             presale.distributorId,
             presale.status,

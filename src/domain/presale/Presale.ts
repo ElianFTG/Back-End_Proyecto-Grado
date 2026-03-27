@@ -4,7 +4,7 @@ export class Presale {
     id?: number | undefined;
     clientId: number;
     businessId: number | null;
-    presellerId: number;
+    presellerId: number | null;
     distributorId: number | null;
     branchId: number;
     deliveryDate: Date;
@@ -29,10 +29,10 @@ export class Presale {
 
     constructor(
         clientId: number,
-        presellerId: number,
         branchId: number,
         deliveryDate: Date,
         userId: number,
+        presellerId: number | null,
         businessId: number | null = null,
         distributorId: number | null = null,
         status: PresaleStatus = 'pendiente',
