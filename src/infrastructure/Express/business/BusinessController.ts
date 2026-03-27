@@ -160,8 +160,23 @@ export class BusinessController {
   }
 
   async getAll(req: Request, res: Response) {
-    const list = await BusinessServiceContainer.business.getBusinesses.run();
-    return res.status(200).json(list.map(toResponse));
+    const filters: { search?: string; areaId?: number; state?: boolean; page?: number; limit?: number } = {};
+
+    if (req.query.search) {
+      filters.search = String(req.query.search).trim();
+    }
+    if (req.query.areaId) {
+      filters.areaId = Number(req.query.areaId);
+    }
+    if (req.query.state !== undefined) {
+      filters.state = req.query.state === "true"; 
+    }
+
+    filters.page  = req.query.page  ? parseInt(req.query.page  as string, 10) : 1;
+    filters.limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
+
+    const result = await BusinessServiceContainer.business.getBusinesses.run(filters);
+    return res.status(200).json(result);
   }
 
   async findById(req: Request, res: Response) {

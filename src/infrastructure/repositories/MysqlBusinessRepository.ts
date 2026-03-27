@@ -2,7 +2,7 @@ import { Repository, QueryDeepPartialEntity } from "typeorm";
 import { AppDataSource } from "../db/Mysql";
 import { Business } from "../../domain/business/Business";
 import { Position } from "../../domain/customs/Position";
-import { BusinessRepository } from "../../domain/business/BusinessRepository";
+import { BusinessRepository, PaginatedBusinessesResult } from "../../domain/business/BusinessRepository";
 import { BusinessEntity } from "../persistence/typeorm/entities/BusinessEntity";
 import { ActivityEntity } from "../persistence/typeorm/entities/ActivityEntity";
 import { Route } from "../../domain/route/Route";
@@ -76,16 +76,44 @@ export class MysqlBusinessRepository implements BusinessRepository {
     }
   }
 
-  async getAll(onlyActive: boolean = true): Promise<Business[]> {
+  async getAll(filters: { search?: string; areaId?: number; state?: boolean; page?: number; limit?: number }): Promise<PaginatedBusinessesResult> {
     try {
-      const rows = await this.repo.find({
-        where: onlyActive ? ({ state: true } as any) : ({} as any),
-        order: { name: "DESC" },
-      });
-      return rows.map((r) => this.toDomain(r));
+      const page  = filters?.page  || 1;
+      const limit = filters?.limit || 10;
+      const search = filters?.search?.trim() || '';
+
+      const qb = this.repo.createQueryBuilder('b');
+
+      if (filters?.state !== undefined) {
+        qb.andWhere('b.state = :state', { state: filters.state });
+      } else {
+        qb.andWhere('b.state = :state', { state: true });
+      }
+
+      if (filters?.areaId !== undefined) {
+        qb.andWhere('b.area_id = :areaId', { areaId: filters.areaId });
+      }
+
+      if (search) {
+        qb.andWhere('b.name LIKE :search', { search: `%${search}%` });
+      }
+
+      qb.orderBy('b.name', 'ASC')
+        .skip((page - 1) * limit)
+        .take(limit);
+
+      const [rows, total] = await qb.getManyAndCount();
+
+      return {
+        data: rows.map((r) => this.toDomain(r)),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
     } catch (e) {
       console.log(e);
-      return [];
+      throw e;
     }
   }
 
