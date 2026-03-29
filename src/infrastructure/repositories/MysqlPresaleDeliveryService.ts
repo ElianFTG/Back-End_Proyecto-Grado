@@ -35,10 +35,10 @@ export class PresaleDeliveryService {
 
         return new Presale(
             entity.client_id,
-            entity.preseller_id,
             entity.branch_id,
             entity.delivery_date,
             entity.user_id,
+            entity.preseller_id,
             entity.business_id,
             entity.distributor_id,
             entity.status as PresaleStatus,

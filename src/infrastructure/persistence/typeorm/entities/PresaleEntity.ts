@@ -32,8 +32,8 @@ export class PresaleEntity {
     @Column({ name: 'business_id', type: 'smallint', unsigned: true, nullable: true })
     business_id!: number | null;
 
-    @Column({ name: 'preseller_id', type: 'smallint', unsigned: true })
-    preseller_id!: number;
+    @Column({ name: 'preseller_id', type: 'smallint', unsigned: true, nullable: true })
+    preseller_id!: number | null;
 
     @Column({ name: 'distributor_id', type: 'smallint', unsigned: true, nullable: true })
     distributor_id!: number | null;

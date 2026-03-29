@@ -42,10 +42,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         return new Presale(
             entity.client_id,
-            entity.preseller_id,
             entity.branch_id,
             entity.delivery_date,
             entity.user_id,
+            entity.preseller_id,
             entity.business_id,
             entity.distributor_id,
             entity.status as PresaleStatus,
@@ -79,11 +79,12 @@ export class MysqlPresaleRepository implements PresaleRepository {
         const presaleEntity = this.presaleRepo.create({
             client_id: dto.clientId,
             business_id: dto.businessId ?? null,
-            preseller_id: dto.presellerId,
-            distributor_id: null,
+            preseller_id: dto.presellerId ?? null,
+            distributor_id: dto.distributorId ?? null,
             branch_id: dto.branchId,
             delivery_date: new Date(dto.deliveryDate),
-            status: 'pendiente',
+            delivered_at: dto.deliveredAt ? new Date(dto.deliveredAt) : null,
+            status: dto.status,
             subtotal,
             total,
             notes: dto.notes ?? null,
@@ -123,6 +124,61 @@ export class MysqlPresaleRepository implements PresaleRepository {
             'pendiente',
             null,
             'Preventa creada',
+            dto.userId
+        );
+
+        return this.getById(savedPresale.id) as Promise<Presale>;
+    }
+
+    async createDirectSale(dto: CreatePresaleDTO): Promise<Presale> {
+        const subtotal = dto.details.reduce(
+            (sum, d) => sum + d.quantityRequested * d.unitPrice,
+            0
+        );
+        const total = subtotal;
+
+        const presaleEntity = this.presaleRepo.create({
+            client_id: dto.clientId,
+            business_id: dto.businessId ?? null,
+            preseller_id: dto.presellerId ?? null,
+            distributor_id: dto.distributorId ?? null,
+            branch_id: dto.branchId,
+            delivery_date: new Date(dto.deliveryDate),
+            delivered_at: dto.deliveredAt ? new Date(dto.deliveredAt) : null,
+            status: dto.status,
+            subtotal,
+            total,
+            notes: dto.notes ?? null,
+            user_id: dto.userId,
+            state: true
+        });
+
+        const savedPresale = await this.presaleRepo.save(presaleEntity);
+
+        const detailEntities = dto.details.map(d =>
+            this.detailRepo.create({
+                presale_id: savedPresale.id,
+                product_id: d.productId,
+                branch_id: dto.branchId,
+                quantity_requested: d.quantityRequested,
+                quantity_delivered: null,
+                price_type_id: d.priceTypeId,
+                unit_price: d.unitPrice,
+                final_unit_price: null,
+                subtotal_requested: d.quantityRequested * d.unitPrice,
+                subtotal_delivered: null,
+                user_id: dto.userId,
+                state: true
+            })
+        );
+
+        await this.detailRepo.save(detailEntities);
+
+        await this.deliveryService.addStatusHistory(
+            savedPresale.id,
+            'entregado',
+            null,
+            'Venta directa creada',
             dto.userId
         );
 
@@ -329,10 +385,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         return new Presale(
             presale.clientId,
-            presale.presellerId,
             presale.branchId,
             presale.deliveryDate,
             presale.userId,
+            presale.presellerId,
             presale.businessId,
             presale.distributorId,
             presale.status,

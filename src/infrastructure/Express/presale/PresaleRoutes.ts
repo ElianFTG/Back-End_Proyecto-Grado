@@ -16,6 +16,12 @@ router.post(
     controller.create
 );
 
+router.post(
+    '/presales/direct-sale',
+    requireRole('transportista'),
+    controller.createDirectSale
+);
+
 router.put(
     '/presales/:id',
     requireRole('prevendedor', 'administrador', 'propietario'),

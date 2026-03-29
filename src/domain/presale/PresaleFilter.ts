@@ -25,11 +25,14 @@ export interface PaginatedPresalesResult {
 export interface CreatePresaleDTO {
     clientId: number;
     businessId?: number | null;
-    presellerId: number;
+    presellerId?: number | null;
     branchId: number;
     deliveryDate: string;
+    status: string | 'pendiente';
+    distributorId?: number | null;
     notes?: string | null;
     userId: number;
+    deliveredAt: string | null;
     details: CreatePresaleDetailDTO[];
 }
 

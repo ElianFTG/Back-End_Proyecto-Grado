@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import {
     createPresale,
+    createDirectSale,
     updatePresale,
     getPresales,
     getPresaleById,
@@ -29,14 +30,36 @@ export class PresaleController {
             const dto = {
                 ...req.body,
                 presellerId: userId,
-                userId
+                userId,
             };
 
             const presale = await createPresale.run(dto);
-
             res.status(201).json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al crear preventa';
+            res.status(400).json({ error: message });
+        }
+    }
+
+    async createDirectSale(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.auth?.userId;
+            if (!userId) {
+                res.status(401).json({ error: 'Usuario no autenticado' });
+                return;
+            }
+
+            const dto = {
+                ...req.body,
+                userId,
+                status: 'entregado',
+                distributorId: userId,
+            };
+
+            const presale = await createDirectSale.run(dto);
+            res.status(201).json(presale);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al crear venta directa';
             res.status(400).json({ error: message });
         }
     }
@@ -144,7 +167,7 @@ export class PresaleController {
 
             const presale = await assignDistributor.run(id, distributorId, userId);
 
-            if(presale && presale.distributorId) {
+            if (presale && presale.distributorId) {
                 const activity = new Activity(presale.deliveryDate, presale.distributorId)
                 await ActivityServiceContainer.activity.createActivity.run(activity, userId)
             }
