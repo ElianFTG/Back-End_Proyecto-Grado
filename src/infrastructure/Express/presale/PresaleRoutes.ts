@@ -12,8 +12,14 @@ router.use(authJwt(authService));
 
 router.post(
     '/presales',
-    requireRole('prevendedor', 'transportista', 'administrador', 'propietario'),
+    requireRole('prevendedor', 'administrador', 'propietario'),
     controller.create
+);
+
+router.post(
+    '/presales/direct-sale',
+    requireRole('transportista'),
+    controller.createDirectSale
 );
 
 router.put(

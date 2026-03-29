@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import {
     createPresale,
+    createDirectSale,
     updatePresale,
     getPresales,
     getPresaleById,
@@ -20,38 +21,45 @@ export class PresaleController {
 
     async create(req: Request, res: Response): Promise<void> {
         try {
-            const userReq = {
-                id: req.auth?.userId,
-                role: req.auth?.role,
-            }
-            if (!userReq.id && !userReq.role) {
+            const userId = req.auth?.userId;
+            if (!userId) {
                 res.status(401).json({ error: 'Usuario no autenticado' });
                 return;
             }
 
-            let dto;
-            if (userReq.role === 'transportista') {
-                dto = {
-                    ...req.body,
-                    userId: userReq.id,
-                    status: 'entregado',
-                    distributorId: userReq.id,
-                };
-            } else {
-                dto = {
-                    ...req.body,
-                    presellerId: userReq.id,
-                    userId: userReq.id,
-                };
-            }
-
-
+            const dto = {
+                ...req.body,
+                presellerId: userId,
+                userId,
+            };
 
             const presale = await createPresale.run(dto);
-
             res.status(201).json(presale);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al crear preventa';
+            res.status(400).json({ error: message });
+        }
+    }
+
+    async createDirectSale(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.auth?.userId;
+            if (!userId) {
+                res.status(401).json({ error: 'Usuario no autenticado' });
+                return;
+            }
+
+            const dto = {
+                ...req.body,
+                userId,
+                status: 'entregado',
+                distributorId: userId,
+            };
+
+            const presale = await createDirectSale.run(dto);
+            res.status(201).json(presale);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al crear venta directa';
             res.status(400).json({ error: message });
         }
     }

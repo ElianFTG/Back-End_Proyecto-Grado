@@ -9,10 +9,12 @@ import { CancelPresale } from '../../../application/presale/CancelPresale';
 import { GetPresaleHistory } from '../../../application/presale/GetPresaleHistory';
 import { GetDeliveriesByDistributor } from '../../../application/presale/GetDeliveriesByDistributor';
 import { ReturnPresaleProducts } from '../../../application/presale/ReturnPresaleProducts';
+import { CreateDirectSale } from '../../../application/presale/CreateDirectSale';
 
 const presaleRepository = new MysqlPresaleRepository();
 
 export const createPresale = new CreatePresale(presaleRepository);
+export const createDirectSale = new CreateDirectSale(presaleRepository);
 export const updatePresale = new UpdatePresale(presaleRepository);
 export const getPresales = new GetPresales(presaleRepository);
 export const getPresaleById = new GetPresaleById(presaleRepository);
