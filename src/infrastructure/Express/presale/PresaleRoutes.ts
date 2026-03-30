@@ -71,6 +71,12 @@ router.patch(
 );
 
 router.patch(
+    '/presales/:id/not-delivered',
+    requireRole('transportista', 'administrador', 'propietario'),
+    controller.notDelivered
+);
+
+router.patch(
     '/presales/:id/return',
     requireRole('administrador', 'propietario'),
     controller.returnProducts

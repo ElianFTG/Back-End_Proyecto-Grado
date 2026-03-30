@@ -11,7 +11,8 @@ import {
     getPresaleHistory,
     getDeliveriesByDistributor,
     returnPresaleProducts,
-    presaleRepository
+    presaleRepository,
+    markAsNotDelivered
 } from '../../../shared/service_containers/presale/PresaleServiceContainer';
 import { ActivityServiceContainer } from '../../../shared/service_containers/activity/ActivityServiceContainer';
 import { PresaleStatus } from '../../../domain/presale/Presale';
@@ -238,6 +239,34 @@ export class PresaleController {
             res.json({ presale });
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al cancelar preventa';
+            res.status(400).json({ error: message });
+        }
+    }
+
+    async notDelivered(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.auth?.userId;
+            if (!userId) {
+                res.status(401).json({ error: 'Usuario no autenticado' });
+                return;
+            }
+
+            const id = Number(req.params.id);
+            if (!id || isNaN(id)) {
+                res.status(400).json({ error: 'ID de preventa inválido' });
+                return;
+            }
+
+            const presale = await markAsNotDelivered.run(id, userId);
+
+            if (!presale) {
+                res.status(404).json({ error: 'Preventa no encontrada' });
+                return;
+            }
+
+            res.json(presale);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al marcar como no entregada';
             res.status(400).json({ error: message });
         }
     }

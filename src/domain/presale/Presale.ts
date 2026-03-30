@@ -1,4 +1,4 @@
-export type PresaleStatus = 'pendiente' | 'asignado' | 'entregado' | 'parcial' | 'cancelado';
+export type PresaleStatus = 'pendiente' | 'asignado' | 'entregado' | 'parcial' | 'cancelado' | 'no entregado';
 
 export class Presale {
     id?: number | undefined;

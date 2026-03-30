@@ -568,4 +568,31 @@ export class MysqlPresaleRepository implements PresaleRepository {
             return [];
         }
     }
+
+    async markAsNotDelivered(id: number, userId: number): Promise<Presale | null> {
+        const entity = await this.presaleRepo.findOne({
+            where: { id, state: true }
+        });
+
+        if (!entity) return null;
+
+        if (['cancelado', 'no entregado', 'entregado'].includes(entity.status)) {
+            throw new Error(`La preventa ya se encuentra en estado "${entity.status}"`);
+        }
+
+        const previousStatus = entity.status;
+        entity.status = 'no entregado';
+        entity.user_id = userId;
+        await this.presaleRepo.save(entity);
+
+        await this.deliveryService.addStatusHistory(
+            id,
+            'no entregado',
+            previousStatus,
+            'Marcada como no entregada',
+            userId
+        );
+
+        return this.getById(id);
+    }
 }

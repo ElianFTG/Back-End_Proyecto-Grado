@@ -53,7 +53,7 @@ export class PresaleEntity {
     @Column({
         name: 'status',
         type: 'enum',
-        enum: ['pendiente', 'asignado', 'entregado', 'parcial', 'cancelado'],
+        enum: ['pendiente', 'asignado', 'entregado', 'parcial', 'cancelado', 'no entregado'],
         default: 'pendiente'
     })
     status!: string;
@@ -78,7 +78,6 @@ export class PresaleEntity {
 
     @UpdateDateColumn({ name: 'updated_at', type: 'datetime', nullable: true })
     updated_at!: Date;
-
 
     @ManyToOne(() => ClientEntity, { eager: false })
     @JoinColumn({ name: 'client_id' })
