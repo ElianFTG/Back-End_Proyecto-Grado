@@ -466,8 +466,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
                 productName: detail.product?.name ?? '',
                 productBarcode: detail.product?.barcode ?? null,
                 quantityRequested: detail.quantity_requested,
+                quantityDelivered: detail.quantity_delivered,
                 unitPrice: Number(detail.unit_price),
-                subtotalRequested: Number(detail.subtotal_requested)
+                subtotalRequested: Number(detail.subtotal_requested),
+                subtotalDelivered: detail.subtotal_delivered !== null ? Number(detail.subtotal_delivered) : null,
             }));
 
             const clientFullName = [
@@ -565,5 +567,32 @@ export class MysqlPresaleRepository implements PresaleRepository {
             console.log(e);
             return [];
         }
+    }
+
+    async markAsNotDelivered(id: number, userId: number): Promise<Presale | null> {
+        const entity = await this.presaleRepo.findOne({
+            where: { id, state: true }
+        });
+
+        if (!entity) return null;
+
+        if (['cancelado', 'no entregado', 'entregado'].includes(entity.status)) {
+            throw new Error(`La preventa ya se encuentra en estado "${entity.status}"`);
+        }
+
+        const previousStatus = entity.status;
+        entity.status = 'no entregado';
+        entity.user_id = userId;
+        await this.presaleRepo.save(entity);
+
+        await this.deliveryService.addStatusHistory(
+            id,
+            'no entregado',
+            previousStatus,
+            'Marcada como no entregada',
+            userId
+        );
+
+        return this.getById(id);
     }
 }

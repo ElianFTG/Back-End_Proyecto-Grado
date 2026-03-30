@@ -24,7 +24,7 @@ router.post(
 
 router.put(
     '/presales/:id',
-    requireRole('prevendedor', 'transportista','administrador', 'propietario'),
+    requireRole('prevendedor', 'administrador', 'propietario'),
     controller.update
 );
 
@@ -68,6 +68,12 @@ router.patch(
     '/presales/:id/cancel',
     requireRole('transportista', 'prevendedor', 'administrador', 'propietario'),
     controller.cancel
+);
+
+router.patch(
+    '/presales/:id/not-delivered',
+    requireRole('transportista', 'administrador', 'propietario'),
+    controller.notDelivered
 );
 
 router.patch(
