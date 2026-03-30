@@ -88,4 +88,9 @@ router.delete(
     controller.delete
 );
 
+router.get(
+    '/presales/:id/pdf',
+    requireRole('administrador', 'propietario'),
+    controller.generatePdf
+);
 export default router;

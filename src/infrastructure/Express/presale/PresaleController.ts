@@ -17,6 +17,9 @@ import {
 import { ActivityServiceContainer } from '../../../shared/service_containers/activity/ActivityServiceContainer';
 import { PresaleStatus } from '../../../domain/presale/Presale';
 import { Activity } from '../../../domain/activity/Activity';
+import { PdfService } from '../../services/PdfService';
+
+const pdfService = new PdfService();
 
 export class PresaleController {
 
@@ -96,7 +99,7 @@ export class PresaleController {
         try {
             const statusParam = req.query.status as string | undefined;
             const validStatuses: PresaleStatus[] = [
-                'pendiente', 'asignado', 'entregado', 'parcial', 'cancelado'
+                'pendiente', 'asignado', 'entregado', 'parcial', 'cancelado', 'no entregado'
             ];
 
             const filters = {
@@ -356,6 +359,31 @@ export class PresaleController {
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al eliminar preventa';
             res.status(400).json({ error: message });
+        }
+    }
+
+    async generatePdf(req: Request, res: Response): Promise<void> {
+        try {
+            const id = Number(req.params.id);
+            if (!id || isNaN(id)) {
+                res.status(400).json({ error: 'ID de preventa inválido' });
+                return;
+            }
+
+            const presale = await getPresaleById.run(id, true);
+            if (!presale) {
+                res.status(404).json({ error: 'Preventa no encontrada' });
+                return;
+            }
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="preventa-${id}.pdf"`);
+
+            const doc = pdfService.generatePresalePdf(presale);
+            doc.pipe(res);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al generar PDF';
+            res.status(500).json({ error: message });
         }
     }
 }

@@ -312,7 +312,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         const total = await qb.getCount();
 
-        qb.orderBy('p.delivery_date', 'ASC')
+        qb.orderBy('p.delivery_date', 'DESC')
             .addOrderBy('p.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
@@ -346,6 +346,9 @@ export class MysqlPresaleRepository implements PresaleRepository {
         }
         if (filters.branchId) {
             qb.andWhere('p.branch_id = :branchId', { branchId: filters.branchId });
+        }
+        if (filters.deliveryDate) {
+            qb.andWhere('DATE(p.delivery_date) = :deliveryDate', { deliveryDate: filters.deliveryDate });
         }
         if (filters.deliveryDateFrom) {
             qb.andWhere('p.delivery_date >= :dateFrom', { dateFrom: filters.deliveryDateFrom });
