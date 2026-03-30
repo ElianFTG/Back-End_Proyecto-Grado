@@ -466,8 +466,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
                 productName: detail.product?.name ?? '',
                 productBarcode: detail.product?.barcode ?? null,
                 quantityRequested: detail.quantity_requested,
+                quantityDelivered: detail.quantity_delivered,
                 unitPrice: Number(detail.unit_price),
-                subtotalRequested: Number(detail.subtotal_requested)
+                subtotalRequested: Number(detail.subtotal_requested),
+                subtotalDelivered: detail.subtotal_delivered !== null ? Number(detail.subtotal_delivered) : null,
             }));
 
             const clientFullName = [

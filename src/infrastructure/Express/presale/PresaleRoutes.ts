@@ -24,7 +24,7 @@ router.post(
 
 router.put(
     '/presales/:id',
-    requireRole('prevendedor', 'transportista','administrador', 'propietario'),
+    requireRole('prevendedor', 'administrador', 'propietario'),
     controller.update
 );
 
