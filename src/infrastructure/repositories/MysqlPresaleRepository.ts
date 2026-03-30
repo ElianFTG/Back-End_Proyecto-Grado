@@ -312,7 +312,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
 
         const total = await qb.getCount();
 
-        qb.orderBy('p.delivery_date', 'ASC')
+        qb.orderBy('p.delivery_date', 'DESC')
             .addOrderBy('p.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
@@ -332,7 +332,6 @@ export class MysqlPresaleRepository implements PresaleRepository {
         qb: ReturnType<Repository<PresaleEntity>['createQueryBuilder']>,
         filters: PresaleFilters
     ): void {
-        console.log(filters)
         if (filters.status) {
             qb.andWhere('p.status = :status', { status: filters.status });
         }
