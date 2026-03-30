@@ -99,7 +99,7 @@ export class PresaleController {
         try {
             const statusParam = req.query.status as string | undefined;
             const validStatuses: PresaleStatus[] = [
-                'pendiente', 'asignado', 'entregado', 'parcial', 'cancelado'
+                'pendiente', 'asignado', 'entregado', 'parcial', 'cancelado', 'no entregado'
             ];
 
             const filters = {

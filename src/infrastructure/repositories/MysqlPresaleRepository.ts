@@ -332,6 +332,7 @@ export class MysqlPresaleRepository implements PresaleRepository {
         qb: ReturnType<Repository<PresaleEntity>['createQueryBuilder']>,
         filters: PresaleFilters
     ): void {
+        console.log(filters)
         if (filters.status) {
             qb.andWhere('p.status = :status', { status: filters.status });
         }
@@ -346,6 +347,9 @@ export class MysqlPresaleRepository implements PresaleRepository {
         }
         if (filters.branchId) {
             qb.andWhere('p.branch_id = :branchId', { branchId: filters.branchId });
+        }
+        if (filters.deliveryDate) {
+            qb.andWhere('DATE(p.delivery_date) = :deliveryDate', { deliveryDate: filters.deliveryDate });
         }
         if (filters.deliveryDateFrom) {
             qb.andWhere('p.delivery_date >= :dateFrom', { dateFrom: filters.deliveryDateFrom });
