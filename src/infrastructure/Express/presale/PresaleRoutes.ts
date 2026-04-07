@@ -35,6 +35,24 @@ router.get(
 );
 
 router.get(
+    '/presales/report',
+    requireRole('administrador', 'propietario'),
+    controller.getReport
+);
+
+router.get(
+    '/presales/report/pdf',
+    requireRole('administrador', 'propietario'),
+    controller.getReportPdf
+);
+
+router.get(
+    '/presales/report/excel',
+    requireRole('administrador', 'propietario'),
+    controller.getReportExcel
+);
+
+router.get(
     '/presales/history/:id',
     requireRole('administrador', 'propietario', 'prevendedor', 'transportista'),
     controller.getHistory

@@ -11,6 +11,7 @@ import { GetDeliveriesByDistributor } from '../../../application/presale/GetDeli
 import { ReturnPresaleProducts } from '../../../application/presale/ReturnPresaleProducts';
 import { CreateDirectSale } from '../../../application/presale/CreateDirectSale';
 import { MarkAsNotDelivered } from '../../../application/presale/MarkAsNotDelivered';
+import { GetPresaleReport } from '../../../application/presale/GetPresaleReport';
 
 const presaleRepository = new MysqlPresaleRepository();
 
@@ -26,5 +27,6 @@ export const markAsNotDelivered = new MarkAsNotDelivered(presaleRepository);
 export const getPresaleHistory = new GetPresaleHistory(presaleRepository);
 export const getDeliveriesByDistributor = new GetDeliveriesByDistributor(presaleRepository);
 export const returnPresaleProducts = new ReturnPresaleProducts(presaleRepository);
+export const getPresaleReport = new GetPresaleReport(presaleRepository);
 
 export { presaleRepository };
