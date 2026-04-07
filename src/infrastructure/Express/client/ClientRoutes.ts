@@ -15,21 +15,18 @@ const authService = AuthServiceContainer.authService();
 ClientRouter.post(
     "/clients",
     authJwt(authService),
-    requireRole("propietario", "administrador", "prevendedor"),
     controller.create
 );
 
 ClientRouter.get(
     "/clients/search",
     authJwt(authService),
-    requireRole("propietario", "administrador", "prevendedor"),
     controller.search
 );
 
 ClientRouter.get(
     "/clients",
     authJwt(authService),
-    requireRole("propietario", "administrador", "prevendedor"),
     controller.getAll
 );
 
