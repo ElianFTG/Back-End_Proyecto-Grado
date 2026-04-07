@@ -22,6 +22,22 @@ export interface PaginatedPresalesResult {
     totalPages: number;
 }
 
+export interface PresaleReportFilters {
+    userId?: number | undefined;
+    dateFrom?: string | undefined;
+    dateTo?: string | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
+}
+ 
+export interface PresaleReportResult {
+    data: Presale[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
 export interface CreatePresaleDTO {
     clientId: number;
     businessId?: number | null;

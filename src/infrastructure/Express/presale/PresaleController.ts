@@ -12,14 +12,17 @@ import {
     getDeliveriesByDistributor,
     returnPresaleProducts,
     presaleRepository,
-    markAsNotDelivered
+    markAsNotDelivered,
+    getPresaleReport
 } from '../../../shared/service_containers/presale/PresaleServiceContainer';
 import { ActivityServiceContainer } from '../../../shared/service_containers/activity/ActivityServiceContainer';
 import { PresaleStatus } from '../../../domain/presale/Presale';
 import { Activity } from '../../../domain/activity/Activity';
 import { PdfService } from '../../services/PdfService';
+import { ExcelService } from '../../services/ExcelService';
 
 const pdfService = new PdfService();
+const excelService = new ExcelService();
 
 export class PresaleController {
 
@@ -383,6 +386,79 @@ export class PresaleController {
             doc.pipe(res);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al generar PDF';
+            res.status(500).json({ error: message });
+        }
+    }
+
+
+    async getReport(req: Request, res: Response): Promise<void> {
+        try {
+            const filters = {
+                userId: req.query.userId ? Number(req.query.userId) : undefined,
+                dateFrom: req.query.dateFrom as string | undefined,
+                dateTo: req.query.dateTo as string | undefined,
+                page: req.query.page ? Number(req.query.page) : 1,
+                limit: req.query.limit ? Number(req.query.limit) : 20,
+            };
+
+            const result = await getPresaleReport.run(filters);
+            res.json(result);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al obtener reporte';
+            res.status(400).json({ error: message });
+        }
+    }
+
+    async getReportPdf(req: Request, res: Response): Promise<void> {
+        try {
+            const filters = {
+                userId: req.query.userId ? Number(req.query.userId) : undefined,
+                dateFrom: req.query.dateFrom as string | undefined,
+                dateTo: req.query.dateTo as string | undefined,
+                page: 1,
+                limit: 10000, 
+            };
+
+            const result = await getPresaleReport.run(filters);
+
+            const dateTag = filters.dateFrom && filters.dateTo
+                ? `${filters.dateFrom}_${filters.dateTo}`
+                : new Date().toISOString().slice(0, 10);
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="reporte-preventas-${dateTag}.pdf"`);
+
+            const doc = pdfService.generatePresaleReportPdf(result.data, filters);
+            doc.pipe(res);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al generar PDF del reporte';
+            res.status(500).json({ error: message });
+        }
+    }
+
+    async getReportExcel(req: Request, res: Response): Promise<void> {
+        try {
+            const filters = {
+                userId: req.query.userId ? Number(req.query.userId) : undefined,
+                dateFrom: req.query.dateFrom as string | undefined,
+                dateTo: req.query.dateTo as string | undefined,
+                page: 1,
+                limit: 10000,
+            };
+
+            const result = await getPresaleReport.run(filters);
+
+            const dateTag = filters.dateFrom && filters.dateTo
+                ? `${filters.dateFrom}_${filters.dateTo}`
+                : new Date().toISOString().slice(0, 10);
+
+            const buffer = await excelService.generatePresaleReportExcel(result.data, filters);
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="reporte-preventas-${dateTag}.xlsx"`);
+            res.send(buffer);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al generar Excel del reporte';
             res.status(500).json({ error: message });
         }
     }
