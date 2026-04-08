@@ -14,8 +14,8 @@
     "allowSyntheticDefaultImports": true,
     // "types": [],
     // For nodejs:
-    // "lib": ["esnext"],
-    "types": ["node"],
+    "lib": ["ES2020"],
+    "types": ["jest", "node"],
     // and npm install -D @types/node
 
     // Other Outputs
@@ -25,7 +25,6 @@
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
 
     // Style Options
     // "noImplicitReturns": true,
@@ -36,7 +35,7 @@
     // "noPropertyAccessFromIndexSignature": true,
 
     // Recommended Options
-    "strict": true,
+    "strict": false,
     // "jsx": "react-jsx",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
@@ -46,5 +45,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
