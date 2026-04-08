@@ -1,1 +1,0 @@
-{"version":3,"file":"FindByIdBranch.js","sourceRoot":"","sources":["../../../src/application/branch/FindByIdBranch.ts"],"names":[],"mappings":";;;AAGA,MAAa,cAAc;IACvB,YAAoB,UAA4B;QAA5B,eAAU,GAAV,UAAU,CAAkB;IAAG,CAAC;IAEpD,KAAK,CAAC,GAAG,CAAC,EAAU;QAChB,OAAO,IAAI,CAAC,UAAU,CAAC,QAAQ,CAAC,EAAE,CAAC,CAAC;IACxC,CAAC;CACJ;AAND,wCAMC"}

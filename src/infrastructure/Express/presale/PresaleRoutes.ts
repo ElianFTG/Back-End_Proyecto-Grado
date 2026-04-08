@@ -1,0 +1,114 @@
+import { Router } from 'express';
+import { PresaleController } from './PresaleController';
+import { authJwt } from '../middlewares/authJwt';
+import { requireRole } from '../middlewares/requireRole';
+import { AuthServiceContainer } from '../../../shared/service_containers/auth/AuthServiceContainer';
+
+const router = Router();
+const authService = AuthServiceContainer.authService();
+const controller = new PresaleController();
+
+router.use(authJwt(authService));
+
+router.post(
+    '/presales',
+    requireRole('prevendedor', 'administrador', 'propietario'),
+    controller.create
+);
+
+router.post(
+    '/presales/direct-sale',
+    requireRole('transportista'),
+    controller.createDirectSale
+);
+
+router.put(
+    '/presales/:id',
+    requireRole('prevendedor', 'administrador', 'propietario'),
+    controller.update
+);
+
+router.get(
+    '/presales',
+    requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
+    controller.getAll
+);
+
+router.get(
+    '/presales/report',
+    requireRole('administrador', 'propietario'),
+    controller.getReport
+);
+
+router.get(
+    '/presales/report/pdf',
+    requireRole('administrador', 'propietario'),
+    controller.getReportPdf
+);
+
+router.get(
+    '/presales/report/excel',
+    requireRole('administrador', 'propietario'),
+    controller.getReportExcel
+);
+
+router.get(
+    '/presales/history/:id',
+    requireRole('administrador', 'propietario', 'prevendedor', 'transportista'),
+    controller.getHistory
+);
+
+router.get(
+    '/presales/:id',
+    requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
+    controller.getById
+);
+
+router.get(
+    '/my-deliveries',
+    requireRole('transportista'),
+    controller.getMyDeliveries
+);
+
+router.patch(
+    '/presales/:id/assign',
+    requireRole('administrador', 'propietario'),
+    controller.assign
+);
+
+router.patch(
+    '/presales/:id/deliver',
+    requireRole('transportista', 'administrador', 'propietario'),
+    controller.confirmDelivery
+);
+
+router.patch(
+    '/presales/:id/cancel',
+    requireRole('transportista', 'prevendedor', 'administrador', 'propietario'),
+    controller.cancel
+);
+
+router.patch(
+    '/presales/:id/not-delivered',
+    requireRole('transportista', 'administrador', 'propietario'),
+    controller.notDelivered
+);
+
+router.patch(
+    '/presales/:id/return',
+    requireRole('administrador', 'propietario'),
+    controller.returnProducts
+);
+
+router.delete(
+    '/presales/:id',
+    requireRole('administrador', 'propietario'),
+    controller.delete
+);
+
+router.get(
+    '/presales/:id/pdf',
+    requireRole('administrador', 'propietario'),
+    controller.generatePdf
+);
+export default router;

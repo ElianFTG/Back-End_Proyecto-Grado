@@ -10,10 +10,26 @@ import { CountryRouter } from "./infrastructure/Express/country/CountryRoutes";
 import { BranchRouter } from "./infrastructure/Express/branch/BranchRoutes";
 import { SupplierRouter } from "./infrastructure/Express/supplier/SupplierRoutes";
 import { CategoryRouter } from "./infrastructure/Express/category/CategoryRoutes";
-import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
+import { BrandRouter } from "./infrastructure/Express/brand/BrandRoutes";
+import { ProductRouter } from "./infrastructure/Express/product/ProductRoutes";
+import { PresentationRouter } from "./infrastructure/Express/presentation/PresentationRoutes";
+import { ColorRouter } from "./infrastructure/Express/color/ColorRoutes";
 import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
+import { ClientTypeRouter } from "./infrastructure/Express/clientType/ClientTypeRoutes";
+import { PriceTypeRouter } from "./infrastructure/Express/priceType/PriceTypeRoutes";
+import { BusinessRouter } from "./infrastructure/Express/business/BusinessRoutes";
+import { BusinessTypeRouter } from "./infrastructure/Express/businessType/BusinessTypeRoutes";
 import { AreaRouter } from "./infrastructure/Express/area/AreaRoutes";
-import { RouteRouter } from "./infrastructure/Express/route/RuoteTypeRoutes";
+import { RouteRouter } from "./infrastructure/Express/route/RouteTypeRoutes";
+import { RejectionRouter } from "./infrastructure/Express/rejection/RejectionRoutes";
+import { ActivityRouter } from "./infrastructure/Express/activity/ActivityRoutes";
+import PresaleRouter from "./infrastructure/Express/presale/PresaleRoutes";
+
+
+import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
+import { seedPriceTypes } from "./infrastructure/db/seeders/PriceTypeSeeder";
+import { seedBusinessTypes } from "./infrastructure/db/seeders/BusinessTypeSeeder";
+import { seedRejections } from "./infrastructure/db/seeders/seedRejections";
 
 const app = express();
 app.use(cors());
@@ -29,7 +45,11 @@ app.use(
 
 AppDataSource.initialize()
   .then(async () => {
+    console.log(new Date().toISOString())
     await seedCountries();
+    await seedPriceTypes();
+    await seedBusinessTypes();
+    await seedRejections();
   })
   .catch((err) => {
     console.error('Failed to initialize database:', err);
@@ -44,9 +64,20 @@ app.use(CountryRouter);
 app.use(SupplierRouter);
 app.use(CategoryRouter);
 app.use(BranchRouter);
+app.use(BrandRouter);
+app.use(ProductRouter);
+app.use(PresentationRouter);
+app.use(ColorRouter);
 app.use(ClientRouter);
+app.use(PriceTypeRouter);
+app.use(BusinessTypeRouter);
+app.use(ClientTypeRouter);
+app.use(BusinessRouter);
 app.use(AreaRouter);
 app.use(RouteRouter);
+app.use(RejectionRouter);
+app.use(ActivityRouter);
+app.use(PresaleRouter);
 
 
 app.use((req, res, next) => {

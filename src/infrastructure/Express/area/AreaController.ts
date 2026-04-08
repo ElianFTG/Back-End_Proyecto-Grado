@@ -4,7 +4,7 @@ import { AreaServiceContainer } from "../../../shared/service_containers/area/Ar
 
 function normalizeArea(raw: any): { lat: number; lng: number }[] | null {
     if (!raw) return null;
- 
+
     if (Array.isArray(raw)) {
         return raw.map((p) => ({ lat: Number(p.lat), lng: Number(p.lng) }));
     }

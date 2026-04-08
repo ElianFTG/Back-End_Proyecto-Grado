@@ -1,0 +1,235 @@
+import { ProductBranchRepository } from "../../domain/product_branch/ProductBranchRepository";
+import { ProductBranch } from "../../domain/product_branch/ProductBranch";
+import { ProductBranchFilters, PaginatedBranchProducts, ProductWithBranchInfo, ProductPriceInfo } from "../../domain/product_branch/ProductBranchFilters";
+import { Repository } from 'typeorm';
+import { ProductBranchEntity } from "../persistence/typeorm/entities/ProductBranchEntity";
+import { ProductEntity } from "../persistence/typeorm/entities/ProductEntity";
+import { AppDataSource } from "../db/Mysql";
+
+export class MysqlProductBranchRepository implements ProductBranchRepository {
+    private readonly repo: Repository<ProductBranchEntity>;
+    private readonly productRepo: Repository<ProductEntity>;
+
+    constructor() {
+        this.repo = AppDataSource.getRepository(ProductBranchEntity);
+        this.productRepo = AppDataSource.getRepository(ProductEntity);
+    }
+
+    async getProductsByBranch(filters: ProductBranchFilters): Promise<PaginatedBranchProducts<ProductWithBranchInfo>> {
+        const {
+            branchId,
+            search = '',
+            page = 1,
+            limit = 50
+        } = filters;
+
+        const safeLimit = Math.min(Math.max(1, limit), 100);
+        const safePage = Math.max(1, page);
+
+        try {
+            const qb = this.productRepo.createQueryBuilder('p')
+                .leftJoinAndSelect('p.category', 'cat')
+                .leftJoinAndSelect('p.brand', 'brand')
+                .leftJoinAndSelect('p.prices', 'prices')
+                .leftJoinAndSelect('prices.priceType', 'priceType')
+                .where('p.state = :state', { state: true });
+
+            this.applyFilters(qb, branchId, filters);
+            this.applySearch(qb, search);
+
+            const total = await qb.getCount();
+
+            this.applyPagination(qb, safePage, safeLimit);
+
+            const rawResults = await qb.getRawAndEntities();
+
+            const data = this.mapToDomain(rawResults, branchId);
+
+            return {
+                data,
+                page: safePage,
+                limit: safeLimit,
+                total,
+                totalPages: Math.ceil(total / safeLimit)
+            };
+        } catch (error) {
+            console.error('Error en getProductsByBranchPaginated:', error);
+            return {
+                data: [],
+                page: safePage,
+                limit: safeLimit,
+                total: 0,
+                totalPages: 0
+            };
+        }
+    }
+
+    private applyFilters(qb: any, branchId: number, filters: ProductBranchFilters) {
+        if (filters.onlyAvailable) {
+            qb.innerJoin(
+                ProductBranchEntity,
+                'pb',
+                'pb.product_id = p.id AND pb.branch_id = :branchId AND pb.has_stock = true',
+                { branchId }
+            );
+            qb.addSelect('pb.has_stock', 'pb_has_stock');
+            qb.addSelect('pb.stock_qty', 'pb_stock_qty');
+        } else {
+            qb.leftJoin(
+                ProductBranchEntity,
+                'pb',
+                'pb.product_id = p.id AND pb.branch_id = :branchId',
+                { branchId }
+            );
+            qb.addSelect('pb.has_stock', 'pb_has_stock');
+            qb.addSelect('pb.stock_qty', 'pb_stock_qty');
+        }
+
+        if (filters.categoryId) {
+            qb.andWhere('p.category_id = :categoryId', { categoryId: filters.categoryId });
+        }
+        if (filters.brandId) {
+            qb.andWhere('p.brand_id = :brandId', { brandId: filters.brandId });
+        }
+    }
+
+    private applyPagination(qb: any, page: number, limit: number) {
+        qb.orderBy('p.name', 'ASC');
+        const offset = (page - 1) * limit;
+        qb.skip(offset).take(limit);
+    }
+
+    private applySearch(qb: any, search: string) {
+        if (search && search.trim().length > 0) {
+            const searchTerm = `%${search.trim()}%`;
+            qb.andWhere(
+                '(p.name LIKE :search OR p.barcode LIKE :search OR p.internal_code LIKE :search)',
+                { search: searchTerm }
+            );
+        }
+    }
+
+    private mapToDomain(rawResults: { entities: ProductEntity[], raw: any[] }, branchId: number): ProductWithBranchInfo[] {
+        // Build a map from product id to its first raw row to avoid index mismatch
+        // caused by multiple raw rows per entity (due to prices/priceType joins)
+        const rawByProductId = new Map<number, any>();
+        for (const raw of rawResults.raw) {
+            const id = raw.p_id;
+            if (id !== undefined && !rawByProductId.has(id)) {
+                rawByProductId.set(id, raw);
+            }
+        }
+
+        return rawResults.entities.map((product) => {
+            const raw = rawByProductId.get(product.id) ?? {};
+            const prices: ProductPriceInfo[] = (product.prices || []).map(p => ({
+                priceTypeId: p.price_type_id,
+                priceTypeName: p.priceType?.name ?? '',
+                price: Number(p.price)
+            }));
+
+            return {
+                id: product.id,
+                name: product.name,
+                barcode: product.barcode,
+                internalCode: product.internal_code,
+                presentationId: product.presentation_id,
+                colorId: product.color_id,
+                prices,
+                brand: {
+                    id: product.brand?.id ?? product.brand_id,
+                    name: product.brand?.name ?? ''
+                },
+                category: {
+                    id: product.category?.id ?? product.category_id,
+                    name: product.category?.name ?? ''
+                },
+                branch: {
+                    branchId: branchId,
+                    hasStock: raw.pb_has_stock === true || raw.pb_has_stock === 1,
+                    stockQty: raw.pb_stock_qty ?? null
+                }
+            };
+        });
+    }
+
+    async upsertStock(
+        productId: number,
+        branchId: number,
+        hasStock: boolean,
+        stockQty?: number | null
+    ): Promise<{ success: boolean; deleted?: boolean }> {
+        try {
+            if (!hasStock) {
+                const deleted = await this.deleteRelation(productId, branchId);
+                return { success: true, deleted };
+            }
+
+            const existing = await this.repo.findOne({
+                where: { product_id: productId, branch_id: branchId }
+            });
+
+            if (existing) {
+                await this.repo.update(
+                    { product_id: productId, branch_id: branchId },
+                    { has_stock: true, stock_qty: stockQty ?? null }
+                );
+            } else {
+                await this.repo.save({
+                    product_id: productId,
+                    branch_id: branchId,
+                    has_stock: true,
+                    stock_qty: stockQty ?? null
+                });
+            }
+
+            return { success: true, deleted: false };
+        } catch (error) {
+            console.error('Error en upsertStock:', error);
+            return { success: false };
+        }
+    }
+
+    private async deleteRelation(productId: number, branchId: number): Promise<boolean> {
+        try {
+            const result = await this.repo.delete({
+                product_id: productId,
+                branch_id: branchId
+            });
+            return (result.affected ?? 0) > 0;
+        } catch (error) {
+            console.error('Error en deleteRelation:', error);
+            return false;
+        }
+    }
+
+    async findByProductAndBranch(productId: number, branchId: number): Promise<ProductBranch | null> {
+        try {
+            const row = await this.repo.findOne({
+                where: { product_id: productId, branch_id: branchId },
+                relations: ['product', 'product.prices', 'product.prices.priceType']
+            });
+
+            if (!row) return null;
+
+            const prices: ProductPriceInfo[] = (row.product?.prices || []).map(p => ({
+                priceTypeId: p.price_type_id,
+                priceTypeName: p.priceType?.name ?? '',
+                price: Number(p.price)
+            }));
+
+            return new ProductBranch(
+                row.product_id,
+                row.branch_id,
+                row.has_stock,
+                row.stock_qty,
+                row.updated_at,
+                row.product?.name,
+                row.product?.barcode,
+                prices
+            );
+        } catch (error) {
+            return null;
+        }
+    }
+}

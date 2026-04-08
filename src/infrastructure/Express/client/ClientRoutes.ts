@@ -10,46 +10,45 @@ import { ClientController } from "./ClientController";
 const ClientRouter = Router();
 
 const controller = new ClientController();
-const authService = AuthServiceContainer.authService(); // asegúrate que exista como static
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
-});
+const authService = AuthServiceContainer.authService();
 
 ClientRouter.post(
     "/clients",
     authJwt(authService),
-    requireRole("super administrador"),
-    upload.single("image"),
     controller.create
 );
 
 ClientRouter.get(
+    "/clients/search",
+    authJwt(authService),
+    controller.search
+);
+
+ClientRouter.get(
     "/clients",
-    
+    authJwt(authService),
     controller.getAll
 );
 
 ClientRouter.get(
     "/clients/:id",
     authJwt(authService),
+    requireRole("propietario", "administrador"),
     controller.findById
 );
 
 ClientRouter.patch(
     "/clients/:id",
     authJwt(authService),
-    requireRole("administrador"),
-    upload.single("image"),
+    requireRole("propietario", "administrador"),
     controller.update
 );
 
 ClientRouter.delete(
     "/clients/:id",
     authJwt(authService),
-    requireRole("administrador"),
+    requireRole("propietario", "administrador"),
     controller.softDelete
 );
 
-export {ClientRouter};
+export { ClientRouter };

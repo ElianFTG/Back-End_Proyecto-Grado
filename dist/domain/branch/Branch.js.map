@@ -1,1 +1,0 @@
-{"version":3,"file":"Branch.js","sourceRoot":"","sources":["../../../src/domain/branch/Branch.ts"],"names":[],"mappings":";;;AAAA,MAAa,MAAM;IAMf,YACI,IAAY,EACZ,QAAiB,IAAI,EACrB,MAAsB,EACtB,EAAW;QAEX,IAAI,CAAC,EAAE,GAAG,EAAE,CAAC;QACb,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;QACjB,IAAI,CAAC,KAAK,GAAG,KAAK,CAAC;QACnB,IAAI,CAAC,MAAM,GAAG,MAAM,IAAI,IAAI,CAAC;IACjC,CAAC;CACJ;AAjBD,wBAiBC"}
