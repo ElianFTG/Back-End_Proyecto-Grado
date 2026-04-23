@@ -8,7 +8,7 @@ import { BusinessServiceContainer } from "../../../shared/service_containers/bus
 
 
 const BUSINESS_IMAGE_DIR_ABS = path.resolve(process.cwd(), process.env.BUSINESS_IMAGE_DIR_ABS || '');
-const BUSINESS_PUBLIC_BASE = process.env.BUSINESS_PUBLIC_BASE;
+const BUSINESS_PUBLIC_BASE = process.env.BUSINESS_PUBLIC_BASE || '';
 
 function toResponse(b: Business) {
   return {

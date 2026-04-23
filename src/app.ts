@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   "/images",
-  express.static(path.resolve(process.cwd(), "private/images"))
+  express.static(path.resolve(process.cwd(), process.env.ORIGIN_IMAGES || ''))
 );
 
 AppDataSource.initialize()
