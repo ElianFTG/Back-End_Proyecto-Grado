@@ -16,6 +16,12 @@ RouteRouter.post(
   controller.create
 );
 
+RouteRouter.put(
+  "/routes/:id",
+  authJwt(authService),
+  requireRole("propietario", "administrador"),
+  controller.update
+);
 
 RouteRouter.get(
   "/routes/:id",
