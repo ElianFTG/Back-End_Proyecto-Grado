@@ -12,7 +12,7 @@ router.use(authJwt(authService));
 
 router.post(
     '/presales',
-    requireRole('prevendedor', 'administrador', 'propietario'),
+    requireRole('prevendedor', 'administrador', 'gerente'),
     controller.create
 );
 
@@ -24,43 +24,43 @@ router.post(
 
 router.put(
     '/presales/:id',
-    requireRole('prevendedor', 'administrador', 'propietario'),
+    requireRole('prevendedor', 'administrador', 'gerente'),
     controller.update
 );
 
 router.get(
     '/presales',
-    requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
+    requireRole('prevendedor', 'administrador', 'gerente', 'transportista'),
     controller.getAll
 );
 
 router.get(
     '/presales/report',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.getReport
 );
 
 router.get(
     '/presales/report/pdf',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.getReportPdf
 );
 
 router.get(
     '/presales/report/excel',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.getReportExcel
 );
 
 router.get(
     '/presales/history/:id',
-    requireRole('administrador', 'propietario', 'prevendedor', 'transportista'),
+    requireRole('administrador', 'gerente', 'prevendedor', 'transportista'),
     controller.getHistory
 );
 
 router.get(
     '/presales/:id',
-    requireRole('prevendedor', 'administrador', 'propietario', 'transportista'),
+    requireRole('prevendedor', 'administrador', 'gerente', 'transportista'),
     controller.getById
 );
 
@@ -72,43 +72,43 @@ router.get(
 
 router.patch(
     '/presales/:id/assign',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.assign
 );
 
 router.patch(
     '/presales/:id/deliver',
-    requireRole('transportista', 'administrador', 'propietario'),
+    requireRole('transportista', 'administrador', 'gerente'),
     controller.confirmDelivery
 );
 
 router.patch(
     '/presales/:id/cancel',
-    requireRole('transportista', 'prevendedor', 'administrador', 'propietario'),
+    requireRole('transportista', 'prevendedor', 'administrador', 'gerente'),
     controller.cancel
 );
 
 router.patch(
     '/presales/:id/not-delivered',
-    requireRole('transportista', 'administrador', 'propietario'),
+    requireRole('transportista', 'administrador', 'gerente'),
     controller.notDelivered
 );
 
 router.patch(
     '/presales/:id/return',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.returnProducts
 );
 
 router.delete(
     '/presales/:id',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.delete
 );
 
 router.get(
     '/presales/:id/pdf',
-    requireRole('administrador', 'propietario'),
+    requireRole('administrador', 'gerente'),
     controller.generatePdf
 );
 export default router;

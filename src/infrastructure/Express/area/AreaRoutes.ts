@@ -11,35 +11,35 @@ const authService = AuthServiceContainer.authService();
 AreaRouter.post(
   "/areas",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.create
 );
 
 AreaRouter.get(
   "/areas",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.getAll
 );
 
 AreaRouter.get(
   "/areas/:id",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.findById
 );
 
 AreaRouter.patch(
   "/areas/:id",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.update
 );
 
 AreaRouter.delete(
   "/areas/:id",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.softDelete
 );
 

@@ -12,28 +12,28 @@ const authService = AuthServiceContainer.authService();
 RouteRouter.post(
   "/routes",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.create
 );
 
 RouteRouter.put(
   "/routes/:id",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.update
 );
 
 RouteRouter.get(
   "/routes/:id",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.findById
 );
 
 RouteRouter.get(
   "/routes",
   authJwt(authService),
-  requireRole("propietario", "administrador"),
+  requireRole("gerente", "administrador"),
   controller.getRoutes
 );
 
