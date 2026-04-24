@@ -11,10 +11,13 @@ import { PresaleRepository } from '../../domain/presale/PresaleRepository';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 
-const makeActivityRepo = (overrides: Partial<ActivityRepository> = {}): ActivityRepository => ({
+const makeActivityRepo = (
+  overrides: Partial<ActivityRepository> = {}
+): ActivityRepository => ({
   createActivity: jest.fn().mockResolvedValue(null),
   findById: jest.fn().mockResolvedValue(null),
   findActivityByDateAndUserId: jest.fn().mockResolvedValue(null),
+  updateActivity: jest.fn().mockResolvedValue(null),
   ...overrides,
 });
 
