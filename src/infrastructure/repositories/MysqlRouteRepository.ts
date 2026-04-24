@@ -78,5 +78,35 @@ export class MysqlRouteRepository implements RouteRepository {
     }
   }
 
+  async update(
+    id: number,
+    fields: Partial<Pick<Route, "assignedDate" | "assignedIdUser" | "assignedIdArea">>,
+    auditUserId: number | null
+  ): Promise<Route | null> {
+    try {
+      const toUpdate: Partial<RouteEntity> = { user_id: auditUserId ?? null };
+
+      if (fields.assignedDate !== undefined) {
+        toUpdate.assigned_date = fields.assignedDate;
+      }
+      if (fields.assignedIdUser !== undefined) {
+        toUpdate.assigned_id_user = fields.assignedIdUser;
+      }
+      if (fields.assignedIdArea !== undefined) {
+        toUpdate.assigned_id_area = fields.assignedIdArea;
+      }
+
+      await this.repo.update({ id }, toUpdate);
+      const updated = await this.repo.findOneBy({ id });
+      return updated ? this.toDomain(updated) : null;
+    } catch (error: any) {
+      console.log(error);
+      if (error?.code === "ER_DUP_ENTRY" || error?.errno === 1062) {
+        throw new Error("ROUTE_USER_DATE_DUPLICATE");
+      }
+      return null;
+    }
+  }
+
 
 }

@@ -57,4 +57,28 @@ export class MysqlActivityRepository implements ActivityRepository {
       return null;
     }
   }
+
+  async updateActivity(
+    id: number,
+    fields: { assignedDate?: string; responsibleUserId?: number },
+    userId: number | null
+  ): Promise<Activity | null> {
+    try {
+      const toUpdate: Partial<ActivityEntity> = { user_id: userId !== undefined ? userId : null };
+ 
+      if (fields.assignedDate !== undefined) {
+        toUpdate.assigned_date = fields.assignedDate as any;
+      }
+      if (fields.responsibleUserId !== undefined) {
+        toUpdate.responsible_user_id = fields.responsibleUserId;
+      }
+ 
+      await this.repo.update(id, toUpdate);
+      const updated = await this.repo.findOneBy({ id } as any);
+      return updated ? this.toDomain(updated) : null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 }

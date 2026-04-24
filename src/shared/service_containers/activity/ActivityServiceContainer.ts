@@ -9,6 +9,7 @@ import { GetBusinessesActivityForPreseller } from "../../../application/activity
 import { MysqlPresaleRepository } from "../../../infrastructure/repositories/MysqlPresaleRepository";
 import { GetBusinessesActivityForDistributor } from "../../../application/activity/GetBusinessesActivityForDistributor";
 import { GetActivityByDateAndUserId } from "../../../application/activity/GetActivityByDateAndUserId";
+import { UpdateActivity } from "../../../application/activity/UpdateActivity";
 
 const activityRepository = new MysqlActivityRepository();
 const activityDetailRepository = new MysqlActivityDetailRepository();
@@ -24,5 +25,6 @@ export const ActivityServiceContainer = {
     getBusinessesActivityForPreseller: new GetBusinessesActivityForPreseller(activityRepository, businessRepository, routeRepository),
     getBusinessesActivityForDistributor: new GetBusinessesActivityForDistributor(activityRepository, businessRepository, presaleRepository),
     getActivityByDateAndUserId: new GetActivityByDateAndUserId(activityRepository),
+    updateActivity: new UpdateActivity(activityRepository),
   },
 };

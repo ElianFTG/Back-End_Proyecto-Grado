@@ -33,21 +33,21 @@ ClientRouter.get(
 ClientRouter.get(
     "/clients/:id",
     authJwt(authService),
-    requireRole("propietario", "administrador"),
+    requireRole("gerente", "administrador"),
     controller.findById
 );
 
 ClientRouter.patch(
     "/clients/:id",
     authJwt(authService),
-    requireRole("propietario", "administrador"),
+    requireRole("gerente", "administrador"),
     controller.update
 );
 
 ClientRouter.delete(
     "/clients/:id",
     authJwt(authService),
-    requireRole("propietario", "administrador"),
+    requireRole("gerente", "administrador"),
     controller.softDelete
 );
 
