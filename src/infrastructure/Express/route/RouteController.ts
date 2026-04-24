@@ -13,12 +13,10 @@ function toResponse(route: Route) {
   };
 }
 
-// Normaliza cualquier valor de fecha (string ISO, Date, o "YYYY-MM-DD") a "YYYY-MM-DD"
 function toDateString(value: string | Date): string {
   if (value instanceof Date) {
     return value.toISOString().slice(0, 10);
   }
-  // Puede venir como "2026-04-25T00:00:00.000Z" desde TypeORM en runtime
   return String(value).slice(0, 10);
 }
 
