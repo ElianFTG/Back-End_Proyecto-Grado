@@ -31,6 +31,7 @@ const makeRouteRepo = (overrides: Partial<RouteRepository> = {}): RouteRepositor
   findById: jest.fn().mockResolvedValue(null),
   findAreaForRouteByUserAndDate: jest.fn().mockResolvedValue(null),
   getRoutes: jest.fn().mockResolvedValue([]),
+  update: jest.fn().mockResolvedValue(null),
   ...overrides,
 });
 
