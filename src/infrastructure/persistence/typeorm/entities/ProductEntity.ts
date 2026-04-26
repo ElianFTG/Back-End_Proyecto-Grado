@@ -20,7 +20,7 @@ export class ProductEntity {
     @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
     barcode!: string | null;
 
-    @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
+    @Column({ type: 'varchar', length: 50, nullable: true })
     internal_code!: string | null;
 
     @Column({ type: 'smallint', unsigned: true, nullable: true })
