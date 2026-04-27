@@ -22,7 +22,7 @@ export const UserServiceContainer = {
         findByCi: new FindByCiUser(UserRepository),
         update: new UpdateUser(UserRepository),
         updateState: new UpdateStateUser(UserRepository),
-        resetPassword: new ResetPasswordUser(UserRepository),
+        resetPassword: new ResetPasswordUser(UserRepository, EmailService),
         updatePassword: new UpdatePasswordUser(UserRepository),
         changeFirstLoginPassword: new ChangeFirstLoginPassword(UserRepository)
     }
