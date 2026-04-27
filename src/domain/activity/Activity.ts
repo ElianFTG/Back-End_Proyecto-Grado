@@ -7,7 +7,6 @@ export class Activity {
     assignedDate: Date,
     responsibleUserId: number,
     id?: number,
-    
   ) {
     this.id = id;
     this.responsibleUserId = responsibleUserId;
@@ -21,18 +20,21 @@ export class ActivityDetail {
   rejectionId: number | null;
   activityId: number;
   businessId: number;
+  createdAt?: Date | null;
 
   constructor(
     action: string,
     activityId: number,
     businessId: number,
     rejectionId: number | null,
-    id?: number,    
+    id?: number,
+    createdAt?: Date | null,
   ) {
     this.id = id;
     this.action = action;
     this.rejectionId = rejectionId;
     this.activityId = activityId;
     this.businessId = businessId;
+    this.createdAt = createdAt ?? null;
   }
 }
