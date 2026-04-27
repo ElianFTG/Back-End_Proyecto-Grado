@@ -8,9 +8,9 @@ import crypto from 'crypto';
 
 config();
 
-function generateUsername(lastName: string, secondLastName: string, ci: string): string {
-    const firstInitial = lastName.charAt(0).toUpperCase();
-    const secondInitial = secondLastName.charAt(0).toUpperCase();
+function generateUsername(name: string, lastName: string, ci: string): string {
+    const firstInitial = name.charAt(0).toUpperCase();
+    const secondInitial = lastName.charAt(0).toUpperCase();
     const ciClean = ci.replace(/[^a-zA-Z0-9]/g, '').trim();
     return `${firstInitial}${secondInitial}${ciClean}`;
 }
@@ -40,7 +40,7 @@ export class CreateUser {
             }
         }
 
-        let userName = generateUsername(lastName, secondLastName, ci);
+        let userName = generateUsername(names, lastName, ci);
         const tempPassword = crypto.randomBytes(3).toString('hex'); 
         
         const salt = await bcrypt.genSalt(Number(process.env.SALT));

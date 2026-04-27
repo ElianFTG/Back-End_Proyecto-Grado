@@ -148,6 +148,7 @@ export class MysqlUserRepository implements UserRepository {
         try {
             const patch: QueryDeepPartialEntity<UserEntity> = {
                 password: passwordHash,
+                is_first_login: true,
                 ...(userId !== undefined ? { user_id: userId } : {}),
             };
             const result = await this.repo.update({ id }, patch);
