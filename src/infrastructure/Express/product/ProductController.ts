@@ -5,6 +5,9 @@ import fs from "fs/promises";
 import { ProductServiceContainer } from "../../../shared/service_containers/product/ProductServiceContainer";
 import { Product } from "../../../domain/product/Product";
 
+const PROD_IMAGE_DIR_REL = process.env.PROD_IMAGE_DIR_REL || '';
+const PROD_IMAGE_PUBLIC_BASE = process.env.PROD_IMAGE_PUBLIC_BASE || '';
+
 export class ProductController {
     async getAll(req: Request, res: Response) {
         const filters: { categoryId?: number; brandId?: number; state?: boolean; page?: number; limit?: number; search?: string } = {};
@@ -68,9 +71,7 @@ export class ProductController {
         const file = (req as any).file as Express.Multer.File | undefined;
         if (file) {
             try {
-                const PROD_IMAGE_DIR_REL = "private/images/products";
                 const PROD_IMAGE_DIR_ABS = path.resolve(process.cwd(), PROD_IMAGE_DIR_REL);
-                const PROD_IMAGE_PUBLIC_BASE = "/images/products";
 
                 await fs.mkdir(PROD_IMAGE_DIR_ABS, { recursive: true });
 
@@ -148,9 +149,7 @@ export class ProductController {
         const file = (req as any).file as Express.Multer.File | undefined;
         if (file) {
             try {
-                const PROD_IMAGE_DIR_REL = "private/images/products";
                 const PROD_IMAGE_DIR_ABS = path.resolve(process.cwd(), PROD_IMAGE_DIR_REL);
-                const PROD_IMAGE_PUBLIC_BASE = "/images/products";
 
                 await fs.mkdir(PROD_IMAGE_DIR_ABS, { recursive: true });
 

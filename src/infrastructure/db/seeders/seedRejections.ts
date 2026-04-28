@@ -11,7 +11,7 @@ export async function seedRejections() {
   }
 
   const data = [
-    { name: "Ninguno" },
+    { name: "Sin mención" },
     { name: "Dueño Ausente" },
     { name: "Negocio cerrado" },
     { name: "Abastecido" },

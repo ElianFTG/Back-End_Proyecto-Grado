@@ -6,16 +6,13 @@ import path from "path";
 
 import { UserRouter } from "./infrastructure/Express/user/UserRoutes";
 import { AuthRouter } from "./infrastructure/Express/auth/AuthRoutes";
-import { CountryRouter } from "./infrastructure/Express/country/CountryRoutes";
 import { BranchRouter } from "./infrastructure/Express/branch/BranchRoutes";
-import { SupplierRouter } from "./infrastructure/Express/supplier/SupplierRoutes";
 import { CategoryRouter } from "./infrastructure/Express/category/CategoryRoutes";
 import { BrandRouter } from "./infrastructure/Express/brand/BrandRoutes";
 import { ProductRouter } from "./infrastructure/Express/product/ProductRoutes";
 import { PresentationRouter } from "./infrastructure/Express/presentation/PresentationRoutes";
 import { ColorRouter } from "./infrastructure/Express/color/ColorRoutes";
 import { ClientRouter } from "./infrastructure/Express/client/ClientRoutes";
-import { ClientTypeRouter } from "./infrastructure/Express/clientType/ClientTypeRoutes";
 import { PriceTypeRouter } from "./infrastructure/Express/priceType/PriceTypeRoutes";
 import { BusinessRouter } from "./infrastructure/Express/business/BusinessRoutes";
 import { BusinessTypeRouter } from "./infrastructure/Express/businessType/BusinessTypeRoutes";
@@ -26,7 +23,6 @@ import { ActivityRouter } from "./infrastructure/Express/activity/ActivityRoutes
 import PresaleRouter from "./infrastructure/Express/presale/PresaleRoutes";
 
 
-import { seedCountries } from "./infrastructure/db/seeders/CountrySeeder";
 import { seedPriceTypes } from "./infrastructure/db/seeders/PriceTypeSeeder";
 import { seedBusinessTypes } from "./infrastructure/db/seeders/BusinessTypeSeeder";
 import { seedRejections } from "./infrastructure/db/seeders/seedRejections";
@@ -40,13 +36,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   "/images",
-  express.static(path.resolve(process.cwd(), "private/images"))
+  express.static(path.resolve(process.cwd(), process.env.ORIGIN_IMAGES || ''))
 );
 
 AppDataSource.initialize()
   .then(async () => {
     console.log(new Date().toISOString())
-    await seedCountries();
     await seedPriceTypes();
     await seedBusinessTypes();
     await seedRejections();
@@ -60,8 +55,6 @@ AppDataSource.initialize()
 
 app.use(UserRouter);
 app.use(AuthRouter);
-app.use(CountryRouter);
-app.use(SupplierRouter);
 app.use(CategoryRouter);
 app.use(BranchRouter);
 app.use(BrandRouter);
@@ -71,7 +64,6 @@ app.use(ColorRouter);
 app.use(ClientRouter);
 app.use(PriceTypeRouter);
 app.use(BusinessTypeRouter);
-app.use(ClientTypeRouter);
 app.use(BusinessRouter);
 app.use(AreaRouter);
 app.use(RouteRouter);

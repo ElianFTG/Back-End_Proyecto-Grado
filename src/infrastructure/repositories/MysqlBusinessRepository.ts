@@ -233,6 +233,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
           "ad.id AS detail_id",
           "ad.action AS detail_action",
           "ad.rejection_id AS detail_rejection_id",
+          "ad.created_at AS detail_created_at",
         ])
         .getRawMany();
 
@@ -259,6 +260,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
             rejectionId: row.detail_rejection_id,
             activityId: activity?.id,
             businessId: row.business_id,
+            createdAt: row.detail_created_at ?? null,
           }
             : null,
         })),
@@ -295,6 +297,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
           "ad.id AS detail_id",
           "ad.action AS detail_action",
           "ad.rejection_id AS detail_rejection_id",
+          "ad.created_at AS detail_created_at",
         ])
         .getRawMany();
 
@@ -322,6 +325,7 @@ export class MysqlBusinessRepository implements BusinessRepository {
               rejectionId: row.detail_rejection_id,
               activityId: activity?.id,
               businessId: row.business_id,
+              createdAt: row.detail_created_at ?? null,
             }
             : null,
         })),

@@ -63,14 +63,14 @@ const makeAuthRecord = (overrides: any = {}) => ({
 
 describe('RolePermissions', () => {
   describe('canCreateRole', () => {
-    it('propietario puede crear administrador', () => {
-      expect(canCreateRole(ROLES.PROPIETARIO, ROLES.ADMINISTRADOR)).toBe(true);
+    it('gerente puede crear administrador', () => {
+      expect(canCreateRole(ROLES.GERENTE, ROLES.ADMINISTRADOR)).toBe(true);
     });
-    it('propietario puede crear prevendedor', () => {
-      expect(canCreateRole(ROLES.PROPIETARIO, ROLES.PREVENDEDOR)).toBe(true);
+    it('gerente puede crear prevendedor', () => {
+      expect(canCreateRole(ROLES.GERENTE, ROLES.PREVENDEDOR)).toBe(true);
     });
-    it('propietario puede crear transportista', () => {
-      expect(canCreateRole(ROLES.PROPIETARIO, ROLES.TRANSPORTISTA)).toBe(true);
+    it('gerente puede crear transportista', () => {
+      expect(canCreateRole(ROLES.GERENTE, ROLES.TRANSPORTISTA)).toBe(true);
     });
     it('administrador puede crear prevendedor', () => {
       expect(canCreateRole(ROLES.ADMINISTRADOR, ROLES.PREVENDEDOR)).toBe(true);
@@ -93,8 +93,8 @@ describe('RolePermissions', () => {
   });
 
   describe('canEditRole', () => {
-    it('propietario puede editar administrador', () => {
-      expect(canEditRole(ROLES.PROPIETARIO, ROLES.ADMINISTRADOR)).toBe(true);
+    it('gerente puede editar administrador', () => {
+      expect(canEditRole(ROLES.GERENTE, ROLES.ADMINISTRADOR)).toBe(true);
     });
     it('administrador puede editar prevendedor', () => {
       expect(canEditRole(ROLES.ADMINISTRADOR, ROLES.PREVENDEDOR)).toBe(true);
@@ -105,8 +105,8 @@ describe('RolePermissions', () => {
   });
 
   describe('canDeleteRole', () => {
-    it('propietario puede eliminar transportista', () => {
-      expect(canDeleteRole(ROLES.PROPIETARIO, ROLES.TRANSPORTISTA)).toBe(true);
+    it('gerente puede eliminar transportista', () => {
+      expect(canDeleteRole(ROLES.GERENTE, ROLES.TRANSPORTISTA)).toBe(true);
     });
     it('prevendedor NO puede eliminar nadie', () => {
       expect(canDeleteRole(ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA)).toBe(false);
@@ -114,8 +114,8 @@ describe('RolePermissions', () => {
   });
 
   describe('canManageUsers', () => {
-    it('propietario puede gestionar usuarios', () => {
-      expect(canManageUsers(ROLES.PROPIETARIO)).toBe(true);
+    it('gerente puede gestionar usuarios', () => {
+      expect(canManageUsers(ROLES.GERENTE)).toBe(true);
     });
     it('administrador puede gestionar usuarios', () => {
       expect(canManageUsers(ROLES.ADMINISTRADOR)).toBe(true);
@@ -129,8 +129,8 @@ describe('RolePermissions', () => {
   });
 
   describe('getCreatableRoles', () => {
-    it('propietario puede crear 3 roles', () => {
-      expect(getCreatableRoles(ROLES.PROPIETARIO)).toHaveLength(3);
+    it('gerente puede crear 3 roles', () => {
+      expect(getCreatableRoles(ROLES.GERENTE)).toHaveLength(3);
     });
     it('prevendedor no puede crear ningún rol', () => {
       expect(getCreatableRoles(ROLES.PREVENDEDOR)).toHaveLength(0);
@@ -244,7 +244,7 @@ describe('CreateUser', () => {
         .mockResolvedValueOnce(null),
     });
     const uc = new CreateUser(repo);
-    const result = await uc.run('123456', 'Juan', 'Perez', 'Lopez', 'prevendedor', 1, '', 1, 'propietario');
+    const result = await uc.run('123456', 'Juan', 'Perez', 'Lopez', 'prevendedor', 1, '', 1, 'gerente');
     expect(result).toEqual(newUser);
     expect(repo.findByUserName).toHaveBeenCalledTimes(2);
   });
@@ -302,11 +302,11 @@ describe('UpdateUser', () => {
     ).rejects.toThrow(InsufficientPermissionsError);
   });
 
-  it('propietario puede editar cualquier rol', async () => {
+  it('gerente puede editar cualquier rol', async () => {
     const updated = makeUser({ role: 'administrador' });
     const repo = makeRepo({ update: jest.fn().mockResolvedValue(updated) });
     const uc = new UpdateUser(repo);
-    const result = await uc.run(1, { role: 'administrador' }, 1, 'propietario', 'prevendedor');
+    const result = await uc.run(1, { role: 'administrador' }, 1, 'gerente', 'prevendedor');
     expect(result).toEqual(updated);
   });
 });
@@ -329,10 +329,10 @@ describe('UpdateStateUser', () => {
     ).rejects.toThrow(InsufficientPermissionsError);
   });
 
-  it('propietario puede eliminar cualquier rol', async () => {
+  it('gerente puede eliminar cualquier rol', async () => {
     const repo = makeRepo({ updateState: jest.fn().mockResolvedValue(undefined) });
     const uc = new UpdateStateUser(repo);
-    await uc.run(1, 10, 'propietario', 'administrador');
+    await uc.run(1, 10, 'gerente', 'administrador');
     expect(repo.updateState).toHaveBeenCalledTimes(1);
   });
 });

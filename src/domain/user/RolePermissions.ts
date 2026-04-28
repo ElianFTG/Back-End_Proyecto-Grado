@@ -1,6 +1,6 @@
 
 export const ROLES = {
-  PROPIETARIO: 'propietario',
+  GERENTE: 'gerente',
   ADMINISTRADOR: 'administrador',
   PREVENDEDOR: 'prevendedor',
   TRANSPORTISTA: 'transportista',
@@ -9,14 +9,14 @@ export const ROLES = {
 export type RoleType = typeof ROLES[keyof typeof ROLES];
 
 const CREATABLE_ROLES: Record<RoleType, RoleType[]> = {
-  [ROLES.PROPIETARIO]: [ROLES.ADMINISTRADOR, ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA],
+  [ROLES.GERENTE]: [ROLES.ADMINISTRADOR, ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA],
   [ROLES.ADMINISTRADOR]: [ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA],
   [ROLES.PREVENDEDOR]: [],
   [ROLES.TRANSPORTISTA]: [],
 };
 
 const MANAGEABLE_ROLES: Record<RoleType, RoleType[]> = {
-  [ROLES.PROPIETARIO]: [ROLES.ADMINISTRADOR, ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA],
+  [ROLES.GERENTE]: [ROLES.ADMINISTRADOR, ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA],
   [ROLES.ADMINISTRADOR]: [ROLES.PREVENDEDOR, ROLES.TRANSPORTISTA],
   [ROLES.PREVENDEDOR]: [],
   [ROLES.TRANSPORTISTA]: [],
@@ -41,7 +41,7 @@ export function canDeleteRole(actorRole: string, targetRole: string): boolean {
 
 
 export function canManageUsers(actorRole: string): boolean {
-  return actorRole === ROLES.PROPIETARIO || actorRole === ROLES.ADMINISTRADOR;
+  return actorRole === ROLES.GERENTE || actorRole === ROLES.ADMINISTRADOR;
 }
 
 

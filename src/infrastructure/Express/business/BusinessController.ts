@@ -7,8 +7,8 @@ import { Position } from "../../../domain/customs/Position";
 import { BusinessServiceContainer } from "../../../shared/service_containers/business/BusinessServiceContainer";
 
 
-const BUSINESS_IMAGE_DIR_ABS = path.resolve(process.cwd(), "private/images/business");
-const BUSINESS_PUBLIC_BASE = "/images/business";
+const BUSINESS_IMAGE_DIR_ABS = path.resolve(process.cwd(), process.env.BUSINESS_IMAGE_DIR_ABS || '');
+const BUSINESS_PUBLIC_BASE = process.env.BUSINESS_PUBLIC_BASE || '';
 
 function toResponse(b: Business) {
   return {
