@@ -32,9 +32,9 @@ export class ActivityEntity {
   @Column({ type: "date" })
   assigned_date!: Date;
 
-  @CreateDateColumn({ type: "timestamp" })
+  @CreateDateColumn({ type: "datetime" })
   created_at!: Date;
 
-  @UpdateDateColumn({ type: "timestamp" })
+  @UpdateDateColumn({ type: "datetime" })
   updated_at!: Date;
 }

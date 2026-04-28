@@ -17,7 +17,7 @@ export class ProductBranchEntity {
     @Column({ type: 'int', nullable: true })
     stock_qty!: number | null;
 
-    @UpdateDateColumn({ type: 'timestamp' })
+    @UpdateDateColumn({ type: 'datetime' })
     updated_at!: Date;
 
     @ManyToOne(() => ProductEntity, product => product.productBranches, { onDelete: 'CASCADE' })

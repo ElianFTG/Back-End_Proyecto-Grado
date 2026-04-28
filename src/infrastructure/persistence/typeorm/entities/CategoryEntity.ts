@@ -17,9 +17,9 @@ export class CategoryEntity {
     @Column({ type: 'smallint', unsigned: true })
     user_id!: number;
 
-    @CreateDateColumn({ type: 'timestamp' })
+    @CreateDateColumn({ type: 'datetime' })
     created_at!: Date;
 
-    @UpdateDateColumn({ type: 'timestamp' })
+    @UpdateDateColumn({ type: 'datetime' })
     updated_at!: Date;
 }

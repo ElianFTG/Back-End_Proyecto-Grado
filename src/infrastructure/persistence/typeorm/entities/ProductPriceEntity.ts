@@ -13,7 +13,7 @@ export class ProductPriceEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     price!: number;
 
-    @UpdateDateColumn({ type: 'timestamp' })
+    @UpdateDateColumn({ type: 'datetime' })
     updated_at!: Date;
 
     @ManyToOne(() => ProductEntity, product => product.prices, { onDelete: 'CASCADE' })

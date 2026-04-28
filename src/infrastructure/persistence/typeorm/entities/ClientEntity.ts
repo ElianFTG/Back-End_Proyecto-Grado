@@ -37,10 +37,10 @@ export class ClientEntity {
   @Column({ type: "smallint", nullable: true })
   user_id!: number | null;
 
-  @CreateDateColumn({ type: "timestamp" })
+  @CreateDateColumn({ type: "datetime" })
   created_at!: Date;
 
-  @UpdateDateColumn({ type: "timestamp" })
+  @UpdateDateColumn({ type: "datetime" })
   updated_at!: Date;
 
   @Column({ type: "boolean", default: true })

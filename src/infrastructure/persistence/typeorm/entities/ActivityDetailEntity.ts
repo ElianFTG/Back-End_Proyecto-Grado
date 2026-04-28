@@ -19,7 +19,7 @@ export class ActivityDetailEntity {
   @PrimaryGeneratedColumn({ type: "int", unsigned: true })
   id!: number;
 
-  @CreateDateColumn({ type: "timestamp" })
+  @CreateDateColumn({ type: "datetime" })
   created_at!: Date;
 
   @Column({
