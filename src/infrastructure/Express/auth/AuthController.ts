@@ -12,9 +12,11 @@ export class AuthController {
       if (!loginName || !password) {
         return res.status(400).json({ message: "userName y password son requeridos" });
       }
+      console.log(loginName, password)
 
       const result = await this.login.run(loginName, password);
 
+      console.log(result)
       if (!result) {
         return res.status(401).json({ message: "Credenciales inválidas" });
       }
