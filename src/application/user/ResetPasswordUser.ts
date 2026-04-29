@@ -9,7 +9,7 @@ config();
 export class ResetPasswordUser {
     constructor(
         private repository: UserRepository,
-        private emailService: EmailService
+        private emailService?: EmailService
     ) { }
 
     async run(id: number, userId?: number): Promise<boolean> {
