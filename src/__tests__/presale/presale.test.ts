@@ -42,6 +42,7 @@ const makeRepo = (overrides: Partial<PresaleRepository> = {}): PresaleRepository
   returnProducts: jest.fn().mockResolvedValue(null),
   findBusinessIdsByDistributorAndDate: jest.fn().mockResolvedValue([]),
   getReport: jest.fn().mockResolvedValue({ data: [], total: 0, page: 1, limit: 10, totalPages: 0 }),
+  getByDateBusinessAndUser: jest.fn().mockResolvedValue(null),
   ...overrides,
 });
 
