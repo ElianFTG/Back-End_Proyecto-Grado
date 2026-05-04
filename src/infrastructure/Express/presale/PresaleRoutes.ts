@@ -53,6 +53,12 @@ router.get(
 );
 
 router.get(
+    '/presales/by-date-business-user',
+    requireRole('prevendedor', 'administrador', 'gerente', 'transportista'),
+    controller.getByDateBusinessAndUser
+);
+
+router.get(
     '/presales/history/:id',
     requireRole('administrador', 'gerente', 'prevendedor', 'transportista'),
     controller.getHistory
@@ -111,4 +117,5 @@ router.get(
     requireRole('administrador', 'gerente'),
     controller.generatePdf
 );
+
 export default router;

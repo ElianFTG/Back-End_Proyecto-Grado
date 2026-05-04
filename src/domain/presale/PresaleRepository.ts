@@ -9,7 +9,8 @@ import {
     ReturnPresaleProductsDTO,
     ReturnPresaleProductsResult,
     PresaleReportFilters,
-    PresaleReportResult
+    PresaleReportResult,
+    GetPresalesByDateBusinessAndUserFilters
 } from './PresaleFilter';
 import { DistributorDeliveryItem } from './DistributorDelivery';
 
@@ -34,4 +35,5 @@ export interface PresaleRepository {
     returnProducts(id: number, dto: ReturnPresaleProductsDTO, userId: number): Promise<ReturnPresaleProductsResult>;
     findBusinessIdsByDistributorAndDate(distributorId: number, deliveryDate: string): Promise<number[]>;
     getReport(filters: PresaleReportFilters): Promise<PresaleReportResult>;
+    getByDateBusinessAndUser(filters: GetPresalesByDateBusinessAndUserFilters): Promise<Presale[]>;
 }

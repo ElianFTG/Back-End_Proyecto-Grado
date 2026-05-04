@@ -13,7 +13,8 @@ import {
     ReturnPresaleProductsDTO,
     ReturnPresaleProductsResult,
     PresaleReportFilters,
-    PresaleReportResult
+    PresaleReportResult,
+    GetPresalesByDateBusinessAndUserFilters
 } from '../../domain/presale/PresaleFilter';
 import { DistributorDeliveryItem } from '../../domain/presale/DistributorDelivery';
 import { AppDataSource } from '../db/Mysql';
@@ -601,10 +602,10 @@ export class MysqlPresaleRepository implements PresaleRepository {
         return this.getById(id);
     }
 
-     async getReport(filters: PresaleReportFilters): Promise<PresaleReportResult> {
+    async getReport(filters: PresaleReportFilters): Promise<PresaleReportResult> {
         const page = Math.max(1, filters.page ?? 1);
         const limit = Math.min(200, Math.max(1, filters.limit ?? 20));
- 
+
         const qb = this.presaleRepo
             .createQueryBuilder('p')
             .leftJoinAndSelect('p.client', 'client')
@@ -616,34 +617,34 @@ export class MysqlPresaleRepository implements PresaleRepository {
             .leftJoinAndSelect('details.product', 'product')
             .leftJoinAndSelect('details.priceType', 'priceType')
             .where('p.state = :state', { state: true });
- 
+
         if (filters.userId !== undefined) {
             qb.andWhere(
                 '(p.preseller_id = :userId OR p.distributor_id = :userId)',
                 { userId: filters.userId }
             );
         }
- 
+
         if (filters.dateFrom) {
             qb.andWhere('p.delivery_date >= :dateFrom', { dateFrom: `${filters.dateFrom} 00:00:00` });
         }
         if (filters.dateTo) {
             qb.andWhere('p.delivery_date <= :dateTo', { dateTo: `${filters.dateTo} 23:59:59` });
         }
- 
+
         const total = await qb.getCount();
- 
+
         qb.orderBy('p.preseller_id', 'ASC')
             .addOrderBy('p.distributor_id', 'ASC')
             .addOrderBy('p.delivery_date', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
- 
+
         const entities = await qb.getMany();
- 
+
         const data = entities.map(entity => {
             const presale = this.mapToDomain(entity);
- 
+
             // Mapear los detalles con la info del producto y tipo de precio
             const details: PresaleDetail[] = (entity.details ?? []).map(d => new PresaleDetail(
                 d.presale_id,
@@ -666,11 +667,11 @@ export class MysqlPresaleRepository implements PresaleRepository {
                 undefined,
                 d.priceType?.name
             ));
- 
+
             presale.details = details;
             return presale;
         });
- 
+
         return {
             data,
             total,
@@ -678,5 +679,66 @@ export class MysqlPresaleRepository implements PresaleRepository {
             limit,
             totalPages: Math.ceil(total / limit)
         };
+    }
+    async getByDateBusinessAndUser(filters: GetPresalesByDateBusinessAndUserFilters): Promise<Presale[]> {
+        const { deliveryDate, businessId, userId } = filters;
+
+        const qb = this.presaleRepo
+            .createQueryBuilder('p')
+            .leftJoinAndSelect('p.client', 'client')
+            .leftJoinAndSelect('p.business', 'business')
+            .leftJoinAndSelect('p.preseller', 'preseller')
+            .leftJoinAndSelect('p.distributor', 'distributor')
+            .leftJoinAndSelect('p.branch', 'branch')
+            .where('p.state = :state', { state: true })
+            .andWhere('DATE(p.delivery_date) = :deliveryDate', { deliveryDate })
+            .andWhere('p.business_id = :businessId', { businessId })
+            .andWhere(
+                new Brackets(qb => {
+                    qb.where('p.distributor_id = :userId', { userId })
+                        .orWhere('p.preseller_id = :userId', { userId });
+                })
+            )
+            .orderBy('p.delivery_date', 'DESC')
+            .addOrderBy('p.created_at', 'DESC');
+
+        const entities = await qb.getMany();
+
+        const presales = await Promise.all(
+            entities.map(async entity => {
+                const presale = this.mapToDomain(entity);
+                const details = await this.detailService.getDetailsByPresaleId(entity.id!);
+
+                return new Presale(
+                    presale.clientId,
+                    presale.branchId,
+                    presale.deliveryDate,
+                    presale.userId,
+                    presale.presellerId,
+                    presale.businessId,
+                    presale.distributorId,
+                    presale.status,
+                    presale.subtotal,
+                    presale.total,
+                    presale.notes,
+                    presale.deliveryNotes,
+                    presale.state,
+                    presale.id,
+                    presale.createdAt,
+                    presale.deliveredAt,
+                    presale.updatedAt,
+                    presale.clientName,
+                    presale.clientLastName,
+                    presale.clientPhone,
+                    presale.businessName,
+                    presale.presellerName,
+                    presale.distributorName,
+                    presale.branchName,
+                    details
+                );
+            })
+        );
+
+        return presales;
     }
 }

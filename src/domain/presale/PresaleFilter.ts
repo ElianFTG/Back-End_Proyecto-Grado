@@ -6,9 +6,9 @@ export interface PresaleFilters {
     distributorId?: number | undefined;
     clientId?: number | undefined;
     branchId?: number | undefined;
-    deliveryDate?: string | undefined;        
-    deliveryDateFrom?: string | undefined;    
-    deliveryDateTo?: string | undefined;      
+    deliveryDate?: string | undefined;
+    deliveryDateFrom?: string | undefined;
+    deliveryDateTo?: string | undefined;
     search?: string | undefined;
     page?: number | undefined;
     limit?: number | undefined;
@@ -29,7 +29,7 @@ export interface PresaleReportFilters {
     page?: number | undefined;
     limit?: number | undefined;
 }
- 
+
 export interface PresaleReportResult {
     data: Presale[];
     total: number;
@@ -88,7 +88,6 @@ export interface ConfirmDeliveryDTO {
     }[];
 }
 
-// ==================== DEVOLUCIÓN DE PRODUCTOS ====================
 
 export interface ReturnProductDetailDTO {
     detailId: number;
@@ -112,4 +111,11 @@ export interface ReturnPresaleProductsResult {
     status: string;
     returnedProducts: ReturnedProductItem[];
     notes: string | null;
+}
+
+
+export interface GetPresalesByDateBusinessAndUserFilters {
+    deliveryDate: string;
+    businessId: number;
+    userId: number;
 }

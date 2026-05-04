@@ -13,7 +13,8 @@ import {
     returnPresaleProducts,
     presaleRepository,
     markAsNotDelivered,
-    getPresaleReport
+    getPresaleReport,
+    getPresalesByDateBusinessAndUser
 } from '../../../shared/service_containers/presale/PresaleServiceContainer';
 import { ActivityServiceContainer } from '../../../shared/service_containers/activity/ActivityServiceContainer';
 import { PresaleStatus } from '../../../domain/presale/Presale';
@@ -416,7 +417,7 @@ export class PresaleController {
                 dateFrom: req.query.dateFrom as string | undefined,
                 dateTo: req.query.dateTo as string | undefined,
                 page: 1,
-                limit: 10000, 
+                limit: 10000,
             };
 
             const result = await getPresaleReport.run(filters);
@@ -459,6 +460,30 @@ export class PresaleController {
             res.send(buffer);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Error al generar Excel del reporte';
+            res.status(500).json({ error: message });
+        }
+    }
+    
+    async getByDateBusinessAndUser(req: Request, res: Response): Promise<void> {
+        try {
+            const { delivery_date, business_id, user_id } = req.query;
+
+            if (!delivery_date || !business_id || !user_id) {
+                res.status(400).json({
+                    error: 'Los parámetros delivery_date, business_id y user_id son requeridos'
+                });
+                return;
+            }
+
+            const presales = await getPresalesByDateBusinessAndUser.run({
+                deliveryDate: String(delivery_date),
+                businessId: Number(business_id),
+                userId: Number(user_id)
+            });
+
+            res.status(200).json(presales);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Error al obtener preventas';
             res.status(500).json({ error: message });
         }
     }
